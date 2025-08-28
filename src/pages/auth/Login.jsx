@@ -1,5 +1,5 @@
-import React from "react";
-import { Form, Select, Input as AntInput, Checkbox } from "antd";
+import React, { useState } from "react";
+import { Form, Select, Input as AntInput, Checkbox, message } from "antd";
 import {
   UserOutlined,
   MailOutlined,
@@ -15,6 +15,7 @@ import ButtonComponent from "../../components/ButtonComponent";
 import HeaderForm from "../../components/HeaderForm";
 import { useNavigate } from "react-router-dom";
 import { Footer } from "antd/es/layout/layout";
+import { authAPI } from "../../services/api";
 
 const { Option } = Select;
 const { TextArea } = AntInput;
@@ -22,10 +23,31 @@ const { TextArea } = AntInput;
 const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const onFinish = (values) => {
-    console.log("Data yang disubmit:", values);
-    // Logika untuk mengirim data ke API bisa ditambahkan di sini
+  const onFinish = async (values) => {
+    setLoading(true);
+    try {
+      // Gunakan identifier sebagai username untuk login
+      const loginData = {
+        username: values.identifier,
+        password: values.password
+      };
+      
+      const response = await authAPI.login(loginData);
+      
+      message.success('Login berhasil!');
+      console.log('User logged in:', response.user);
+      
+      // Redirect ke halaman home setelah login berhasil
+      navigate('/');
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      message.error(error.error || 'Username atau password salah');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,7 +57,7 @@ const Login = () => {
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900">
-              Daftar Akun Baru
+              Masuk Akun Konsituen
             </h2>
             <p className="mt-2 text-sm text-gray-600 mb-4">
               Bergabunglah dengan platform demokrasi digital
@@ -51,14 +73,14 @@ const Login = () => {
             autoComplete="off"
           >
             <InputComponents
-              label="Username atau Email"
+              label="Username"
               name="identifier"
-              placeholder="Masukkan username atau email"
+              placeholder="Masukkan username"
               prefix={
                 <UserOutlined className="site-form-item-icon mr-2 text-gray-400" />
               }
               rules={[
-                { required: true, message: "Username atau Email wajib diisi!" },
+                { required: true, message: "Username wajib diisi!" },
               ]}
             />
 
@@ -88,41 +110,29 @@ const Login = () => {
             <Form.Item>
               <ButtonComponent
                 type="submit"
-                className="bg-blue-800 text-white hover:bg-blue-900 focus:ring-blue-500 w-full flex justify-center items-center gap-2 px-4 py-3 rounded-md shadow-sm text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colorscursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                loading={loading}
+                disabled={loading}
+                className="bg-blue-800 text-white hover:bg-blue-900 focus:ring-blue-500 w-full flex justify-center items-center gap-2 px-4 py-3 rounded-md shadow-sm text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i class="fa-solid fa-right-to-bracket"></i>
-                Masuk
+                <LoginOutlined />
+                {loading ? 'Masuk...' : 'Masuk'}
               </ButtonComponent>
             </Form.Item>
 
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-300"></span>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">atau</span>
-              </div>
-            </div>
+            
 
             <Form.Item>
-              <ButtonComponent
-                type="button"
-                className="bg-white text-blue-800 border-2 border-blue-800 hover:bg-blue-50 focus:ring-blue-500 w-full flex justify-center items-center gap-2 px-4 py-3 rounded-md shadow-sm text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colorscursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <i class="fas fa-shield-alt mr-2"></i>
-                Masuk dengan OTP
-              </ButtonComponent>
             </Form.Item>
           </Form>
 
           <p className="mt-4 text-center text-sm tex    t-gray-600">
-            Sudah punya akun?{" "}
+            Belum punya akun?{" "}
             <ButtonComponent
               type="link"
               onClick={() => navigate("/register")}
               className="font-medium text-[#1e3a8a] hover:text-blue-500"
             >
-              Masuk di sini
+              Daftar di sini
             </ButtonComponent>
           </p>
         </div>

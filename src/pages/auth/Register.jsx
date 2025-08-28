@@ -1,5 +1,5 @@
-import React from "react";
-import { Form, Select, Input as AntInput } from "antd";
+import React, { useState } from "react";
+import { Form, Select, Input as AntInput, message } from "antd";
 import {
   UserOutlined,
   MailOutlined,
@@ -13,6 +13,7 @@ import ButtonComponent from "../../components/ButtonComponent";
 import HeaderForm from "../../components/HeaderForm";
 import { useNavigate } from "react-router-dom";
 import { Footer } from "antd/es/layout/layout";
+import { authAPI } from "../../services/api";
 
 const { Option } = Select;
 const { TextArea } = AntInput;
@@ -20,10 +21,28 @@ const { TextArea } = AntInput;
 const Register = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
-  const onFinish = (values) => {
-    console.log("Data yang disubmit:", values);
-    // Logika untuk mengirim data ke API bisa ditambahkan di sini
+  const onFinish = async (values) => {
+    setLoading(true);
+    try {
+      // Hapus confirmPassword dari data yang dikirim
+      const { confirmPassword, ...registerData } = values;
+      
+      const response = await authAPI.register(registerData);
+      
+      message.success('Registrasi berhasil! Silakan login.');
+      console.log('User registered:', response.user);
+      
+      // Redirect ke halaman login setelah registrasi berhasil
+      navigate('/login');
+      
+    } catch (error) {
+      console.error('Registration error:', error);
+      message.error(error.error || 'Terjadi kesalahan saat registrasi');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,14 +110,13 @@ const Register = () => {
               </label>
               <Form.Item
                 name="role"
+                initialValue="konsituen"
                 rules={[
-                  { required: true, message: "Silakan pilih peran Anda!" },
+                  { required: true, message: "Peran wajib diisi!" },
                 ]}
               >
-                <Select id="role" placeholder="Pilih peran Anda" size="large">
-                  <Option value="admin">Admin</Option>
-                  <Option value="user">User</Option>
-                  <Option value="guest">Guest</Option>
+                <Select id="role" placeholder="Konsituen" size="large" disabled>
+                  <Option value="konsituen">Konsituen</Option>
                 </Select>
               </Form.Item>
             </div>
@@ -156,10 +174,12 @@ const Register = () => {
             <Form.Item className="mt-6">
               <ButtonComponent
                 type="submit"
-                className="bg-orange-500 text-white hover:bg-orange-600 focus:ring-orange-500 w-full flex justify-center items-center gap-2 px-4 py-3 rounded-md shadow-sm text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colorscursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                loading={loading}
+                disabled={loading}
+                className="bg-orange-500 text-white hover:bg-orange-600 focus:ring-orange-500 w-full flex justify-center items-center gap-2 px-4 py-3 rounded-md shadow-sm text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <UserAddOutlined />
-                Daftar Sekarang
+                {loading ? 'Mendaftar...' : 'Daftar Sekarang'}
               </ButtonComponent>
             </Form.Item>
           </Form>

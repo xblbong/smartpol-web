@@ -23,6 +23,11 @@ body {
   font-family: "Figtree", sans-serif;
 }
 
+.container {
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
 
 .figtree {
   font-family: "Figtree", sans-serif;

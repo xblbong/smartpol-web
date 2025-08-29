@@ -7,7 +7,6 @@ import {
   IdcardOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-// PERUBAHAN DI SINI: Menggunakan ../../ untuk path yang benar
 import InputComponents from "../../components/InputComponents";
 import ButtonComponent from "../../components/ButtonComponent";
 import HeaderForm from "../../components/HeaderForm";
@@ -26,8 +25,7 @@ const Register = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      // Hapus confirmPassword dari data yang dikirim
-      const { confirmPassword, ...registerData } = values;
+      const { ...registerData } = values;
       
       const response = await authAPI.register(registerData);
       

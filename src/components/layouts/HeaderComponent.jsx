@@ -18,8 +18,8 @@ const HeaderHomeComponent = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div class="rounded-full p-4" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
-              <i class="fas fa-map-marked-alt text-4xl text-white"></i>
+            <div className="rounded-full p-4" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
+              <i className="fas fa-map-marked-alt text-4xl text-white"></i>
             </div>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6">

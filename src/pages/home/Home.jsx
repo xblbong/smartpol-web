@@ -1,6 +1,9 @@
 import { useState } from "react";
 import HeaderHomeComponent from "../../components/layouts/HeaderComponent";
 import NavbarComponent from "../../components/layouts/NavbarComponent";
+import MapSectionComponent from "../../components/MapSectionComponent";
+import CategoryDistributionChart from "../../components/CategoryDistributionChart";
+import FooterComponent from "../../components/layouts/FooterComponent";
 
 const Home = () => {
   const stats = [
@@ -82,13 +85,35 @@ const Home = () => {
     // onFilterChange(categoryKey);
   };
 
+  // about section
+  const features = [
+    {
+      icon: "fas fa-map-marked-alt",
+      title: "Visualisasi Geografis",
+      description:
+        "Menampilkan aspirasi masyarakat dalam bentuk peta interaktif untuk memudahkan analisis spasial",
+    },
+    {
+      icon: "fas fa-filter",
+      title: "Filter Kategori",
+      description:
+        "Memfilter aspirasi berdasarkan kategori seperti infrastruktur, pendidikan, kesehatan, dan lainnya",
+    },
+    {
+      icon: "fas fa-chart-bar",
+      title: "Analisis Data",
+      description:
+        "Menyediakan statistik dan analisis mendalam tentang pola aspirasi masyarakat per wilayah",
+    },
+  ];
+
   return (
     <>
       <HeaderHomeComponent />
       <NavbarComponent />
 
-      <section id="statistik" className="container mb-16">
-        <div className="text-center pt-12 mb-12">
+      <section id="statistik" className="mb-16">
+        <div className="container text-center pt-12 mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
             <i className="fas fa-chart-pie text-blue-600 mr-3"></i>
             Statistik Aspirasi Masyarakat
@@ -98,7 +123,7 @@ const Home = () => {
             Malang
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
             <div
               key={index}
@@ -122,8 +147,8 @@ const Home = () => {
         </div>
       </section>
 
-      <section id="kategori" className="container mb-8">
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+      <section id="kategori" className="mb-8">
+        <div className="container bg-white rounded-2xl p-6 shadow-lg">
           <h3 className="text-xl font-bold text-gray-800 mb-4">
             <i className="fas fa-filter text-blue-600 mr-3"></i>
             Filter Kategori Aspirasi
@@ -156,7 +181,42 @@ const Home = () => {
         </div>
       </section>
 
-      
+      <MapSectionComponent />
+      <CategoryDistributionChart />
+
+      <section id="tentang" className="mb-16">
+        <div
+          className="container bg-gradient-to-r from-blue-600 to-blue-800  rounded-2xl p-8 text-white"
+          data-aos="fade-up"
+        >
+          <div className="text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-6">
+              <i className="fas fa-info-circle mr-3"></i>
+              Tentang Peta Aspirasi Interaktif
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="text-center"
+                  data-aos="fade-up"
+                  data-aos-delay={index * 150}
+                >
+                  <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
+                    <i className={`${feature.icon} text-2xl`}></i>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-blue-100">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <FooterComponent />
     </>
   );
 };

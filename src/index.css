@@ -24,9 +24,27 @@ body {
 }
 
 .container {
-  max-width: 1250px;
+  position: relative;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+
+}
+
+@media (max-width: 992px) {
+  .container {
+    max-width: 900px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* HP */
+@media (max-width: 576px) {
+  .container {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 .figtree {
@@ -34,7 +52,7 @@ body {
   font-optical-sizing: auto;
 }
 
-.inter{
+.inter {
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
 }
@@ -45,9 +63,11 @@ body {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }

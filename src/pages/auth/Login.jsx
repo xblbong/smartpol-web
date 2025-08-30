@@ -114,7 +114,7 @@ const Login = () => {
                 disabled={loading}
                 className="bg-blue-800 text-white hover:bg-blue-900 focus:ring-blue-500 w-full flex justify-center items-center gap-2 px-4 py-3 rounded-md shadow-sm text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i class="fa-solid fa-right-to-bracket"></i>
+                <i className="fa-solid fa-right-to-bracket"></i>
                 {loading ? 'Masuk...' : 'Masuk'}
               </ButtonComponent>
             </Form.Item>
@@ -137,6 +137,7 @@ const Login = () => {
           </p>
         </div>
       </div>
+      
       {/* Footer */}
       <Footer className="text-center bg-none text-xs text-gray-500">
           © 2024 SMARTPOL UB. Platform berbasis AI untuk transparansi demokrasi.

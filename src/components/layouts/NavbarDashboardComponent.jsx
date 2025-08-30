@@ -298,7 +298,7 @@ export function NavbarDashboardComponent() {
               <span className="font-medium">Beranda</span>
             </ButtonComponent>
             <ButtonComponent
-              href="wakil-rakyat"
+              onClick={() => Navigate("/profil-wakil-rakyat")}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
               <i class="fas fa-user text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>

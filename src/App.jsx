@@ -5,6 +5,7 @@ import NotFound from "./pages/NotFound"
 import Login from "./pages/auth/Login"
 import Dashboard from "./pages/Dashboard"
 import ProfilWakilRakyat from "./pages/ProfilWakilRakyat"
+import KotakAspirasi from "./pages/KotakAspirasi"
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profil-wakil-rakyat" element={<ProfilWakilRakyat />} />
+      <Route path="/kotak-aspirasi" element={<KotakAspirasi />} />
       <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

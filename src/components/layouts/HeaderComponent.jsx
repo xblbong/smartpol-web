@@ -1,18 +1,18 @@
 import ButtonComponent from "../ButtonComponent";
 
-const HeaderHomeComponent = () => {
+const HeaderHomeComponent = ({ image, title, description }) => {
   return (
     <header className="gradient-bg text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-black opacity-20"></div>
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: `url('/images/kota-malang.jpg')`,
+          backgroundImage: `url(${image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           filter: "blur(0.2px) brightness(0.7)",
           transform: "scale(1.1)",
-            zIndex: -1,
+          zIndex: -1,
         }}
       ></div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -23,11 +23,10 @@ const HeaderHomeComponent = () => {
             </div>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Web GIS Kota Malang
+            {title}
           </h1>
           <p className="text-lg md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-            Sistem Informasi Geografis untuk Data KPU, Pemetaan Wilayah, dan
-            Analisis Pemilu Kota Malang
+            {description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <ButtonComponent
@@ -52,5 +51,6 @@ const HeaderHomeComponent = () => {
     </header>
   );
 };
+
 
 export default HeaderHomeComponent;

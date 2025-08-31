@@ -109,7 +109,12 @@ const Home = () => {
 
   return (
     <>
-      <HeaderHomeComponent />
+      <HeaderHomeComponent
+        image="/images/kota-malang.jpg"
+        title="Web GIS Kota Malang"
+        description="Sistem Informasi Geografis untuk Data KPU, Pemetaan Wilayah, dan Analisis Pemilu Kota Malang"
+      />
+      
       <NavbarComponent />
 
       <section id="statistik" className="mb-16">
@@ -202,7 +207,10 @@ const Home = () => {
                   data-aos="fade-up"
                   data-aos-delay={index * 150}
                 >
-                  <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
+                  <div
+                    className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"
+                    style={{ background: "rgba(255, 255, 255, 0.2)" }}
+                  >
                     <i className={`${feature.icon} text-2xl`}></i>
                   </div>
                   <h3 className="text-xl font-semibold mb-2">

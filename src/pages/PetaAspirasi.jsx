@@ -110,7 +110,6 @@ function PetaAspirasi() {
 
   return (
     <>
-      <NavbarDashboardComponent />
       <HeaderHomeComponent
         image="/images/kota-malang.jpg"
         title="Peta Aspirasi Interaktif"

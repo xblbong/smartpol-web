@@ -9,6 +9,7 @@ import KotakAspirasi from "./pages/KotakAspirasi"
 import ForumDiskusi from "./pages/forum/ForumDiskusi"
 import PetaAspirasi from "./pages/PetaAspirasi"
 import LiveStreaming from "./pages/LiveStreaming"
+import TransparansiKebijakan from "./pages/TransparansiKebijakan/TransparansiKebijakan"
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
       <Route path="/forum-diskusi" element={<ForumDiskusi />} />
       <Route path="/peta-aspirasi" element={<PetaAspirasi />} />
       <Route path="/live-streaming" element={<LiveStreaming />} />
+      <Route path="/transparansi-kebijakan" element={<TransparansiKebijakan />} />
       <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

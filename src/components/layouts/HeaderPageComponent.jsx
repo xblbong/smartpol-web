@@ -9,7 +9,7 @@ export default function HeaderPageComponent(props) {
       >
         <h2 className="font-bold text-xl sm:text-2xl text-white leading-tight flex items-center">
           <i
-            className={`${props.iconClass || "fas fa-users"} mr-3 opacity-80`}
+            className={`${props.className || "fas fa-file-alt"} mr-3 opacity-80`}
           ></i>
           {props.title || "Daftar Wakil Rakyat"}
         </h2>
@@ -17,7 +17,7 @@ export default function HeaderPageComponent(props) {
         {props.showManageProfile && (
           <a
             href={props.manageProfileLink || "/wakil-rakyat/profile"}
-            className="bg-[#f97316] hover:bg-[#ea580c] hover:text- text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all duration-300 flex items-center whitespace-nowrap"
+            className="bg-[#f97316] hover:bg-[#ea580c] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all duration-300 flex items-center whitespace-nowrap"
           >
             <i
               className={`${props.manageProfileIcon || "fas fa-user-cog"} mr-2`}

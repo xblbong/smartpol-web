@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import ButtonComponent from "../ButtonComponent";
 import { useNavigate } from "react-router-dom";
-
-
 
 export default function NavbarComponent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,72 +26,72 @@ export default function NavbarComponent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex-shrink-0">
-            <ButtonComponent href="/" className="flex items-center space-x-2">
+            <a href="/" className="flex items-center space-x-2">
               <img
                 src="https://static.readdy.ai/image/4554a88b1bd23a4b3c8a3f81efcb924d/f39293d6dabaa3c62e79193546be7fd7.png"
                 alt="SMARTPOL UB Logo"
                 className="h-12 w-auto cursor-pointer"
               />
-            </ButtonComponent>
+            </a>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-8">
-            <ButtonComponent
+            <a
               href="#peta"
               className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
             >
               Peta
-            </ButtonComponent>
-            <ButtonComponent
+            </a>
+            <a
               href="#statistik"
               className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
             >
               Statistik
-            </ButtonComponent>
-            <ButtonComponent
+            </a>
+            <a
               href="#kategori"
               className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
             >
               Kategori
-            </ButtonComponent>
-            <ButtonComponent
+            </a>
+            <a
               href="#tentang"
               className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
             >
               Tentang
-            </ButtonComponent>
+            </a>
           </div>
 
           {/* Auth Buttons for Desktop */}
           <div className="hidden md:flex items-center space-x-3">
             {isAuthenticated ? (
               <>
-                <ButtonComponent
+                <a
                   onClick={() => navigate("/dashboard")}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
                 >
                   <i className="fas fa-home mr-2"></i>
                   Dashboard
-                </ButtonComponent>
-                <ButtonComponent
+                </a>
+                <a
                   onClick={handleLoginToggle}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
                 >
                   <i className="fa-solid fa-right-from-bracket mr-2"></i>
                   Logout
-                </ButtonComponent>
+                </a>
               </>
             ) : (
               <>
-                <ButtonComponent
+                <a
                   onClick={() => navigate("/register")}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center"
                 >
                   <i className="fa-solid fa-user-plus mr-2"></i>
                   Register
-                </ButtonComponent>
-                <ButtonComponent
+                </a>
+                <a
                   onClick={() => {
                     navigate("/login");
                   }}
@@ -102,14 +99,14 @@ export default function NavbarComponent() {
                 >
                   <i className="fa-solid fa-right-to-bracket mr-2"></i>
                   Login
-                </ButtonComponent>
+                </a>
               </>
             )}
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <ButtonComponent
+            <a
               id="mobile-menu-button"
               className="text-gray-800 hover:text-blue-600 focus:outline-none"
               onClick={toggleMobileMenu}
@@ -120,7 +117,7 @@ export default function NavbarComponent() {
                   isMobileMenuOpen ? "fa-times" : "fa-bars"
                 } text-2xl`}
               ></i>
-            </ButtonComponent>
+            </a>
           </div>
         </div>
 
@@ -129,47 +126,47 @@ export default function NavbarComponent() {
           id="mobile-menu"
           className={`${isMobileMenuOpen ? "block" : "hidden"} md:hidden pb-4`}
         >
-          <ButtonComponent
+          <a
             href="#peta"
             className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded"
             onClick={toggleMobileMenu}
           >
             Peta
-          </ButtonComponent>
-          <ButtonComponent
+          </a>
+          <a
             href="#statistik"
             className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded"
             onClick={toggleMobileMenu}
           >
             Statistik
-          </ButtonComponent>
-          <ButtonComponent
+          </a>
+          <a
             href="#kategori"
             className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded"
             onClick={toggleMobileMenu}
           >
             Kategori
-          </ButtonComponent>
-          <ButtonComponent
+          </a>
+          <a
             href="#tentang"
             className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded"
             onClick={toggleMobileMenu}
           >
             Tentang
-          </ButtonComponent>
+          </a>
 
           <div className="border-t border-gray-200 mt-4 pt-4">
             <div className="flex flex-col space-y-3">
               {isAuthenticated ? (
                 <>
-                  <ButtonComponent
+                  <a
                     onClick={() => navigate("/dashboard")}
                     className="bg-orange-500 hover:bg-orange-600 text-white w-full text-center px-4 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center"
                   >
                     <i className="fas fa-home mr-2"></i>
                     Dashboard
-                  </ButtonComponent>
-                  <ButtonComponent
+                  </a>
+                  <a
                     onClick={() => {
                       handleLoginToggle();
                       toggleMobileMenu();
@@ -178,26 +175,26 @@ export default function NavbarComponent() {
                   >
                     <i className="fa-solid fa-right-from-bracket mr-2"></i>
                     Logout
-                  </ButtonComponent>
+                  </a>
                 </>
               ) : (
                 <>
-                  <ButtonComponent
+                  <a
                     onClick={() => navigate("/register")}
                     className="bg-blue-600 hover:bg-blue-700 text-white w-full text-center px-6 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center"
                   >
                     <i className="fa-solid fa-user-plus mr-2"></i>
                     Register
-                  </ButtonComponent>
-                  <ButtonComponent
+                  </a>
+                  <a
                     onClick={() => {
-                    navigate("/login");
-                  }}
+                      navigate("/login");
+                    }}
                     className="bg-orange-500 hover:bg-orange-600 text-white w-full text-center px-6 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center"
                   >
                     <i className="fa-solid fa-right-to-bracket mr-2"></i>
                     Login
-                  </ButtonComponent>
+                  </a>
                 </>
               )}
             </div>
@@ -207,7 +204,6 @@ export default function NavbarComponent() {
     </nav>
   );
 }
-
 
 // export function NavbarDashboardComponent() {
 //   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

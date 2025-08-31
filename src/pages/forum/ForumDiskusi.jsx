@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import FooterComponent from "../../components/layouts/FooterComponent";
 import { NavbarDashboardComponent } from "../../components/layouts/NavbarDashboardComponent";
 import HeaderPageComponent from "../../components/layouts/HeaderPageComponent";
-import { faL } from "@fortawesome/free-solid-svg-icons";
+import FilterComponent from "../../components/FilterComponent";
+import PaginationComponent from "../../components/PaginationComponent";
 
 const dummyForums = [
   {
@@ -27,7 +28,7 @@ const dummyForums = [
     judul: "Peran Pemuda dalam Pembangunan Politik Berkelanjutan",
     deskripsi:
       "Materi edukasi interaktif yang membahas pentingnya keterlibatan pemuda dalam merumuskan dan melaksanakan kebijakan politik yang berpihak pada keberlanjutan lingkungan dan sosial.",
-    jenis: "materi_edukasi",
+    jenis: "materi edukasi",
     status: "selesai",
     tanggal_mulai: "2023-10-15T10:00:00Z",
     narasumber: "Budi Santoso, S.Sos",
@@ -43,7 +44,7 @@ const dummyForums = [
     judul: "Reformasi Birokrasi dan Pelayanan Publik di Era Disrupsi",
     deskripsi:
       "Diskusi publik tentang tantangan dan inovasi dalam reformasi birokrasi untuk meningkatkan efisiensi dan kualitas pelayanan publik di tengah perubahan yang cepat.",
-    jenis: "diskusi_publik",
+    jenis: "diskusi publik",
     status: "berlangsung",
     tanggal_mulai: "2023-11-10T09:00:00Z",
     narasumber: "Prof. Dr. Siti Aminah",
@@ -93,9 +94,9 @@ const getBadgeClass = (type, value) => {
     switch (value) {
       case "webinar":
         return "bg-purple-100 text-purple-800";
-      case "diskusi_publik":
+      case "diskusi publik":
         return "bg-yellow-100 text-yellow-800";
-      case "materi_edukasi":
+      case "materi edukasi":
         return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -133,7 +134,7 @@ const ForumCard = ({ forum, authUser, onRegister, onEdit, onDelete }) => {
             className={`fas fa-${
               forum.jenis === "webinar"
                 ? "video"
-                : forum.jenis === "diskusi_publik"
+                : forum.jenis === "diskusi publik"
                 ? "comments"
                 : "graduation-cap"
             } text-5xl text-white`}
@@ -265,128 +266,6 @@ const ForumCard = ({ forum, authUser, onRegister, onEdit, onDelete }) => {
   );
 };
 
-// Komponen Form Filter
-const ForumFilterForm = ({
-  filters,
-  onFilterChange,
-  onResetFilters,
-  authUser,
-}) => {
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    onFilterChange({ ...filters, [name]: value });
-  };
-
-  const hasActiveFilters = Object.values(filters).some(
-    (value) => value !== "" && value !== null
-  );
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Logika submit filter, karena state sudah diupdate
-    // Jika ingin melakukan fetch data di sini, panggil fungsi fetch
-  };
-
-  return (
-    <div className="bg-white overflow-hidden shadow-md rounded-xl mb-8">
-      <div className="p-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">
-          Cari Forum Sesuai Minat Anda
-        </h3>
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end"
-        >
-          <div className="sm:col-span-2 md:col-span-3 lg:col-span-1">
-            <label htmlFor="search" className="sr-only">
-              Cari Forum
-            </label>
-            <input
-              type="text"
-              id="search"
-              name="search"
-              value={filters.search}
-              onChange={handleChange}
-              placeholder="Cari forum diskusi..."
-              className="w-full rounded-lg border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]"
-            />
-          </div>
-          <div>
-            <label htmlFor="jenis" className="sr-only">
-              Jenis
-            </label>
-            <select
-              id="jenis"
-              name="jenis"
-              value={filters.jenis}
-              onChange={handleChange}
-              className="w-full rounded-lg border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]"
-            >
-              <option value="">Semua Jenis</option>
-              <option value="webinar">Webinar</option>
-              <option value="diskusi_publik">Diskusi Publik</option>
-              <option value="materi_edukasi">Materi Edukasi</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="status" className="sr-only">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={filters.status}
-              onChange={handleChange}
-              className="w-full rounded-lg border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]"
-            >
-              <option value="">Semua Status</option>
-              <option value="terjadwal">Terjadwal</option>
-              <option value="berlangsung">Berlangsung</option>
-              <option value="selesai">Selesai</option>
-            </select>
-          </div>
-          {authUser && (
-            <div>
-              <label htmlFor="creator" className="sr-only">
-                Pembuat
-              </label>
-              <select
-                id="creator"
-                name="creator"
-                value={filters.creator}
-                onChange={handleChange}
-                className="w-full rounded-lg border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]"
-              >
-                <option value="">Semua Forum</option>
-                <option value="mine">Forum Saya</option>
-              </select>
-            </div>
-          )}
-          <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
-            <button
-              type="submit"
-              className="w-full bg-[#1e3a8a] hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition duration-300 flex items-center justify-center"
-            >
-              <i className="fas fa-search mr-2"></i>
-              <span>Filter</span>
-            </button>
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={onResetFilters}
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-300 flex items-center justify-center"
-              >
-                <i className="fas fa-times mr-2"></i>
-                <span>Reset</span>
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
 // Komponen Navigasi
 const QuickNavs = () => {
   const quickNavsData = [
@@ -438,103 +317,69 @@ const QuickNavs = () => {
   );
 };
 
-// Komponen Paginasi
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  const pages = [...Array(totalPages).keys()].map((i) => i + 1);
-
-  return (
-    <nav className="flex justify-center items-center space-x-2 mt-8">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="px-3 py-1 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Previous
-      </button>
-      {pages.map((page) => (
-        <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`px-3 py-1 rounded-lg ${
-            currentPage === page
-              ? "bg-[#1e3a8a] text-white"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          {page}
-        </button>
-      ))}
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="px-3 py-1 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Next
-      </button>
-    </nav>
-  );
-};
-
 // Komponen Utama Forum Diskusi
 function ForumDiskusi() {
   const [forumDiskusi, setForumDiskusi] = useState([]);
-  const [filters, setFilters] = useState({
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  const authUser = mockAuthUser;
+
+  // Default filter
+  const defaultFilters = {
     search: "",
     jenis: "",
     status: "",
     creator: "",
-  });
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // Jumlah forum per halaman
+  };
 
-  const authUser = mockAuthUser;
+  const [filterState, setFilterState] = useState(defaultFilters);
 
+  // Ambil forum setiap kali filterState berubah
   useEffect(() => {
-    // Simulasi fetching data dengan filter
     const fetchForums = () => {
       let filteredForums = dummyForums;
 
-      if (filters.search) {
+      if (filterState.search) {
         filteredForums = filteredForums.filter(
           (forum) =>
-            forum.judul.toLowerCase().includes(filters.search.toLowerCase()) ||
-            forum.deskripsi.toLowerCase().includes(filters.search.toLowerCase())
+            forum.judul
+              .toLowerCase()
+              .includes(filterState.search.toLowerCase()) ||
+            forum.deskripsi
+              .toLowerCase()
+              .includes(filterState.search.toLowerCase())
         );
       }
-      if (filters.jenis) {
+      if (filterState.jenis) {
         filteredForums = filteredForums.filter(
-          (forum) => forum.jenis === filters.jenis
+          (forum) => forum.jenis === filterState.jenis
         );
       }
-      if (filters.status) {
+      if (filterState.status) {
         filteredForums = filteredForums.filter(
-          (forum) => forum.status === filters.status
+          (forum) => forum.status === filterState.status
         );
       }
-      if (authUser && filters.creator === "mine") {
+      if (authUser && filterState.creator === "mine") {
         filteredForums = filteredForums.filter(
           (forum) => forum.created_by === authUser.id
         );
       }
 
       setForumDiskusi(filteredForums);
-      setCurrentPage(1); // Reset halaman ke 1 setiap kali filter berubah
+      setCurrentPage(1);
     };
 
     fetchForums();
-  }, [filters, authUser]);
+  }, [filterState, authUser]);
 
   const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
+    setFilterState(newFilters);
   };
 
   const handleResetFilters = () => {
-    setFilters({
-      search: "",
-      jenis: "",
-      status: "",
-      creator: "",
-    });
+    setFilterState(defaultFilters);
   };
 
   const handleRegister = (forumId) => {
@@ -542,7 +387,6 @@ function ForumDiskusi() {
       alert("Anda harus login untuk mendaftar forum.");
       return;
     }
-    // Implementasi logika pendaftaran (misalnya, update state atau panggil API)
     setForumDiskusi((prevForums) =>
       prevForums.map((forum) =>
         forum.id === forumId
@@ -570,7 +414,7 @@ function ForumDiskusi() {
     }
   };
 
-  // Logika Paginasi
+  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentForums = forumDiskusi.slice(indexOfFirstItem, indexOfLastItem);
@@ -581,12 +425,50 @@ function ForumDiskusi() {
     setCurrentPage(pageNumber);
   };
 
+  // Konfigurasi field untuk FilterComponent
+  const filterFields = [
+    {
+      name: "search",
+      type: "text",
+      placeholder: "Cari forum diskusi...",
+      colSpan: "sm:col-span-2 md:col-span-3 lg:col-span-1",
+    },
+    {
+      name: "jenis",
+      type: "select",
+      options: [
+        { value: "", label: "Semua Jenis" },
+        { value: "webinar", label: "Webinar" },
+        { value: "diskusi publik", label: "Diskusi Publik" },
+        { value: "materi edukasi", label: "Materi Edukasi" },
+      ],
+    },
+    {
+      name: "status",
+      type: "select",
+      options: [
+        { value: "", label: "Semua Status" },
+        { value: "terjadwal", label: "Terjadwal" },
+        { value: "berlangsung", label: "Berlangsung" },
+        { value: "selesai", label: "Selesai" },
+      ],
+    },
+    {
+      name: "creator",
+      type: "select",
+      options: [
+        { value: "", label: "Semua Forum" },
+        { value: "mine", label: "Forum Saya" },
+      ],
+    },
+  ];
+
   return (
     <>
       <NavbarDashboardComponent />
       <HeaderPageComponent
         title="Forum Diskusi & Pendidikan Politik"
-        iconClassclassName="fas fa-users"
+        iconClass="fas fa-users" // <-- typo diperbaiki
         showManageProfile={false}
         manageProfileText="Kelola Profil Saya"
       />
@@ -605,17 +487,18 @@ function ForumDiskusi() {
           </p>
         </div>
 
-        <ForumFilterForm
-          filters={filters}
-          onFilterChange={handleFilterChange}
+        <FilterComponent
+          title="Cari Forum Sesuai Minat Anda"
+          filters={filterState}
+          onFilterChange={setFilterState}
           onResetFilters={handleResetFilters}
-          authUser={authUser}
+          fields={filterFields}
         />
 
         {authUser && (
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 justify-start mb-6">
             <a
-              href="/forum-diskusi/create" // Ganti dengan route React yang sesuai
+              href="/forum-diskusi/create"
               className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center"
             >
               <i className="fas fa-plus mr-2"></i>
@@ -623,13 +506,13 @@ function ForumDiskusi() {
             </a>
             <button
               onClick={() =>
-                handleFilterChange({
-                  ...filters,
-                  creator: filters.creator === "mine" ? "" : "mine",
+                setFilterState({
+                  ...filterState,
+                  creator: filterState.creator === "mine" ? "" : "mine",
                 })
               }
               className={`w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center ${
-                filters.creator === "mine" ? "ring-2 ring-green-300" : ""
+                filterState.creator === "mine" ? "ring-2 ring-green-300" : ""
               }`}
             >
               <i className="fas fa-user mr-2"></i>
@@ -638,7 +521,7 @@ function ForumDiskusi() {
           </div>
         )}
 
-        {authUser && filters.creator === "mine" && (
+        {authUser && filterState.creator === "mine" && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
             <div className="flex items-start">
               <div className="flex-shrink-0">
@@ -680,10 +563,12 @@ function ForumDiskusi() {
                   />
                 ))}
               </div>
-              <Pagination
+              <PaginationComponent
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
+                activeClass="bg-blue-600 text-white"
+                inactiveClass="bg-gray-100 text-gray-700 hover:bg-gray-200"
               />
             </>
           ) : (
@@ -698,7 +583,7 @@ function ForumDiskusi() {
               </p>
               {authUser && (
                 <a
-                  href="/forum-diskusi/create" // Ganti dengan route React yang sesuai
+                  href="/forum-diskusi/create"
                   className="inline-block bg-[#1e3a8a] hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg transition duration-300"
                 >
                   <i className="fas fa-plus mr-2"></i>Buat Forum Pertama

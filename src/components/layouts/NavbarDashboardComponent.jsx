@@ -197,7 +197,7 @@ export function NavbarDashboardComponent() {
                   className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-2 transition-all duration-200"
                 >
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-600 rounded-full flex items-center justify-center">
-                    <i class="fas fa-user text-white text-sm"></i>
+                    <i className="fas fa-user text-white text-sm"></i>
                   </div>
                   <div className="hidden md:flex items-center">
                     <span className="text-gray-700 font-medium capitalize">
@@ -207,7 +207,7 @@ export function NavbarDashboardComponent() {
                       {Auth.user.role?.display_name ?? "User"}
                     </span>
                   </div>
-                  <i class="fas fa-chevron-down text-gray-500 text-xs ml-1"></i>
+                  <i className="fas fa-chevron-down text-gray-500 text-xs ml-1"></i>
                 </ButtonComponent>
 
                 <div
@@ -221,14 +221,14 @@ export function NavbarDashboardComponent() {
                     onClick={() => Navigate(route("pengaturan-profil"))}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    <i class="fas fa-user-cog"></i>
+                    <i className="fas fa-user-cog"></i>
                     <span>Pengaturan Profil</span>
                   </ButtonComponent>
                   <ButtonComponent
                     onClick={() => Navigate(route("verify.identity"))}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    <i class="fas fa-shield-alt text-blue-600"></i>
+                    <i className="fas fa-shield-alt text-blue-600"></i>
                     <span>Verifikasi Identitas</span>
                     {!Auth.user.isFullyVerified() && (
                       <span className="ml-auto bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">
@@ -240,7 +240,7 @@ export function NavbarDashboardComponent() {
                     onClick={() => Navigate(route("notifikasi"))}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    <i class="fas fa-bell"></i>
+                    <i className="fas fa-bell"></i>
                     <span>Notifikasi</span>
                   </ButtonComponent>
                   <div className="border-t border-gray-100 my-1"></div>
@@ -249,7 +249,7 @@ export function NavbarDashboardComponent() {
                       type="submit"
                       className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 text-left"
                     >
-                      <i class="fas fa-sign-out-alt"></i>
+                      <i className="fas fa-sign-out-alt"></i>
                       <span>Keluar</span>
                     </ButtonComponent>
                   </form>
@@ -261,7 +261,7 @@ export function NavbarDashboardComponent() {
               className="lg:hidden text-gray-700 w-10 h-10 flex items-center justify-center cursor-pointer rounded-lg hover:bg-gray-100 transition-colors"
               onClick={toggleSidebar}
             >
-              <i class="fas fa-bars text-2xl"></i>
+              <i className="fas fa-bars text-2xl"></i>
             </ButtonComponent>
           </div>
         </div>
@@ -284,7 +284,7 @@ export function NavbarDashboardComponent() {
             className="text-gray-600 w-8 h-8 flex items-center justify-center cursor-pointer rounded-lg hover:bg-gray-100"
             onClick={toggleSidebar}
           >
-            <i class="fas fa-times text-xl"></i>
+            <i className="fas fa-times text-xl"></i>
           </ButtonComponent>
         </div>
 
@@ -294,56 +294,56 @@ export function NavbarDashboardComponent() {
               onClick={() => Navigate(route("dashboard"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
-              <i class="fas fa-home text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
+              <i className="fas fa-home text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Beranda</span>
             </ButtonComponent>
             <ButtonComponent
               onClick={() => Navigate("/profil-wakil-rakyat")}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
-              <i class="fas fa-user text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
+              <i className="fas fa-user text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Profil Wakil Rakyat</span>
             </ButtonComponent>
             <ButtonComponent
               onClick={() => Navigate(route("forum-diskusi"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
-              <i class="fas fa-comments text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
+              <i className="fas fa-comments text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Forum Diskusi</span>
             </ButtonComponent>
             <ButtonComponent
               onClick={() => Navigate(route("kotak-aspirasi"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
-              <i class="fas fa-envelope text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
+              <i className="fas fa-envelope text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Kotak Aspirasi</span>
             </ButtonComponent>
             <ButtonComponent
               onClick={() => Navigate(route("transparansi-kebijakan"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
-              <i class="fas fa-file-alt text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
+              <i className="fas fa-file-alt text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Transparansi Kebijakan</span>
             </ButtonComponent>
             <ButtonComponent
               onClick={() => Navigate(route("peta-aspirasi"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
-              <i class="fas fa-map text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
+              <i className="fas fa-map text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Peta Aspirasi</span>
             </ButtonComponent>
             <ButtonComponent
               onClick={() => Navigate(route("survei-polling"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
-              <i class="fas fa-poll text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
+              <i className="fas fa-poll text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Survei & Polling</span>
             </ButtonComponent>
             <ButtonComponent
               onClick={() => Navigate(route("live-streaming"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
-              <i class="fas fa-video text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
+              <i className="fas fa-video text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Live Streaming</span>
             </ButtonComponent>
           </div>

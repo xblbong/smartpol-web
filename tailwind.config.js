@@ -9,8 +9,12 @@ export default {
     'border-blue-500', 'border-green-500', 'border-orange-500', 'border-purple-500', 'border-red-500', 'border-yellow-500',
     'bg-blue-100', 'bg-green-100', 'bg-orange-100', 'bg-purple-100', 'bg-red-100', 'bg-yellow-100',
     'text-blue-600', 'text-green-600', 'text-orange-600', 'text-purple-600', 'text-red-600', 'text-yellow-600',
-    // Additional color variations
-    'border-gray-500', 'bg-gray-100', 'text-gray-600'
+    // Additional color variations for Transparansi Kebijakan page
+    'bg-pink-100', 'text-pink-800', 'bg-sky-100', 'text-sky-800', 'bg-amber-100', 'text-amber-800',
+    'border-gray-500', 'bg-gray-100', 'text-gray-600', 'text-blue-500', 'text-blue-800', 'text-yellow-800',
+    // Background and text variations
+    'bg-blue-600', 'bg-blue-700', 'bg-blue-800', 'bg-blue-900', 'bg-green-600', 'bg-green-700',
+    'hover:bg-blue-700', 'hover:bg-blue-900', 'hover:bg-green-700', 'hover:shadow-xl'
   ],
   theme: {
     extend: {

@@ -239,7 +239,7 @@ function ProfilWakilRakyat() {
                             <ul className="space-y-3 text-sm text-gray-600 mb-6 pl-2">
                               {wakil.wakilRakyatProfile.partai && (
                                 <li className="flex items-center gap-2">
-                                  <i class="fa-solid fa-map-pin"></i>
+                                  <i className="fa-solid fa-map-pin"></i>
                                   <span className="font-semibold text-gray-800">
                                     {wakil.wakilRakyatProfile.partai}
                                   </span>

@@ -4,7 +4,6 @@ import { NavbarDashboardComponent } from "../components/layouts/NavbarDashboardC
 import FooterComponent from "../components/layouts/FooterComponent";
 import { useNavigate } from "react-router-dom";
 import ButtonComponent from "../components/ButtonComponent";
-import PaginationComponent from "../components/PaginationComponent";
 
 function LiveStreaming() {
   // Mengganti nama variabel dummy menjadi yang akan digunakan

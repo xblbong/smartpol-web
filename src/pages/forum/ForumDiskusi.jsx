@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import FooterComponent from "../../components/layouts/FooterComponent";
 import { NavbarDashboardComponent } from "../../components/layouts/NavbarDashboardComponent";
 import HeaderPageComponent from "../../components/layouts/HeaderPageComponent";
 import FilterComponent from "../../components/FilterComponent";
 import PaginationComponent from "../../components/PaginationComponent";
+import QuickNavs from "../../components/QuickNavs";
+import ForumCard from "../../components/ForumCard";
 
 const dummyForums = [
   {
@@ -77,245 +79,6 @@ const mockAuthUser = {
   name: "John Doe",
 };
 
-// Helper function untuk mendapatkan badge class
-const getBadgeClass = (type, value) => {
-  if (type === "status") {
-    switch (value) {
-      case "terjadwal":
-        return "bg-blue-100 text-blue-800";
-      case "berlangsung":
-        return "bg-green-100 text-green-800";
-      case "selesai":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  } else if (type === "jenis") {
-    switch (value) {
-      case "webinar":
-        return "bg-purple-100 text-purple-800";
-      case "diskusi publik":
-        return "bg-yellow-100 text-yellow-800";
-      case "materi edukasi":
-        return "bg-orange-100 text-orange-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  }
-  return "";
-};
-
-// Komponen Card Forum
-const ForumCard = ({ forum, authUser, onRegister, onEdit, onDelete }) => {
-  const isCreator = authUser && forum.created_by === authUser.id;
-  const isRegistered = authUser && forum.isRegistered;
-  const hasAvailableSlots =
-    forum.kapasitas_peserta === null ||
-    forum.jumlah_peserta < forum.kapasitas_peserta;
-  const canRegister =
-    authUser &&
-    !isCreator &&
-    !isRegistered &&
-    hasAvailableSlots &&
-    ["terjadwal", "berlangsung"].includes(forum.status);
-
-  const forumDate = forum.tanggal_mulai ? new Date(forum.tanggal_mulai) : null;
-
-  return (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col">
-      {forum.thumbnail ? (
-        <div
-          className="h-48 bg-cover bg-center rounded-t-xl"
-          style={{ backgroundImage: `url('${forum.thumbnail}')` }}
-        ></div>
-      ) : (
-        <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center rounded-t-xl">
-          <i
-            className={`fas fa-${
-              forum.jenis === "webinar"
-                ? "video"
-                : forum.jenis === "diskusi publik"
-                ? "comments"
-                : "graduation-cap"
-            } text-5xl text-white`}
-          ></i>
-        </div>
-      )}
-
-      <div className="p-6 flex flex-col flex-grow">
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          <span
-            className={`flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full ${getBadgeClass(
-              "status",
-              forum.status
-            )}`}
-          >
-            <i className="fas fa-circle text-xs"></i>
-            {forum.status.charAt(0).toUpperCase() + forum.status.slice(1)}
-          </span>
-          <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full ${getBadgeClass(
-              "jenis",
-              forum.jenis
-            )}`}
-          >
-            {forum.jenis.replace("_", " ").charAt(0).toUpperCase() +
-              forum.jenis.slice(1)}
-          </span>
-          {isCreator && (
-            <span className="flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-              <i className="fas fa-user"></i>
-              <span>Forum Saya</span>
-            </span>
-          )}
-        </div>
-
-        <h3 className="capitalize text-lg font-semibold text-gray-900 mb-2 line-clamp-2 h-14">
-          {forum.judul}
-        </h3>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">
-          {forum.deskripsi}
-        </p>
-
-        <div className="space-y-2 text-sm text-gray-600 mb-4">
-          {forumDate && (
-            <div className="flex items-center">
-              <i className="fas fa-calendar w-4 mr-2 text-center text-gray-400"></i>
-              <span>
-                {forumDate.toLocaleDateString("id-ID", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })}
-                ,{" "}
-                {forumDate.toLocaleTimeString("id-ID", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
-          )}
-          {forum.narasumber && (
-            <div className="flex items-center">
-              <i className="fas fa-user-tie w-4 mr-2 text-center text-gray-400"></i>
-              <span>{forum.narasumber}</span>
-            </div>
-          )}
-          {forum.kapasitas_peserta && (
-            <div className="flex items-center">
-              <i className="fas fa-users w-4 mr-2 text-center text-gray-400"></i>
-              <span>
-                {forum.jumlah_peserta}/{forum.kapasitas_peserta} peserta
-              </span>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-auto border-t border-gray-200 pt-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center space-x-2">
-              {authUser && (
-                <>
-                  {isCreator ? (
-                    <>
-                      <button
-                        onClick={() => onEdit(forum.id)}
-                        className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg text-xs transition duration-300 flex items-center"
-                      >
-                        <i className="fas fa-edit mr-1"></i>Edit
-                      </button>
-                      <button
-                        onClick={() => onDelete(forum.id)}
-                        className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-2 rounded-lg text-xs transition duration-300 flex items-center"
-                      >
-                        <i className="fas fa-trash mr-1"></i>Hapus
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      {isRegistered ? (
-                        <span className="text-green-600 text-sm font-medium flex items-center">
-                          <i className="fas fa-check-circle mr-1"></i>Terdaftar
-                        </span>
-                      ) : (
-                        canRegister && (
-                          <button
-                            onClick={() => onRegister(forum.id)}
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium transition duration-300 flex items-center"
-                          >
-                            <i className="fas fa-plus-circle mr-1"></i>Daftar
-                          </button>
-                        )
-                      )}
-                    </>
-                  )}
-                </>
-              )}
-            </div>
-            <a
-              href={`/forum-diskusi/${forum.id}`}
-              className="w-full sm:w-auto bg-[#1e3a8a] hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm transition duration-300 flex items-center justify-center"
-            >
-              <span>Lihat Detail</span>
-              <i className="fas fa-arrow-right ml-2"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Komponen Navigasi
-const QuickNavs = () => {
-  const quickNavsData = [
-    {
-      route: "/forum-diskusi/webinar",
-      gradient: "from-indigo-500 to-purple-600",
-      icon: "fa-video",
-      title: "Webinar",
-      desc: "Seminar online interaktif",
-    },
-    {
-      route: "/forum-diskusi/diskusi-publik",
-      gradient: "from-emerald-500 to-teal-600",
-      icon: "fa-comments",
-      title: "Diskusi Publik",
-      desc: "Forum diskusi terbuka",
-    },
-    {
-      route: "/forum-diskusi/materi-edukasi",
-      gradient: "from-amber-500 to-orange-600",
-      icon: "fa-graduation-cap",
-      title: "Materi Edukasi",
-      desc: "Video & infografis politik",
-    },
-  ];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      {quickNavsData.map((nav, index) => (
-        <a key={index} href={nav.route} className="group block relative">
-          <div className="relative bg-gradient-to-br transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-xl rounded-xl p-6 text-white overflow-hidden">
-            <div
-              className={`absolute right-4 text-8xl text-white opacity-20 transform rotate-[-15deg]`}
-            >
-              <i className={`fas ${nav.icon}`}></i>
-            </div>
-            <div className="relative z-10">
-              <h3 className="text-2xl font-bold">{nav.title}</h3>
-              <p className="text-sm opacity-90 mt-1">{nav.desc}</p>
-              <div className="flex items-center text-sm font-semibold mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span>Lihat Selengkapnya</span>
-                <i className="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
-              </div>
-            </div>
-          </div>
-        </a>
-      ))}
-    </div>
-  );
-};
 
 // Komponen Utama Forum Diskusi
 function ForumDiskusi() {
@@ -463,6 +226,33 @@ function ForumDiskusi() {
     },
   ];
 
+  //Quick navs data
+  const quickNavsData = [
+    {
+      route: "/forum-diskusi/webinar",
+      fromColor: "indigo-500",
+      toColor: "purple-600",
+      icon: "fa-video",
+      title: "Webinar",
+      desc: "Seminar online interaktif",
+    },
+    {
+      route: "/forum-diskusi/diskusi-publik",
+      fromColor: "emerald-500",
+      toColor: "teal-600",
+      icon: "fa-comments",
+      title: "Diskusi Publik",
+      desc: "Forum diskusi terbuka",
+    },
+    {
+      route: "/forum-diskusi/materi-edukasi",
+      fromColor: "amber-500",
+      toColor: "orange-600",
+      icon: "fa-graduation-cap",
+      title: "Materi Edukasi",
+      desc: "Video & infografis politik",
+    },
+  ];
   return (
     <>
       <NavbarDashboardComponent />
@@ -543,7 +333,7 @@ function ForumDiskusi() {
           </div>
         )}
 
-        <QuickNavs />
+        <QuickNavs items={quickNavsData} moreText="Jelajahi" />
 
         <div className="mt-10">
           <h3 className="text-2xl font-bold text-gray-800 mb-6">

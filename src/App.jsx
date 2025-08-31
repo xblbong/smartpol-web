@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard"
 import ProfilWakilRakyat from "./pages/ProfilWakilRakyat"
 import KotakAspirasi from "./pages/KotakAspirasi"
 import ForumDiskusi from "./pages/forum/ForumDiskusi"
+import PetaAspirasi from "./pages/PetaAspirasi"
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
       <Route path="/profil-wakil-rakyat" element={<ProfilWakilRakyat />} />
       <Route path="/kotak-aspirasi" element={<KotakAspirasi />} />
       <Route path="/forum-diskusi" element={<ForumDiskusi />} />
+      <Route path="/peta-aspirasi" element={<PetaAspirasi />} />
       <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

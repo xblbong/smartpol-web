@@ -102,7 +102,7 @@ export function NavbarDashboardComponent() {
       <div className="px-4 lg:px-14">
         <div className="container mx-auto flex items-center justify-between h-20">
           <ButtonComponent
-            onClick={() => Navigate("/dashboard")}
+            onClick={() => Navigate(route("dashboard"))}
             className="flex-shrink-0"
           >
             <img
@@ -115,7 +115,7 @@ export function NavbarDashboardComponent() {
           <div className="flex items-center space-x-4 md:space-x-6">
             <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium">
               <ButtonComponent
-                onClick={() => Navigate("/dashboard")}
+                onClick={() => Navigate(route("dashboard"))}
                 className="text-gray-700 hover:text-[#1e3a8a] transition-colors"
               >
                 Beranda
@@ -127,7 +127,7 @@ export function NavbarDashboardComponent() {
                 Profil Wakil Rakyat
               </ButtonComponent>
               <ButtonComponent
-                onClick={() => Navigate("/kotak-aspirasi")}
+                onClick={() => Navigate(route("kotak-aspirasi"))}
                 className="text-gray-700 hover:text-[#1e3a8a] transition-colors"
               >
                 Kotak Aspirasi
@@ -151,35 +151,35 @@ export function NavbarDashboardComponent() {
                   }`}
                 >
                   <ButtonComponent
-                    onClick={() => Navigate("/forum-diskusi")}
+                    onClick={() => Navigate(route("forum-diskusi"))}
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a]"
                   >
                     <i className="fas fa-comments text-xl text-gray-400 group-hover:text-[#1e3a8a]"></i>
                     <span>Forum Diskusi</span>
                   </ButtonComponent>
                   <ButtonComponent
-                    onClick={() => Navigate("transparansi-kebijakan")}
+                    onClick={() => Navigate(route("transparansi-kebijakan"))}
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a]"
                   >
                     <i className="fas fa-file-alt w-5 text-center text-gray-400"></i>
                     <span>Transparansi Kebijakan</span>
                   </ButtonComponent>
                   <ButtonComponent
-                    onClick={() => Navigate("peta-aspirasi")}
+                    onClick={() => Navigate(route("peta-aspirasi"))}
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a]"
                   >
                     <i className="fas fa-map w-5 text-center text-gray-400"></i>
                     <span>Peta Aspirasi</span>
                   </ButtonComponent>
                   <ButtonComponent
-                    onClick={() => Navigate("survei-polling")}
+                    onClick={() => Navigate(route("survei-polling"))}
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a]"
                   >
                     <i className="fas fa-poll w-5 text-center text-gray-400"></i>
                     <span>Survei & Polling</span>
                   </ButtonComponent>
                   <ButtonComponent
-                    onClick={() => Navigate("live-streaming")}
+                    onClick={() => Navigate(route("live-streaming"))}
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a]"
                   >
                     <i className="fas fa-video w-5 text-center text-gray-400"></i>
@@ -218,14 +218,14 @@ export function NavbarDashboardComponent() {
                   }`}
                 >
                   <ButtonComponent
-                    onClick={() => Navigate("/pengaturan-profil")}
+                    onClick={() => Navigate(route("pengaturan-profil"))}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
                     <i class="fas fa-user-cog"></i>
                     <span>Pengaturan Profil</span>
                   </ButtonComponent>
                   <ButtonComponent
-                    onClick={() => Navigate("verify.identity")}
+                    onClick={() => Navigate(route("verify.identity"))}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
                     <i class="fas fa-shield-alt text-blue-600"></i>
@@ -237,7 +237,7 @@ export function NavbarDashboardComponent() {
                     )}
                   </ButtonComponent>
                   <ButtonComponent
-                    onClick={() => Navigate("/notifikasi")}
+                    onClick={() => Navigate(route("notifikasi"))}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
                     <i class="fas fa-bell"></i>
@@ -291,7 +291,7 @@ export function NavbarDashboardComponent() {
         <nav className="p-4">
           <div className="space-y-2">
             <ButtonComponent
-              onClick={() => Navigate("/dashboard")}
+              onClick={() => Navigate(route("dashboard"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
               <i class="fas fa-home text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
@@ -305,42 +305,42 @@ export function NavbarDashboardComponent() {
               <span className="font-medium">Profil Wakil Rakyat</span>
             </ButtonComponent>
             <ButtonComponent
-              onClick={() => Navigate("forum-diskusi")}
+              onClick={() => Navigate(route("forum-diskusi"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
               <i class="fas fa-comments text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Forum Diskusi</span>
             </ButtonComponent>
             <ButtonComponent
-              onClick={() => Navigate("/kotak-aspirasi")}
+              onClick={() => Navigate(route("kotak-aspirasi"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
               <i class="fas fa-envelope text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Kotak Aspirasi</span>
             </ButtonComponent>
             <ButtonComponent
-              onClick={() => Navigate("transparansi-kebijakan")}
+              onClick={() => Navigate(route("transparansi-kebijakan"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
               <i class="fas fa-file-alt text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Transparansi Kebijakan</span>
             </ButtonComponent>
             <ButtonComponent
-              onClick={() => Navigate("peta-aspirasi")}
+              onClick={() => Navigate(route("peta-aspirasi"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
               <i class="fas fa-map text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Peta Aspirasi</span>
             </ButtonComponent>
             <ButtonComponent
-              onClick={() => Navigate("survei-polling")}
+              onClick={() => Navigate(route("survei-polling"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
               <i class="fas fa-poll text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>
               <span className="font-medium">Survei & Polling</span>
             </ButtonComponent>
             <ButtonComponent
-              onClick={() => Navigate("live-streaming")}
+              onClick={() => Navigate(route("live-streaming"))}
               className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 hover:text-[#1e3a8a] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group"
             >
               <i class="fas fa-video text-xl text-gray-500 group-hover:text-[#1e3a8a]"></i>

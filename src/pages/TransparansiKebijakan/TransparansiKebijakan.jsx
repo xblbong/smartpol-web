@@ -123,13 +123,15 @@ function TransparansiKebijakan() {
 
   // Pagination for currentKebijakan
   const totalPolicyPages = Math.ceil(currentKebijakan.length / itemsPerPage);
-  const currentPolicies = currentKebijakan.slice(indexOfFirstItem, indexOfLastItem);
+  const currentPolicies = currentKebijakan.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const handlePolicyPageChange = (pageNumber) => {
     if (pageNumber < 1 || pageNumber > totalPolicyPages) return;
     setCurrentPage(pageNumber);
   };
-
 
   return (
     <>
@@ -153,7 +155,10 @@ function TransparansiKebijakan() {
               sederhana.
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-              <div className="rounded-xl p-3 sm:p-4 backdrop-filter backdrop-blur-sm" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+              <div
+                className="rounded-xl p-3 sm:p-4 backdrop-filter backdrop-blur-sm"
+                style={{ background: "rgba(255, 255, 255, 0.2)" }}
+              >
                 <div className="text-xl sm:text-2xl font-bold">
                   {currentStats.total}
                 </div>
@@ -161,19 +166,28 @@ function TransparansiKebijakan() {
                   Total Kebijakan
                 </div>
               </div>
-              <div className="rounded-xl p-3 sm:p-4 backdrop-filter backdrop-blur-sm" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+              <div
+                className="rounded-xl p-3 sm:p-4 backdrop-filter backdrop-blur-sm"
+                style={{ background: "rgba(255, 255, 255, 0.2)" }}
+              >
                 <div className="text-xl sm:text-2xl font-bold">
                   {currentStats.ruu}
                 </div>
                 <div className="text-xs sm:text-sm opacity-90">RUU Aktif</div>
               </div>
-              <div className="rounded-xl p-3 sm:p-4 backdrop-filter backdrop-blur-sm" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+              <div
+                className="rounded-xl p-3 sm:p-4 backdrop-filter backdrop-blur-sm"
+                style={{ background: "rgba(255, 255, 255, 0.2)" }}
+              >
                 <div className="text-xl sm:text-2xl font-bold">
                   {currentStats.disahkan}
                 </div>
                 <div className="text-xs sm:text-sm opacity-90">Disahkan</div>
               </div>
-              <div className="rounded-xl p-3 sm:p-4 backdrop-filter backdrop-blur-sm" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+              <div
+                className="rounded-xl p-3 sm:p-4 backdrop-filter backdrop-blur-sm"
+                style={{ background: "rgba(255, 255, 255, 0.2)" }}
+              >
                 <div className="text-xl sm:text-2xl font-bold">
                   {currentStats.pembahasan}
                 </div>
@@ -216,15 +230,9 @@ function TransparansiKebijakan() {
             <h3 className="text-xl font-bold text-gray-800 mb-5">
               Filter Kebijakan
             </h3>
-            <Form
-              layout="vertical"
-              onFinish={handleFilter}
-            >
+            <Form layout="vertical" onFinish={handleFilter}>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                <Form.Item
-                  name="search"
-                  className="lg:col-span-2 " 
-                >
+                <Form.Item name="search" className="lg:col-span-2 ">
                   <Input
                     placeholder="Cari kebijakan, RUU, atau topik..."
                     className="h-10"
@@ -238,7 +246,11 @@ function TransparansiKebijakan() {
                   </Select>
                 </Form.Item>
                 <Form.Item name="status" className="">
-                  <Select placeholder="Semua Status" allowClear className="h-10">
+                  <Select
+                    placeholder="Semua Status"
+                    allowClear
+                    className="h-10"
+                  >
                     <Select.Option value="diajukan">Diajukan</Select.Option>
                     <Select.Option value="dalam-pembahasan">
                       Dalam Pembahasan
@@ -261,12 +273,12 @@ function TransparansiKebijakan() {
                       Kementerian Pendidikan
                     </Select.Option>
                   </Select>
-                  
                 </Form.Item>
-                 <ButtonComponent
+                <ButtonComponent
                   type="submit"
                   className="w-full h-10 sm:w-auto px-8 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-300 ease-in-out"
                 >
+                  <i class="fas fa-search mr-2"></i>
                   Cari
                 </ButtonComponent>
               </div>
@@ -282,9 +294,62 @@ function TransparansiKebijakan() {
                     </Checkbox>
                   </Form.Item>
                 )}
-               
               </div>
             </Form>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            <a href="/transparansi-kebijakan/ruu" className="group">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+                <div className="flex items-center">
+                  <div className="rounded-lg p-3 mr-4" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+                    {/* Menggunakan kelas Font Awesome langsung */}
+                    <i className="fas fa-file-alt text-2xl"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">RUU Terbaru</h3>
+                    <p className="text-sm opacity-90">
+                      Rancangan Undang-Undang
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </a>
+            <a href="/transparansi-kebijakan/analisis" className="group">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+                <div className="flex items-center">
+                  <div className="rounded-lg p-3 mr-4" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+                    {/* Menggunakan kelas Font Awesome langsung */}
+                    <i className="fas fa-chart-line text-2xl"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      Analisis & Ringkasan
+                    </h3>
+                    <p className="text-sm opacity-90">
+                      Penjelasan mudah dipahami
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </a>
+            <a
+              href="/transparansi-kebijakan?status=dalam-pembahasan"
+              className="group"
+            >
+              <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+                <div className="flex items-center">
+                  <div className="rounded-lg p-3 mr-4" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+                    {/* Menggunakan kelas Font Awesome langsung */}
+                    <i className="fas fa-gavel text-2xl"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Sedang Dibahas</h3>
+                    <p className="text-sm opacity-90">Kebijakan dalam proses</p>
+                  </div>
+                </div>
+              </div>
+            </a>
           </div>
 
           {/* List Kebijakan */}
@@ -319,9 +384,9 @@ function TransparansiKebijakan() {
                   </p>
                 )}
                 <p className="text-sm text-gray-700 flex items-center mb-3">
-                    <i className="fas fa-building mr-2 text-gray-500"></i>
-                    {item.instansi_terkait}
-                  </p>
+                  <i className="fas fa-building mr-2 text-gray-500"></i>
+                  {item.instansi_terkait}
+                </p>
                 <p className="text-sm text-gray-700 flex items-center mb-4">
                   <i className="fas fa-calendar-alt mr-2 text-red-400"></i>
                   {item.tanggal_diajukan.toLocaleDateString("id-ID", {

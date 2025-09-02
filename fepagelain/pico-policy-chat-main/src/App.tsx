@@ -22,10 +22,10 @@ const App = () => (
         <Routes>
           <Route path="/regis" element={<AppLayout />}>
             <Route index element={<Chat />} />
-            <Route path="policies" element={<Policies />} />
-            <Route path="polling" element={<Polling />} />
-            <Route path="credits" element={<Credits />} />
-            <Route path="admin" element={<Admin />} />
+            <Route path="/policies" element={<Policies />} />
+            <Route path="/polling" element={<Polling />} />
+            <Route path="/credits" element={<Credits />} />
+            <Route path="/admin" element={<Admin />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

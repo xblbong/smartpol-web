@@ -9,10 +9,10 @@ import {
 } from "@ant-design/icons";
 import InputComponents from "../../components/InputComponents";
 import ButtonComponent from "../../components/ButtonComponent";
-import HeaderForm from "../../components/HeaderForm";
 import { useNavigate } from "react-router-dom";
 import { Footer } from "antd/es/layout/layout";
 import { authAPI } from "../../services/api";
+import HeaderForm from "../../components/HeaderForm";
 
 const { Option } = Select;
 const { TextArea } = AntInput;

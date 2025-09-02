@@ -230,24 +230,21 @@ function ForumDiskusi() {
   const quickNavsData = [
     {
       route: "/forum-diskusi/webinar",
-      fromColor: "indigo-500",
-      toColor: "purple-600",
+      className: "bg-gradient-to-br from-indigo-500 to-purple-600",
       icon: "fa-video",
       title: "Webinar",
       desc: "Seminar online interaktif",
     },
     {
       route: "/forum-diskusi/diskusi-publik",
-      fromColor: "emerald-500",
-      toColor: "teal-600",
+      className: "bg-gradient-to-br from-emerald-500 to-teal-600",
       icon: "fa-comments",
       title: "Diskusi Publik",
       desc: "Forum diskusi terbuka",
     },
     {
       route: "/forum-diskusi/materi-edukasi",
-      fromColor: "amber-500",
-      toColor: "orange-600",
+      className: "bg-gradient-to-br from-amber-500 to-orange-600",
       icon: "fa-graduation-cap",
       title: "Materi Edukasi",
       desc: "Video & infografis politik",

@@ -719,7 +719,10 @@ function KotakAspirasi() {
                 {isLoading && (
                   <div
                     id="loading-indicator"
-                    className="absolute inset-0 bg-slate-900 bg-opacity-70 flex items-center justify-center z-20"
+                    className="absolute inset-0 bg-slate-900 flex items-center justify-center z-20"
+                    style={{
+                      background: "rgba(0, 0, 0, 0.7)",
+                    }}
                   >
                     <div className="text-center text-white">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>

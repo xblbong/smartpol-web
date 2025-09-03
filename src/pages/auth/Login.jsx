@@ -44,7 +44,32 @@ const Login = () => {
       
     } catch (error) {
       console.error('Login error:', error);
-      message.error(error.error || 'Username atau password salah');
+      
+      // Pesan error yang lebih spesifik
+      let errorMessage = 'Terjadi kesalahan saat login';
+      
+      if (error.response) {
+        const status = error.response.status;
+        const errorData = error.response.data;
+        
+        if (status === 401) {
+          errorMessage = 'Username atau password yang Anda masukkan salah. Silakan periksa kembali.';
+        } else if (status === 404) {
+          errorMessage = 'Akun dengan username tersebut tidak ditemukan. Pastikan username sudah benar atau daftar terlebih dahulu.';
+        } else if (status === 400) {
+          errorMessage = errorData.error || 'Data login tidak valid. Pastikan semua field terisi dengan benar.';
+        } else if (status >= 500) {
+          errorMessage = 'Server sedang mengalami gangguan. Silakan coba lagi dalam beberapa saat.';
+        } else {
+          errorMessage = errorData.error || 'Username atau password salah';
+        }
+      } else if (error.request) {
+        errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+      } else {
+        errorMessage = error.error || error.message || 'Username atau password salah';
+      }
+      
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -110,7 +135,6 @@ const Login = () => {
             <Form.Item>
               <ButtonComponent
                 type="submit"
-                loading={loading}
                 disabled={loading}
                 className="bg-blue-800 text-white hover:bg-blue-900 focus:ring-blue-500 w-full flex justify-center items-center gap-2 px-4 py-3 rounded-md shadow-sm text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -125,16 +149,18 @@ const Login = () => {
             </Form.Item>
           </Form>
 
-          <p className="mt-4 text-center text-sm tex    t-gray-600">
-            Belum punya akun?{" "}
-            <ButtonComponent
-              type="link"
-              onClick={() => navigate("/register")}
-              className="font-medium text-[#1e3a8a] hover:text-blue-500"
-            >
-              Daftar di sini
-            </ButtonComponent>
-          </p>
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+              Belum punya akun?{" "}
+              <ButtonComponent
+                type="link"
+                onClick={() => navigate("/register")}
+                className="font-medium text-[#1e3a8a] hover:text-blue-500"
+              >
+                Daftar di sini
+              </ButtonComponent>
+            </p>
+          </div>
         </div>
       </div>
       

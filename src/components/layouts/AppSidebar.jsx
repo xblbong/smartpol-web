@@ -1,195 +1,217 @@
 import { Image } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { authAPI } from "../../services/api";
 import {
-  FaComments,
-  FaBroadcastTower,
-  FaPlus,
-  FaStar,
-  FaHistory,
-  FaTachometerAlt,
+  FaHome,
+  FaPoll,
   FaFileAlt,
-  FaKey,
-  FaCog,
-  FaChevronDown,
-  FaChevronUp,
-  FaPalette,
+  FaHeart,
   FaUser,
-  FaBell,
-  FaLock
+  FaLock,
+  FaBars,
+  FaTimes,
+  FaVoteYea,
+  FaGavel,
+  FaUserShield,
+  FaQuestionCircle
 } from "react-icons/fa";
+import Tutorial from "../Tutorial";
 
-const AppSidebar = () => {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
+  const [user, setUser] = useState(null);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await authAPI.checkAuth();
+        if (response.data.authenticated) {
+          setUser(response.data.user);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+    fetchUser();
+  }, []);
 
   return (
-    <div className="w-64 bg-white text-gray-800 flex flex-col h-screen shadow-lg border-r-1 overflow-hidden" style={{borderRightColor: '#01077A'}}>
-      {/* Header Logo */}
-      <div className="flex gap-3 items-center justify-center h-20 border-b" style={{backgroundColor: '#01077A'}}>
-        <Image
-          src="/images/logo.png"
-          alt="Logo"
-          width={40}
-          className="rounded-full mr-2"
-          preview={false}
+    <>
+      {/* Tutorial Component */}
+      <Tutorial visible={tutorialOpen} onClose={() => setTutorialOpen(false)} />
+      
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onToggle}
         />
-        <h1 className="text-2xl font-extrabold text-white">
-          PICO AI
-        </h1>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-        {/* Studio Section */}
-        <div className="text-xs font-semibold uppercase px-2 mb-2 mt-4 tracking-wider" style={{color: '#01077A'}}>
-          Studio
+      )}
+      
+      {/* Sidebar */}
+      <div className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white text-gray-800 flex flex-col h-screen shadow-lg border-r-1 overflow-hidden transform transition-transform duration-300 ease-in-out lg:transform-none ${
+        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`} style={{borderRightColor: '#01077A'}}>
+        
+        {/* Mobile Close Button */}
+        <button
+          onClick={onToggle}
+          className="lg:hidden absolute top-4 right-4 p-2 rounded-md text-white hover:bg-blue-800 transition-colors"
+        >
+          <FaTimes size={20} />
+        </button>
+        
+        {/* Header Logo */}
+        <div className="flex gap-3 items-center justify-center h-20 border-b" style={{backgroundColor: '#01077A'}}>
+          <Image
+            src="/images/logo.png"
+            alt="Logo"
+            width={40}
+            className="rounded-full mr-2"
+            preview={false}
+          />
+          <h1 className="text-2xl font-extrabold text-white">
+            SmartPol
+          </h1>
         </div>
-        <a
-          href="#"
-          className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group"
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <FaComments className="mr-3" style={{color: '#1C73FF'}} />
-          Chat
-        </a>
-        <a
-          href="#"
-          className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group"
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <FaBroadcastTower className="mr-3" style={{color: '#1C73FF'}} />
-          Stream
-        </a>
-        <a
-          href="#"
-          className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group"
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <FaPlus className="mr-3" style={{color: '#1C73FF'}} />
-          Generate Media
-        </a>
 
-        {/* Build Section */}
-        <div className="text-xs font-semibold uppercase px-2 mb-2 mt-6 tracking-wider" style={{color: '#01077A'}}>
-          Build
-        </div>
-        <a
-          href="#"
-          className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group"
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <FaStar className="mr-3" style={{color: '#1C73FF'}} />
-          Models
-        </a>
-        <a
-          href="#"
-          className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group"
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <FaHistory className="mr-3" style={{color: '#1C73FF'}} />
-          History
-        </a>
-
-        {/* Dashboard Section */}
-        <div className="text-xs font-semibold uppercase px-2 mb-2 mt-6 tracking-wider" style={{color: '#01077A'}}>
-          Dashboard
-        </div>
-        <a
-          href="#"
-          className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group"
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <FaTachometerAlt className="mr-3" style={{color: '#1C73FF'}} />
-          Dashboard
-        </a>
-        <a
-          href="#"
-          className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group"
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <FaFileAlt className="mr-3" style={{color: '#1C73FF'}} />
-          Documentation
-        </a>
-      </nav>
-
-      {/* Footer Section */}
-      <div className="px-4 py-6 border-t bg-white" style={{borderTopColor: '#01077A'}}>
-        {/* Settings */}
-        <div className="relative">
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+          {/* Main Navigation */}
+          <div className="text-xs font-semibold uppercase px-2 mb-2 mt-4 tracking-wider" style={{color: '#01077A'}}>
+            Menu Utama
+          </div>
           <button
-            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200"
+            onClick={() => navigate('/')}
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <div className="flex items-center">
-              <FaCog className="mr-3" style={{color: '#1C73FF'}} />
-              Settings
-            </div>
-            {isSettingsOpen ? 
-              <FaChevronUp style={{color: '#1C73FF'}} /> : 
-              <FaChevronDown style={{color: '#1C73FF'}} />
-            }
+            <FaHome className="mr-3" style={{color: '#1C73FF'}} />
+            Beranda
           </button>
-          
-          {/* Settings Dropdown */}
-          {isSettingsOpen && (
-            <div className="mt-2 ml-6 space-y-1">
-              <a
-                href="#"
-                className="flex items-center px-3 py-2 text-xs rounded-lg text-gray-600 hover:text-white transition-colors duration-200"
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#01077A'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <FaPalette className="mr-2" style={{color: '#FAC62A'}} />
-                Theme Colors
-              </a>
-              <a
-                href="#"
-                className="flex items-center px-3 py-2 text-xs rounded-lg text-gray-600 hover:text-white transition-colors duration-200"
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#01077A'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <FaUser className="mr-2" style={{color: '#FAC62A'}} />
-                Profile
-              </a>
-              <a
-                href="#"
-                className="flex items-center px-3 py-2 text-xs rounded-lg text-gray-600 hover:text-white transition-colors duration-200"
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#01077A'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <FaBell className="mr-2" style={{color: '#FAC62A'}} />
-                Notifications
-              </a>
-              <a
-                href="#"
-                className="flex items-center px-3 py-2 text-xs rounded-lg text-gray-600 hover:text-white transition-colors duration-200"
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#01077A'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <FaLock className="mr-2" style={{color: '#FAC62A'}} />
-                Privacy
-              </a>
+          <button
+            onClick={() => navigate('/polling')}
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            data-tutorial="polling"
+          >
+            <FaVoteYea className="mr-3" style={{color: '#1C73FF'}} />
+            Polling
+          </button>
+          <button
+            onClick={() => navigate('/policies')}
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            data-tutorial="kebijakan"
+          >
+            <FaGavel className="mr-3" style={{color: '#1C73FF'}} />
+            Kebijakan
+          </button>
+          {user?.is_admin && (
+            <button
+              onClick={() => navigate('/admin')}
+              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              <FaUserShield className="mr-3" style={{color: '#1C73FF'}} />
+              Admin
+            </button>
+          )}
+
+          {/* Chat History Section */}
+          {chatHistory && (
+            <div className="mt-6">
+              {chatHistory}
             </div>
           )}
-        </div>
 
-        {/* User Profile */}
-        <div className="flex items-center px-3 py-2 mt-4">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3 shadow-inner" style={{backgroundColor: '#01077A'}}>
-            S
+          {/* Informasi Section */}
+          <div className="text-xs font-semibold uppercase px-2 mb-2 mt-6 tracking-wider" style={{color: '#01077A'}}>
+            Informasi
           </div>
-          <span className="text-sm" style={{color: '#01077A'}}>sbihh.m@gmail.c...</span>
+          <button
+            onClick={() => setTutorialOpen(true)}
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <FaQuestionCircle className="mr-3" style={{color: '#1C73FF'}} />
+            Tutorial Pemakaian
+          </button>
+          <button
+            onClick={() => navigate('/credits')}
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <FaHeart className="mr-3" style={{color: '#1C73FF'}} />
+            Tentang Tim
+          </button>
+        </nav>
+
+        {/* Footer Section */}
+        <div className="px-4 py-6 border-t bg-white" style={{borderTopColor: '#01077A'}}>
+          {/* Settings Menu Items */}
+          <div className="space-y-2">
+            <button
+              onClick={() => navigate('/settings')}
+              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              data-tutorial="edit-profile"
+            >
+              <FaUser className="mr-3" style={{color: '#1C73FF'}} />
+              Edit Profile
+            </button>
+            
+            <button
+              onClick={() => navigate('/nik-verification')}
+              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              data-tutorial="nik-verification"
+            >
+              <FaUserShield className="mr-3" style={{color: '#1C73FF'}} />
+              Verifikasi NIK
+            </button>
+            
+            <button
+              onClick={() => {
+                localStorage.removeItem('token');
+                navigate('/login');
+              }}
+              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              <FaLock className="mr-3" style={{color: '#dc2626'}} />
+              Logout
+            </button>
+          </div>
+
+          {/* User Profile */}
+          <div className="flex items-center px-3 py-2 mt-4">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3 shadow-inner" style={{backgroundColor: '#01077A'}}>
+              {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate" style={{color: '#01077A'}}>
+                {user?.full_name || 'User'}
+              </div>
+              <div className="text-xs text-gray-500 truncate">
+                {user?.email || 'user@example.com'}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

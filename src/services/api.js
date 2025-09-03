@@ -9,21 +9,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Untuk mengirim cookies/session
 });
-
-// Interceptor untuk menambahkan token ke setiap request
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
 // Interceptor untuk menangani response dan error
 api.interceptors.response.use(
@@ -32,8 +19,7 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired atau invalid, hapus dari localStorage
-      localStorage.removeItem('access_token');
+      // Session expired atau invalid, hapus dari localStorage
       localStorage.removeItem('user');
       // Redirect ke login jika diperlukan
       window.location.href = '/login';
@@ -58,11 +44,26 @@ export const authAPI = {
   login: async (credentials) => {
     try {
       const response = await api.post('/login', credentials);
-      const { access_token, user } = response.data;
+      const { user } = response.data;
       
-      // Simpan token dan user data ke localStorage
-      localStorage.setItem('access_token', access_token);
+      // Simpan user data ke localStorage
       localStorage.setItem('user', JSON.stringify(user));
+      
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Admin login
+  adminLogin: async (credentials) => {
+    try {
+      const response = await api.post('/admin/login', credentials);
+      const { user, token } = response.data;
+      
+      // Simpan admin data ke localStorage
+      localStorage.setItem('admin', JSON.stringify(user));
+      localStorage.setItem('adminToken', token);
       
       return response.data;
     } catch (error) {
@@ -74,12 +75,10 @@ export const authAPI = {
   logout: async () => {
     try {
       await api.post('/logout');
-      // Hapus token dan user data dari localStorage
-      localStorage.removeItem('access_token');
+      // Hapus user data dari localStorage
       localStorage.removeItem('user');
     } catch (error) {
       // Tetap hapus data lokal meskipun request gagal
-      localStorage.removeItem('access_token');
       localStorage.removeItem('user');
       throw error.response?.data || { error: 'Network error' };
     }
@@ -89,6 +88,36 @@ export const authAPI = {
   getProfile: async () => {
     try {
       const response = await api.get('/profile');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Check authentication status
+  checkAuth: async () => {
+    try {
+      const response = await api.get('/auth/check');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Update user profile
+  updateProfile: async (profileData) => {
+    try {
+      const response = await api.put('/profile/update', profileData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Verify NIK
+  verifyNIK: async (nikData) => {
+    try {
+      const response = await api.post('/profile/verify-nik', nikData);
       return response.data;
     } catch (error) {
       throw error.response?.data || { error: 'Network error' };
@@ -106,6 +135,62 @@ export const authAPI = {
   }
 };
 
+// Polling API functions
+export const pollingAPI = {
+  // Get all polls
+  getPolls: async () => {
+    try {
+      const response = await api.get('/polling');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Create new poll
+  createPoll: async (pollData) => {
+    try {
+      const response = await api.post('/polling', pollData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Vote on a poll
+  vote: async (pollId, optionId) => {
+    try {
+      const response = await api.post(`/polling/${pollId}/vote`, { option_id: optionId });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  }
+};
+
+// Policies API functions
+export const policiesAPI = {
+  // Get all policies
+  getPolicies: async () => {
+    try {
+      const response = await api.get('/policies');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Create new policy
+  createPolicy: async (policyData) => {
+    try {
+      const response = await api.post('/policies', policyData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  }
+};
+
 // Utility functions
 export const getStoredUser = () => {
   try {
@@ -116,12 +201,129 @@ export const getStoredUser = () => {
   }
 };
 
-export const getStoredToken = () => {
-  return localStorage.getItem('access_token');
+export const isAuthenticated = async () => {
+  try {
+    const response = await authAPI.checkAuth();
+    return response.authenticated;
+  } catch (error) {
+    return false;
+  }
 };
 
-export const isAuthenticated = () => {
-  return !!getStoredToken();
+// Admin API functions
+export const adminAPI = {
+  // User management
+  getAllUsers: async () => {
+    try {
+      const response = await api.get('/admin/users');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+  
+  createUser: async (userData) => {
+    try {
+      const response = await api.post('/admin/users', userData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+  
+  updateUser: async (userId, userData) => {
+    try {
+      const response = await api.put(`/admin/users/${userId}`, userData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+  
+  deleteUser: async (userId) => {
+    try {
+      const response = await api.delete(`/admin/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+  
+  // Poll management
+  updatePoll: async (pollId, pollData) => {
+    try {
+      const response = await api.put(`/admin/polls/${pollId}`, pollData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+  
+  deletePoll: async (pollId) => {
+    try {
+      const response = await api.delete(`/admin/polls/${pollId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+  
+  // Policy management
+  updatePolicy: async (policyId, policyData) => {
+    try {
+      const response = await api.put(`/admin/policies/${policyId}`, policyData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+  
+  deletePolicy: async (policyId) => {
+    try {
+      const response = await api.delete(`/admin/policies/${policyId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  }
+};
+
+// Chat History API
+export const chatAPI = {
+  // Get chat history
+  getChatHistory: async (sessionId = null) => {
+    try {
+      const url = sessionId ? `/chat/history?session_id=${sessionId}` : '/chat/history';
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Save chat message
+  saveChatMessage: async (message, isUser, sessionId = null) => {
+    try {
+      const response = await api.post('/chat/history', {
+        message,
+        is_user: isUser,
+        session_id: sessionId
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Get chat sessions
+  getChatSessions: async () => {
+    try {
+      const response = await api.get('/chat/sessions');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  }
 };
 
 export default api;

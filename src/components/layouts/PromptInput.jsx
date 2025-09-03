@@ -1,15 +1,59 @@
-import { useState } from "react";
-import { FaPlus, FaPaperPlane, FaMicrophone } from "react-icons/fa";
+import { useState, useRef } from "react";
+import { FaPlus, FaPaperPlane, FaMicrophone, FaImage, FaTimes } from "react-icons/fa";
+import { message } from "antd";
 
 const PromptInput = ({ onSendMessage, isTyping }) => {
   const [prompt, setPrompt] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (prompt.trim() && !isTyping) {
-      onSendMessage(prompt);
+    if ((prompt.trim() || selectedImage) && !isTyping) {
+      onSendMessage(prompt, selectedImage);
       setPrompt("");
+      setSelectedImage(null);
+      setImagePreview(null);
     }
+  };
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validasi tipe file
+      if (!file.type.startsWith('image/')) {
+        message.error('Hanya file gambar yang diperbolehkan!');
+        return;
+      }
+      
+      // Validasi ukuran file (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        message.error('Ukuran file tidak boleh lebih dari 5MB!');
+        return;
+      }
+      
+      setSelectedImage(file);
+      
+      // Buat preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleImageButtonClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -25,18 +69,45 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
             <span>PICO sedang mengetik...</span>
           </div>
         )}
+        {/* Image Preview */}
+        {imagePreview && (
+          <div className="mb-3 relative inline-block">
+            <img 
+              src={imagePreview} 
+              alt="Preview" 
+              className="max-w-xs max-h-32 rounded-lg border border-gray-200 shadow-sm"
+            />
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+              title="Hapus Gambar"
+            >
+              <FaTimes className="text-xs" />
+            </button>
+          </div>
+        )}
+        
         <form
           onSubmit={handleSubmit}
           className="flex items-center bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
         >
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageSelect}
+            accept="image/*"
+            className="hidden"
+          />
           <button
             type="button"
+            onClick={handleImageButtonClick}
             className="p-3 text-gray-400 hover:text-white transition-colors duration-200 rounded-l-2xl"
             onMouseEnter={(e) => e.target.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-            title="Tambah Media"
+            title="Upload Gambar"
           >
-            <FaPlus className="text-lg" />
+            <FaImage className="text-lg" />
           </button>
           <input
             type="text"
@@ -57,7 +128,7 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
           </button>
           <button
             type="submit"
-            disabled={!prompt.trim() || isTyping}
+            disabled={(!prompt.trim() && !selectedImage) || isTyping}
             className="flex items-center px-5 py-3 text-white rounded-r-2xl hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{backgroundColor: '#01077A', focusRingColor: '#01077A'}}
             title="Kirim Pesan"

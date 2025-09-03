@@ -99,25 +99,7 @@ const Register = () => {
               ]}
             />
 
-            <div className="mb-4">
-              <label
-                htmlFor="role"
-                className="block text-sm font-semibold text-gray-700 mb-1"
-              >
-                Peran
-              </label>
-              <Form.Item
-                name="role"
-                initialValue="konsituen"
-                rules={[
-                  { required: true, message: "Peran wajib diisi!" },
-                ]}
-              >
-                <Select id="role" placeholder="Konsituen" size="large" disabled>
-                  <Option value="konsituen">Konsituen</Option>
-                </Select>
-              </Form.Item>
-            </div>
+
 
             <div className="mb-4">
               <label
@@ -172,7 +154,6 @@ const Register = () => {
             <Form.Item className="mt-6">
               <ButtonComponent
                 type="submit"
-                loading={loading}
                 disabled={loading}
                 className="bg-orange-500 text-white hover:bg-orange-600 focus:ring-orange-500 w-full flex justify-center items-center gap-2 px-4 py-3 rounded-md shadow-sm text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >

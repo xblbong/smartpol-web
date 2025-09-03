@@ -42,16 +42,16 @@ const AdminLogin = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 flex flex-col justify-center items-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-white to-blue-950 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8">
         <HeaderForm />
-        <Card className="w-full max-w-md shadow-2xl">
-          <div className="text-center mb-6">
-            <UserOutlined className="text-4xl text-blue-600 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900">
-              Login Administrator
+        <Card className="w-full max-w-sm sm:max-w-md lg:max-w-lg shadow -2xl rounded-lg animate-fade-in-down">
+          <div className="text-center mb-6 px-4">
+            <SafetyOutlined className="text-5xl text-blue-600 mb-4 animate-bounce-in" />
+            <h2 className="text-3xl font-extrabold text-gray-900 leading-tight">
+              Akses Administrator
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Akses khusus untuk administrator sistem
+            <p className="mt-2 text-md text-gray-600">
+              Silakan masukkan kredensial admin Anda untuk melanjutkan.
             </p>
           </div>
 
@@ -61,32 +61,37 @@ const AdminLogin = () => {
             onFinish={onFinish}
             layout="vertical"
             autoComplete="off"
+            className="px-4"
           >
             <Form.Item
-              label="Username Admin"
+              label={<span className="font-semibold text-gray-700">Username Admin</span>}
               name="username"
               rules={[
                 { required: true, message: "Username admin wajib diisi!" },
               ]}
+              className="mb-4"
             >
               <Input
-                prefix={<UserOutlined className="text-gray-400" />}
+                prefix={<UserOutlined className="text-gray-400 text-lg" />}
                 placeholder="Masukkan username admin"
                 size="large"
+                className="rounded-md h-12 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200"
               />
             </Form.Item>
 
             <Form.Item
-              label="Password Admin"
+              label={<span className="font-semibold text-gray-700">Password Admin</span>}
               name="password"
               rules={[
                 { required: true, message: "Password admin wajib diisi!" }
               ]}
+              className="mb-6"
             >
               <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
+                prefix={<LockOutlined className="text-gray-400 text-lg" />}
                 placeholder="Masukkan password admin"
                 size="large"
+                className="rounded-md h-12 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200"
               />
             </Form.Item>
 
@@ -96,24 +101,24 @@ const AdminLogin = () => {
                 htmlType="submit"
                 loading={loading}
                 size="large"
-                className="w-full"
+                className="w-full rounded-md font-bold text-lg transition-all duration-300 hover:scale-105"
                 style={{
-                  backgroundColor: '#1e40af',
-                  borderColor: '#1e40af',
-                  height: '48px'
+                  backgroundColor: '#1e40af', // Blue-800
+                  borderColor: '#1e40af', // Blue-800
+                  height: '52px'
                 }}
               >
-                <SafetyOutlined />
+                <SafetyOutlined className="mr-2" />
                 {loading ? 'Memverifikasi...' : 'Masuk sebagai Admin'}
               </Button>
             </Form.Item>
           </Form>
 
-          <div className="text-center mt-4">
+          <div className="text-center mt-6">
             <Button
               type="link"
               onClick={() => navigate("/login")}
-              className="text-blue-600 hover:text-blue-500"
+              className="text-blue-600 hover:text-blue-800 text-base transition-colors duration-300"
             >
               Kembali ke Login User
             </Button>
@@ -122,7 +127,7 @@ const AdminLogin = () => {
       </div>
       
       {/* Footer */}
-      <Footer className="text-center bg-transparent text-xs text-white">
+      <Footer className="text-center bg-transparent text-sm text-white py-4">
           © 2024 SMARTPOL UB. Platform berbasis AI untuk transparansi demokrasi.
       </Footer>
     </>

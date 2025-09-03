@@ -9,7 +9,7 @@ export default function HeaderForm() {
           <div className="text-center mb-8">
             <a href="/">
               <img
-                src="https://static.readdy.ai/image/4554a88b1bd23a4b3c8a3f81efcb924d/f39293d6dabaa3c62e79193546be7fd7.png"
+                src="images/logo-smartpol.png"
                 alt="SMARTPOL UB Logo"
                 className="h-16 w-auto mx-auto cursor-pointer"
               />

@@ -57,3 +57,11 @@ body{
   background: white;
 }
 
+.overflow-auto::-webkit-scrollbar {
+  display: none; 
+}
+
+.overflow-auto {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;  
+}   

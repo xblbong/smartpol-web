@@ -78,7 +78,7 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-auto">
           {/* Main Navigation */}
           <div className="text-xs font-semibold uppercase px-2 mb-2 mt-4 tracking-wider" style={{color: '#01077A'}}>
             Menu Utama

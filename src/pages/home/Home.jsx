@@ -25,7 +25,7 @@ function Home() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 ">
       <AppSidebar 
         isOpen={isSidebarOpen} 
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -49,7 +49,7 @@ function Home() {
           <div className="w-10"></div> {/* Spacer for centering */}
         </div>
         {/* Header Chat */}
-        <div className="bg-white border-b px-6 py-4 shadow-sm" style={{borderBottomColor: '#FAC62A', borderBottomWidth: '3px'}}>
+        <div className="bg-white border-b px-6 py-4 shadow-sm " style={{borderBottomColor: '#FAC62A', borderBottomWidth: '3px'}}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#01077A'}}>
               <Image
@@ -72,7 +72,7 @@ function Home() {
         </div>
 
         {/* Chat Container */}
-        <div className="chat-container" data-tutorial="chat-container">
+        <div className="chat-container overflow-auto" data-tutorial="chat-container">
           <ChatContainer messages={messages} />
         </div>
 

@@ -287,22 +287,35 @@ const Roles = () => {
   return (
     <div className="flex h-screen">
       <SidebarComponents />
-      <div className="flex-1 p-6 overflow-auto">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <Title level={2} style={{ margin: 0, color: '#001529' }}>
-            🔐 Role Management
-          </Title>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
+      <div className="flex-1 p-6 overflow-auto bg-gray-50">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg">
+              <SafetyOutlined className="text-2xl" style={{color: 'white'}} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Manajemen Peran</h1>
+              <p className="text-gray-600 mt-1">Kelola peran dan izin pengguna sistem</p>
+            </div>
+          </div>
+          <button 
             onClick={handleAddRole}
+            className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
-            Add New Role
-          </Button>
+            <PlusOutlined className="text-lg" />
+            <span className="font-medium">Tambah Peran Baru</span>
+          </button>
         </div>
 
         {/* Roles Table */}
-        <Card>
+        <div className="px-4 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 ">
+            <div className="flex items-center space-x-2">
+              <SafetyOutlined className="text-lg text-blue-600" />
+              <h2 className="text-xl font-semibold text-gray-800">Daftar Peran</h2>
+            </div>
+          </div>
           <Table
             columns={columns}
             dataSource={roles}
@@ -311,150 +324,232 @@ const Roles = () => {
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} roles`,
+              showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} peran`,
             }}
           />
-        </Card>
+        </div>
 
         {/* Add/Edit Role Modal */}
         <Modal
-          title={editingRole ? 'Edit Role' : 'Add New Role'}
+          title={
+            <div className="flex items-center space-x-3 pb-4 border-b border-gray-200">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <SafetyOutlined className="text-lg" style={{color: 'blue'}} />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {editingRole ? 'Edit Peran' : 'Tambah Peran Baru'}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {editingRole ? 'Perbarui informasi peran' : 'Buat peran baru dengan izin yang sesuai'}
+                </p>
+              </div>
+            </div>
+          }
           visible={isModalVisible}
           onCancel={() => setIsModalVisible(false)}
           footer={null}
           width={700}
+          className="custom-modal"
         >
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-          >
-            <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <Form.Item
-                  label="Role Name"
-                  name="name"
-                  rules={[
-                    { required: true, message: 'Please enter role name!' },
-                    { min: 2, message: 'Role name must be at least 2 characters!' }
-                  ]}
-                >
-                  <Input placeholder="Enter role name" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <div style={{ paddingTop: '30px' }}>
-                  <Text type="secondary">Role names should be descriptive and unique</Text>
+          <div className="pt-6">
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+            >
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nama Peran *
+                  </label>
+                  <Form.Item
+                    name="name"
+                    rules={[
+                      { required: true, message: 'Silakan masukkan nama peran!' },
+                      { min: 2, message: 'Nama peran minimal 2 karakter!' }
+                    ]}
+                    className="mb-0"
+                  >
+                    <Input 
+                      placeholder="Masukkan nama peran"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    />
+                  </Form.Item>
                 </div>
-              </Col>
-              <Col span={24}>
+              </div>
+
+              <div className="mt-5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Deskripsi *
+                </label>
                 <Form.Item
-                  label="Description"
                   name="description"
-                  rules={[{ required: true, message: 'Please enter role description!' }]}
+                  rules={[{ required: true, message: 'Silakan masukkan deskripsi peran!' }]}
+                  className="mb-0"
                 >
                   <TextArea 
                     rows={3}
-                    placeholder="Describe the role and its purpose"
+                    placeholder="Jelaskan peran dan tujuannya"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
                   />
                 </Form.Item>
-              </Col>
-              <Col span={24}>
+              </div>
+
+              <div className="mt-5">
+                <label className="block text-sm font-medium text-gray-700 mb-4">
+                  Izin Akses *
+                </label>
                 <Form.Item
-                  label="Permissions"
                   name="permissions"
-                  rules={[{ required: true, message: 'Please select at least one permission!' }]}
+                  rules={[{ required: true, message: 'Silakan pilih minimal satu izin!' }]}
+                  className="mb-0"
                 >
-                  <Checkbox.Group style={{ width: '100%' }}>
-                    <Row gutter={[16, 16]}>
+                  <Checkbox.Group className="w-full">
+                    <div className="grid grid-cols-2 gap-4">
                       {availablePermissions.map(permission => (
-                        <Col span={12} key={permission.key}>
-                          <Checkbox value={permission.key}>
-                            <div>
-                              <div style={{ fontWeight: 'bold' }}>{permission.label}</div>
-                              <div style={{ fontSize: '12px', color: '#666' }}>
+                        <div key={permission.key} className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors duration-200">
+                          <Checkbox value={permission.key} className="w-full">
+                            <div className="ml-2">
+                              <div className="font-medium text-gray-800">{permission.label}</div>
+                              <div className="text-sm text-gray-500 mt-1">
                                 {permission.description}
                               </div>
                             </div>
                           </Checkbox>
-                        </Col>
+                        </div>
                       ))}
-                    </Row>
+                    </div>
                   </Checkbox.Group>
                 </Form.Item>
-              </Col>
-            </Row>
+              </div>
 
-            <Divider />
-
-            <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
-              <Space>
-                <Button onClick={() => setIsModalVisible(false)}>
-                  Cancel
-                </Button>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  {editingRole ? 'Update Role' : 'Create Role'}
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
+              <div className="border-t border-gray-200 mt-8 pt-6">
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalVisible(false)}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  >
+                    {loading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>}
+                    <span>{editingRole ? 'Perbarui Peran' : 'Buat Peran'}</span>
+                  </button>
+                </div>
+              </div>
+            </Form>
+          </div>
         </Modal>
 
         {/* View Role Modal */}
         <Modal
-          title="Role Details"
+          title={
+            <div className="flex items-center space-x-3 pb-4 border-b border-gray-200">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <EyeOutlined className="text-lg" style={{color: 'blue'}} />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800">Detail Peran</h3>
+                <p className="text-sm text-gray-600 mt-1">Informasi lengkap tentang peran dan izinnya</p>
+              </div>
+            </div>
+          }
           visible={isViewModalVisible}
           onCancel={() => setIsViewModalVisible(false)}
           footer={[
-            <Button key="close" onClick={() => setIsViewModalVisible(false)}>
-              Close
-            </Button>,
+            <button
+              key="close"
+              onClick={() => setIsViewModalVisible(false)}
+              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
+            >
+              Tutup
+            </button>,
           ]}
           width={600}
+          className="custom-modal"
         >
           {selectedRole && (
-            <div>
-              <Row gutter={[16, 16]}>
-                <Col span={24}>
-                  <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    <SafetyOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
-                    <Title level={3} style={{ marginTop: '10px', marginBottom: '5px' }}>
-                      {selectedRole.name}
-                      {selectedRole.isSystem && (
-                        <Tag color="orange" style={{ marginLeft: '8px' }}>SYSTEM ROLE</Tag>
-                      )}
-                    </Title>
-                    <Text type="secondary">{selectedRole.description}</Text>
+            <div className="pt-6">
+              {/* Role Header */}
+              <div className="text-center mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
+                  <SafetyOutlined className="text-2xl" style={{color: 'white'}} />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                  {selectedRole.name}
+                  {selectedRole.isSystem && (
+                    <span className="ml-3 px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">
+                      PERAN SISTEM
+                    </span>
+                  )}
+                </h3>
+                <p className="text-gray-600">{selectedRole.description}</p>
+              </div>
+
+              {/* Role Information */}
+              <div className="grid grid-cols-2 gap-6 mb-8">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <UserOutlined className="text-blue-600" />
+                    <span className="font-medium text-gray-700">Pengguna dengan peran ini:</span>
                   </div>
-                </Col>
-                <Col span={12}>
-                  <strong>Users with this role:</strong>
-                  <div>{selectedRole.userCount} users</div>
-                </Col>
-                <Col span={12}>
-                  <strong>Created:</strong>
-                  <div>{new Date(selectedRole.createdAt).toLocaleDateString('id-ID')}</div>
-                </Col>
-                <Col span={12}>
-                  <strong>Last Updated:</strong>
-                  <div>{new Date(selectedRole.updatedAt).toLocaleDateString('id-ID')}</div>
-                </Col>
-                <Col span={12}>
-                  <strong>Role Type:</strong>
-                  <div>{selectedRole.isSystem ? 'System Role' : 'Custom Role'}</div>
-                </Col>
-                <Col span={24}>
-                  <strong>Permissions ({selectedRole.permissions.length}):</strong>
-                  <div style={{ marginTop: '8px' }}>
-                    {selectedRole.permissions.map(permission => (
-                      <Tag key={permission} style={{ marginBottom: '4px' }}>
-                        <LockOutlined style={{ marginRight: '4px' }} />
+                  <div className="text-2xl font-bold text-blue-600">{selectedRole.userCount} pengguna</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <SettingOutlined className="text-green-600" />
+                    <span className="font-medium text-gray-700">Tipe Peran:</span>
+                  </div>
+                  <div className="text-lg font-semibold text-green-600">
+                    {selectedRole.isSystem ? 'Peran Sistem' : 'Peran Kustom'}
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="font-medium text-gray-700">Dibuat:</span>
+                  </div>
+                  <div className="text-gray-800">
+                    {new Date(selectedRole.createdAt).toLocaleDateString('id-ID')}
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="font-medium text-gray-700">Terakhir Diperbarui:</span>
+                  </div>
+                  <div className="text-gray-800">
+                    {new Date(selectedRole.updatedAt).toLocaleDateString('id-ID')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Permissions */}
+              <div className="bg-gray-50 p-6 rounded-xl">
+                <div className="flex items-center space-x-2 mb-4">
+                  <LockOutlined className="text-purple-600 text-lg" />
+                  <h4 className="text-lg font-semibold text-gray-800">
+                    Izin Akses ({selectedRole.permissions.length})
+                  </h4>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedRole.permissions.map(permission => (
+                    <div
+                      key={permission}
+                      className="flex items-center space-x-2 bg-white p-3 rounded-lg border border-gray-200"
+                    >
+                      <LockOutlined className="text-sm" style={{color: 'blue'}} />
+                      <span className="text-gray-700 font-medium">
                         {getPermissionLabel(permission)}
-                      </Tag>
-                    ))}
-                  </div>
-                </Col>
-              </Row>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </Modal>

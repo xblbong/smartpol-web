@@ -55,122 +55,127 @@ const Dashboard = () => {
   ];
 
   const pollStats = [
-    { name: 'Active Polls', value: 8, color: '#16a34a' }, // green-600
-    { name: 'Completed Polls', value: 23, color: '#2563eb' }, // blue-600
-    { name: 'Draft Polls', value: 5, color: '#f59e0b' } // amber-500
+    { name: 'Active Polls', value: 8, color: '#10b981' },
+    { name: 'Completed Polls', value: 23, color: '#6366f1' },
+    { name: 'Draft Polls', value: 5, color: '#f59e0b' }
   ];
 
   const totalPolls = pollStats.reduce((sum, stat) => sum + stat.value, 0);
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50 font-sans">
+    <div className="flex h-screen bg-gray-50 font-sans">
       <SidebarComponents />
-      <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-        {/* Dashboard Header */}
-        <div className="mb-8 p-6 bg-white rounded-2xl shadow-lg flex items-center justify-between">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100">
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
           <Title level={2} className="m-0 text-gray-800 flex items-center">
-            <FaTachometerAlt className="text-blue-600 text-3xl mr-3" />
+            <FaTachometerAlt className="text-indigo-600 text-3xl mr-3" />
             Admin Dashboard
           </Title>
           <div className="hidden sm:block">
-            <Text type="secondary" className="text-sm">Welcome back, Admin!</Text>
+            <Text type="secondary" className="text-sm text-gray-600">Welcome back, Admin!</Text>
           </div>
         </div>
 
-        {/* Statistics Cards */}
         <Row gutter={[24, 24]} className="mb-8">
           <Col xs={24} sm={12} lg={6}>
-            <Card className="rounded-2xl shadow-xl border-t-8 border-blue-500 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-              <Statistic
-                title={<span className="text-gray-600 text-base font-medium">Total Users</span>}
-                value={stats.totalUsers}
-                prefix={<FaUser className="text-blue-500 text-3xl opacity-75" />}
-              />
-              <Progress
-                percent={85}
-                size="small"
-                strokeColor="#3b82f6" // blue-500
-                showInfo={false}
-                className="mt-4"
-              />
-              <Text type="secondary" className="text-xs md:text-sm mt-2 block">
-                <span className="text-green-500 font-semibold">+12%</span> from last month
-              </Text>
+            <Card className="rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 bg-white">
+              <div className="border-l-4 border-indigo-500 pl-4">
+                <Statistic
+                  title={<span className="text-gray-600 text-base font-medium">Total Users</span>}
+                  value={stats.totalUsers}
+                  prefix={<FaUser className="text-indigo-500 text-2xl mr-2" />}
+                />
+                <Progress
+                  percent={85}
+                  size="small"
+                  strokeColor="#6366f1"
+                  showInfo={false}
+                  className="mt-4"
+                />
+                <Text type="secondary" className="text-xs md:text-sm mt-2 block text-gray-500">
+                  <span className="text-green-600 font-semibold">+12%</span> from last month
+                </Text>
+              </div>
             </Card>
           </Col>
 
           <Col xs={24} sm={12} lg={6}>
-            <Card className="rounded-2xl shadow-xl border-t-8 border-green-500 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-              <Statistic
-                title={<span className="text-gray-600 text-base font-medium">Active Polls</span>}
-                value={stats.activePolls}
-                prefix={<FaChartPie className="text-green-500 text-3xl opacity-75" />}
-              />
-              <Progress
-                percent={60}
-                size="small"
-                strokeColor="#22c55e" // green-500
-                showInfo={false}
-                className="mt-4"
-              />
-              <Text type="secondary" className="text-xs md:text-sm mt-2 block">
-                <span className="text-yellow-500 font-semibold">3</span> ending this week
-              </Text>
+            <Card className="rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 bg-white">
+              <div className="border-l-4 border-green-500 pl-4">
+                <Statistic
+                  title={<span className="text-gray-600 text-base font-medium">Active Polls</span>}
+                  value={stats.activePolls}
+                  prefix={<FaChartPie className="text-green-500 text-2xl mr-2" />}
+                />
+                <Progress
+                  percent={60}
+                  size="small"
+                  strokeColor="#10b981"
+                  showInfo={false}
+                  className="mt-4"
+                />
+                <Text type="secondary" className="text-xs md:text-sm mt-2 block text-gray-500">
+                  <span className="text-yellow-600 font-semibold">3</span> ending this week
+                </Text>
+              </div>
             </Card>
           </Col>
 
           <Col xs={24} sm={12} lg={6}>
-            <Card className="rounded-2xl shadow-xl border-t-8 border-yellow-500 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-              <Statistic
-                title={<span className="text-gray-600 text-base font-medium">Total Policies</span>}
-                value={stats.totalPolicies}
-                prefix={<FaFileAlt className="text-yellow-500 text-3xl opacity-75" />}
-              />
-              <Progress
-                percent={75}
-                size="small"
-                strokeColor="#f59e0b" // amber-500
-                showInfo={false}
-                className="mt-4"
-              />
-              <Text type="secondary" className="text-xs md:text-sm mt-2 block">
-                <span className="text-red-500 font-semibold">5</span> pending review
-              </Text>
+            <Card className="rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 bg-white">
+              <div className="border-l-4 border-yellow-500 pl-4">
+                <Statistic
+                  title={<span className="text-gray-600 text-base font-medium">Total Policies</span>}
+                  value={stats.totalPolicies}
+                  prefix={<FaFileAlt className="text-yellow-500 text-2xl mr-2" />}
+                />
+                <Progress
+                  percent={75}
+                  size="small"
+                  strokeColor="#f59e0b"
+                  showInfo={false}
+                  className="mt-4"
+                />
+                <Text type="secondary" className="text-xs md:text-sm mt-2 block text-gray-500">
+                  <span className="text-red-600 font-semibold">5</span> pending review
+                </Text>
+              </div>
             </Card>
           </Col>
 
           <Col xs={24} sm={12} lg={6}>
-            <Card className="rounded-2xl shadow-xl border-t-8 border-purple-500 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-              <Statistic
-                title={<span className="text-gray-600 text-base font-medium">Chatbot Interactions</span>}
-                value={stats.chatbotInteractions}
-                prefix={<FaRobot className="text-purple-500 text-3xl opacity-75" />}
-              />
-              <Progress
-                percent={92}
-                size="small"
-                strokeColor="#a855f7" // purple-500
-                showInfo={false}
-                className="mt-4"
-              />
-              <Text type="secondary" className="text-xs md:text-sm mt-2 block">
-                <span className="text-blue-500 font-semibold">+25%</span> from yesterday
-              </Text>
+            <Card className="rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 bg-white">
+              <div className="border-l-4 border-purple-500 pl-4">
+                <Statistic
+                  title={<span className="text-gray-600 text-base font-medium">Chatbot Interactions</span>}
+                  value={stats.chatbotInteractions}
+                  prefix={<FaRobot className="text-purple-500 text-2xl mr-2" />}
+                />
+                <Progress
+                  percent={92}
+                  size="small"
+                  strokeColor="#8b5cf6"
+                  showInfo={false}
+                  className="mt-4"
+                />
+                <Text type="secondary" className="text-xs md:text-sm mt-2 block text-gray-500">
+                  <span className="text-blue-600 font-semibold">+25%</span> from yesterday
+                </Text>
+              </div>
             </Card>
           </Col>
         </Row>
 
         <Row gutter={[24, 24]}>
-          {/* Recent Activities */}
           <Col xs={24} lg={12}>
             <Card
               title={
                 <Space className="items-center text-xl font-semibold text-gray-800">
-                  <FaClock className="text-blue-500 text-2xl" />
+                  <FaClock className="text-indigo-600 text-2xl" />
                   <span>Recent Activities</span>
                 </Space>
               }
-              className="rounded-2xl shadow-xl h-full"
+              className="rounded-xl shadow-sm border border-gray-200 h-full bg-white"
               bodyStyle={{ padding: '0 24px' }}
             >
               <List
@@ -180,19 +185,27 @@ const Dashboard = () => {
                   <List.Item className="py-4 border-b border-gray-100 last:border-b-0">
                     <List.Item.Meta
                       avatar={
-                        <Avatar
-                          className={`bg-${item.color}-100 text-${item.color}-600 text-2xl flex items-center justify-center`}
-                          style={{ width: 48, height: 48 }}
-                        >
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          item.color === 'blue' ? 'bg-indigo-100 text-indigo-600' :
+                          item.color === 'green' ? 'bg-green-100 text-green-600' :
+                          item.color === 'yellow' ? 'bg-yellow-100 text-yellow-600' :
+                          item.color === 'purple' ? 'bg-purple-100 text-purple-600' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
                           {item.icon}
-                        </Avatar>
+                        </div>
                       }
                       title={
                         <div className="flex items-center space-x-2">
                           <Text strong className="text-base text-gray-800">{item.title}</Text>
                           <Tag
-                            color={item.color === 'yellow' ? 'orange' : item.color} // Menggunakan orange untuk yellow agar lebih kontras
-                            className="rounded-full px-3 py-0.5 text-xs font-medium uppercase"
+                            className={`rounded-full px-3 py-0.5 text-xs font-medium uppercase border-0 ${
+                              item.color === 'blue' ? 'bg-indigo-100 text-indigo-700' :
+                              item.color === 'green' ? 'bg-green-100 text-green-700' :
+                              item.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
+                              item.color === 'purple' ? 'bg-purple-100 text-purple-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}
                           >
                             {item.type}
                           </Tag>
@@ -212,16 +225,15 @@ const Dashboard = () => {
             </Card>
           </Col>
 
-          {/* Poll Statistics */}
           <Col xs={24} lg={12}>
             <Card
               title={
                 <Space className="items-center text-xl font-semibold text-gray-800">
-                  <FaChartPie className="text-green-500 text-2xl" />
+                  <FaChartPie className="text-indigo-600 text-2xl" />
                   <span>Poll Statistics</span>
                 </Space>
               }
-              className="rounded-2xl shadow-xl h-full"
+              className="rounded-xl shadow-sm border border-gray-200 h-full bg-white"
             >
               <div className="py-5">
                 {pollStats.map((stat, index) => (
@@ -242,39 +254,27 @@ const Dashboard = () => {
                 ))}
               </div>
 
-              <div className="mt-8 p-6 bg-blue-50 rounded-xl">
+              <div className="mt-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
                 <Title level={5} className="mb-4 text-gray-800">
                   Quick Actions
                 </Title>
                 <Space wrap size={[12, 12]}>
-                  <Tag
-                    icon={<FaPlusCircle className="text-base" />}
-                    color="blue"
-                    className="py-2 px-4 text-sm rounded-full cursor-pointer transition-all duration-200 hover:scale-105 hover:bg-blue-600 hover:text-white"
-                  >
+                  <button className="flex items-center gap-2 py-2 px-4 text-sm rounded-lg cursor-pointer transition-all duration-200 bg-indigo-100 text-indigo-700 hover:bg-indigo-600 hover:text-white border border-indigo-200">
+                    <FaPlusCircle className="text-base" />
                     Create Poll
-                  </Tag>
-                  <Tag
-                    icon={<FaUserPlus className="text-base" />}
-                    color="green"
-                    className="py-2 px-4 text-sm rounded-full cursor-pointer transition-all duration-200 hover:scale-105 hover:bg-green-600 hover:text-white"
-                  >
+                  </button>
+                  <button className="flex items-center gap-2 py-2 px-4 text-sm rounded-lg cursor-pointer transition-all duration-200 bg-green-100 text-green-700 hover:bg-green-600 hover:text-white border border-green-200">
+                    <FaUserPlus className="text-base" />
                     Add User
-                  </Tag>
-                  <Tag
-                    icon={<FaFileSignature className="text-base" />}
-                    color="orange"
-                    className="py-2 px-4 text-sm rounded-full cursor-pointer transition-all duration-200 hover:scale-105 hover:bg-orange-600 hover:text-white"
-                  >
+                  </button>
+                  <button className="flex items-center gap-2 py-2 px-4 text-sm rounded-lg cursor-pointer transition-all duration-200 bg-yellow-100 text-yellow-700 hover:bg-yellow-600 hover:text-white border border-yellow-200">
+                    <FaFileSignature className="text-base" />
                     New Policy
-                  </Tag>
-                  <Tag
-                    icon={<FaChartBar className="text-base" />}
-                    color="purple"
-                    className="py-2 px-4 text-sm rounded-full cursor-pointer transition-all duration-200 hover:scale-105 hover:bg-purple-600 hover:text-white"
-                  >
+                  </button>
+                  <button className="flex items-center gap-2 py-2 px-4 text-sm rounded-lg cursor-pointer transition-all duration-200 bg-purple-100 text-purple-700 hover:bg-purple-600 hover:text-white border border-purple-200">
+                    <FaChartBar className="text-base" />
                     View Reports
-                  </Tag>
+                  </button>
                 </Space>
               </div>
             </Card>

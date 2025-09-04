@@ -160,99 +160,112 @@ const UserManagement = () => {
   const getRoleTagColor = (role) => {
     switch (role) {
       case 'admin':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 border border-purple-200';
       case 'konsituen':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 border border-blue-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
     }
   };
 
   const getStatusTagColor = (status) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 border border-green-200';
       case 'inactive':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 border border-red-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 font-sans">
+    <div className="flex h-screen bg-gray-100 font-sans">
       <SidebarComponents />
       <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-6 flex items-center">
-          <UsersIcon className="w-8 h-8 mr-3 text-indigo-600" />
-          Manajemen Pengguna
-        </h1>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
+            <UsersIcon className="w-8 h-8 mr-3 text-indigo-600" />
+            Manajemen Pengguna
+          </h1>
+          <p className="text-gray-600">Kelola pengguna dan hak akses sistem</p>
+        </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Pengguna"
             value={userStats.total}
-            icon={<UsersIcon className="w-6 h-6 text-indigo-500" />}
+            icon={<UsersIcon className="w-6 h-6 text-indigo-600" />}
             color="text-indigo-600"
+            bgColor="bg-indigo-50"
           />
           <StatCard
             title="Pengguna Aktif"
             value={userStats.active}
-            icon={<CheckCircleIcon className="w-6 h-6 text-green-500" />}
+            icon={<CheckCircleIcon className="w-6 h-6 text-green-600" />}
             color="text-green-600"
+            bgColor="bg-green-50"
           />
           <StatCard
             title="Administrator"
             value={userStats.admins}
-            icon={<ComputerDesktopIcon className="w-6 h-6 text-purple-500" />}
+            icon={<ComputerDesktopIcon className="w-6 h-6 text-purple-600" />}
             color="text-purple-600"
+            bgColor="bg-purple-50"
           />
           <StatCard
             title="Konstituen"
             value={userStats.konsituen}
-            icon={<UserCircleIcon className="w-6 h-6 text-yellow-500" />}
-            color="text-yellow-600"
+            icon={<UserCircleIcon className="w-6 h-6 text-blue-600" />}
+            color="text-blue-600"
+            bgColor="bg-blue-50"
           />
         </div>
 
         {/* Controls */}
-          <div className="flex justify-end mb-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Filter & Pencarian</h2>
+              <p className="text-sm text-gray-600">Cari dan filter pengguna berdasarkan kriteria</p>
+            </div>
             <button
               onClick={handleAdd}
-              className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out"
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
             >
               <PlusCircleIcon className="w-5 h-5 mr-2" />
               Tambah Pengguna Baru
             </button>
           </div>
-        <div className="bg-white p-5 rounded-lg shadow-sm mb-6 border border-gray-100">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Pencarian</label>
               <div className="relative">
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Cari pengguna..."
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                  placeholder="Cari berdasarkan nama, email, atau username..."
+                  className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 focus:bg-white"
                   value={searchText}
                   onChange={(e) => {
                     setSearchText(e.target.value);
-                    setCurrentPage(1); // Reset to first page on search
+                    setCurrentPage(1);
                   }}
                 />
               </div>
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Filter Peran</label>
               <select
-                className="block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800 transition duration-150 ease-in-out"
+                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 focus:bg-white text-gray-800 transition-all duration-200"
                 value={filterRole}
                 onChange={(e) => {
                   setFilterRole(e.target.value);
-                  setCurrentPage(1); // Reset to first page on filter
+                  setCurrentPage(1);
                 }}
               >
-                <option value="">Filter Berdasarkan Peran</option>
+                <option value="">Semua Peran</option>
                 <option value="admin">Administrator</option>
                 <option value="konsituen">Konsituen</option>
               </select>
@@ -261,7 +274,11 @@ const UserManagement = () => {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 className="text-lg font-semibold text-gray-900">Daftar Pengguna</h3>
+            <p className="text-sm text-gray-600 mt-1">Total {filteredUsers.length} pengguna ditemukan</p>
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -341,7 +358,7 @@ const UserManagement = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleTagColor(
+                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleTagColor(
                             user.role
                           )}`}
                         >
@@ -350,31 +367,33 @@ const UserManagement = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusTagColor(
+                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusTagColor(
                             user.status
                           )}`}
                         >
-                          {user.status.toUpperCase()}
+                          {user.status === 'active' ? 'AKTIF' : 'TIDAK AKTIF'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(user.joinDate).toLocaleDateString('id-ID')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleEdit(user)}
-                          className="text-indigo-600 hover:text-indigo-900 mr-4 p-2 rounded-full hover:bg-indigo-50 transition duration-150 ease-in-out"
-                          title="Edit"
-                        >
-                          <PencilIcon className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user.id)}
-                          className="text-red-600 hover:text-red-900 p-2 rounded-full hover:bg-red-50 transition duration-150 ease-in-out"
-                          title="Delete"
-                        >
-                          <TrashIcon className="w-5 h-5" />
-                        </button>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleEdit(user)}
+                            className="text-indigo-600 hover:text-indigo-900 p-2 rounded-lg hover:bg-indigo-50 transition-all duration-200 border border-transparent hover:border-indigo-200"
+                            title="Edit Pengguna"
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user.id)}
+                            className="text-red-600 hover:text-red-900 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 border border-transparent hover:border-red-200"
+                            title="Hapus Pengguna"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -391,7 +410,7 @@ const UserManagement = () => {
 
           {/* Pagination */}
           {filteredUsers.length > usersPerPage && (
-            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-sm text-gray-700">
                 Menampilkan{' '}
                 <span className="font-medium">
@@ -476,34 +495,34 @@ const UserManagement = () => {
                   leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                   leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                  <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-xl bg-white px-6 pt-6 pb-6 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
                     <div>
-                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-200">
                         <UserCircleIcon
-                          className="h-6 w-6 text-indigo-600"
+                          className="h-8 w-8 text-indigo-600"
                           aria-hidden="true"
                         />
                       </div>
-                      <div className="mt-3 text-center sm:mt-5">
+                      <div className="mt-4 text-center sm:mt-6">
                         <Dialog.Title
                           as="h3"
-                          className="text-lg font-medium leading-6 text-gray-900"
+                          className="text-xl font-semibold leading-6 text-gray-900"
                         >
                           {editingUser ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}
                         </Dialog.Title>
                         <div className="mt-2">
-                          <p className="text-sm text-gray-500">
-                            Lengkapi detail pengguna di bawah.
+                          <p className="text-sm text-gray-600">
+                            {editingUser ? 'Perbarui informasi pengguna' : 'Lengkapi detail pengguna baru'}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
                           <label
                             htmlFor="username"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
                           >
                             Username
                           </label>
@@ -515,13 +534,14 @@ const UserManagement = () => {
                             onChange={handleInputChange}
                             required
                             min="3"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            placeholder="Masukkan username"
                           />
                         </div>
                         <div>
                           <label
                             htmlFor="fullName"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
                           >
                             Nama Lengkap
                           </label>
@@ -532,15 +552,16 @@ const UserManagement = () => {
                             value={formData.fullName || ''}
                             onChange={handleInputChange}
                             required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            placeholder="Masukkan nama lengkap"
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
                           <label
                             htmlFor="email"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
                           >
                             Email
                           </label>
@@ -551,13 +572,14 @@ const UserManagement = () => {
                             value={formData.email || ''}
                             onChange={handleInputChange}
                             required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            placeholder="contoh@email.com"
                           />
                         </div>
                         <div>
                           <label
                             htmlFor="phone"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
                           >
                             Nomor Telepon
                           </label>
@@ -568,15 +590,16 @@ const UserManagement = () => {
                             value={formData.phone || ''}
                             onChange={handleInputChange}
                             required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            placeholder="+62812345678"
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
                           <label
                             htmlFor="role"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
                           >
                             Peran
                           </label>
@@ -586,7 +609,7 @@ const UserManagement = () => {
                             value={formData.role || 'konsituen'}
                             onChange={(e) => handleSelectChange('role', e.target.value)}
                             required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
                           >
                             <option value="konsituen">Konsituen</option>
                             <option value="admin">Administrator</option>
@@ -595,7 +618,7 @@ const UserManagement = () => {
                         <div>
                           <label
                             htmlFor="status"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
                           >
                             Status
                           </label>
@@ -605,7 +628,7 @@ const UserManagement = () => {
                             value={formData.status || 'active'}
                             onChange={(e) => handleSelectChange('status', e.target.value)}
                             required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
                           >
                             <option value="active">Aktif</option>
                             <option value="inactive">Tidak Aktif</option>
@@ -617,7 +640,7 @@ const UserManagement = () => {
                         <div>
                           <label
                             htmlFor="password"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
                           >
                             Password
                           </label>
@@ -629,28 +652,29 @@ const UserManagement = () => {
                             onChange={handleInputChange}
                             required
                             minLength="6"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            placeholder="Minimal 6 karakter"
                           />
                         </div>
                       )}
 
-                      <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                      <div className="mt-8 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 space-y-3 space-y-reverse sm:space-y-0">
+                        <button
+                          type="button"
+                          className="inline-flex justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+                          onClick={() => setIsModalOpen(false)}
+                        >
+                          Batal
+                        </button>
                         <button
                           type="submit"
                           disabled={loading}
-                          className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:col-start-2 sm:text-sm"
+                          className="inline-flex justify-center rounded-lg border border-transparent bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                         >
                           {loading ? (
                             <ArrowPathIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                           ) : null}
                           {editingUser ? 'Perbarui Pengguna' : 'Buat Pengguna'}
-                        </button>
-                        <button
-                          type="button"
-                          className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:col-start-1 sm:mt-0 sm:text-sm"
-                          onClick={() => setIsModalOpen(false)}
-                        >
-                          Batal
                         </button>
                       </div>
                     </form>
@@ -666,14 +690,16 @@ const UserManagement = () => {
 };
 
 // Reusable Stat Card Component
-const StatCard = ({ title, value, icon, color }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
-    <div>
-      <p className="text-sm font-medium text-gray-500">{title}</p>
-      <p className={`mt-1 text-3xl font-bold ${color}`}>{value}</p>
-    </div>
-    <div className={`p-3 rounded-full ${color.replace('text-', 'bg-')}-100`}>
-      {icon}
+const StatCard = ({ title, value, icon, color, bgColor }) => (
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm font-medium text-gray-600">{title}</p>
+        <p className={`mt-2 text-3xl font-bold ${color}`}>{value}</p>
+      </div>
+      <div className={`p-3 rounded-xl ${bgColor} border border-gray-100`}>
+        {icon}
+      </div>
     </div>
   </div>
 );

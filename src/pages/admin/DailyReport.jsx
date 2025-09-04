@@ -212,97 +212,128 @@ const DailyReport = () => {
   ];
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gray-50">
       <SidebarComponents />
       <div className="flex-1 p-6 overflow-auto">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <Title level={2} style={{ margin: 0, color: '#001529' }}>
-            📊 Daily Report
-          </Title>
-          <Space>
-            <DatePicker
-              value={selectedDate}
-              onChange={handleDateChange}
-              format="DD/MM/YYYY"
-              placeholder="Select Date"
-            />
-            <Button icon={<DownloadOutlined />} onClick={handleExportReport}>
-              Export
-            </Button>
-            <Button icon={<PrinterOutlined />} onClick={handlePrintReport}>
-              Print
-            </Button>
-          </Space>
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <CalendarOutlined className="text-xl" style={{color: 'white'}} />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Laporan Harian</h1>
+                <p className="text-gray-600 mt-1">Ringkasan aktivitas dan metrik hari ini</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <DatePicker
+                value={selectedDate}
+                onChange={handleDateChange}
+                format="DD/MM/YYYY"
+                placeholder="Pilih Tanggal"
+                className="h-10 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              />
+              <button
+                onClick={handleExportReport}
+                className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+              >
+                <DownloadOutlined className="w-4 h-4 mr-2" />
+                Export
+              </button>
+              <button
+                onClick={handlePrintReport}
+                className="flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
+              >
+                <PrinterOutlined className="w-4 h-4 mr-2" />
+                Print
+              </button>
+            </div>
+          </div>
+          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+            <p className="text-indigo-800 font-medium">
+              📅 Laporan untuk {selectedDate.format('dddd, DD MMMM YYYY')}
+            </p>
+          </div>
         </div>
 
-        <Text type="secondary" style={{ fontSize: '16px', marginBottom: '24px', display: 'block' }}>
-          Report for {selectedDate.format('dddd, DD MMMM YYYY')}
-        </Text>
-
         {/* Summary Statistics */}
-        <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
-          <Col xs={12} sm={8} md={6}>
-            <Card>
-              <Statistic
-                title="Total Users"
-                value={reportData.summary?.totalUsers}
-                prefix={<UserOutlined style={{ color: '#1890ff' }} />}
-                suffix={
-                  <div style={{ fontSize: '12px', color: '#52c41a' }}>
-                    <RiseOutlined /> +{reportData.summary?.newUsers} new
-                  </div>
-                }
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={8} md={6}>
-            <Card>
-              <Statistic
-                title="Active Users"
-                value={reportData.summary?.activeUsers}
-                prefix={<UserOutlined style={{ color: '#52c41a' }} />}
-                suffix={
-                  <div style={{ fontSize: '12px' }}>
-                    Today
-                  </div>
-                }
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={8} md={6}>
-            <Card>
-              <Statistic
-                title="Poll Votes"
-                value={reportData.summary?.pollVotes}
-                prefix={<BarChartOutlined style={{ color: '#faad14' }} />}
-                suffix={
-                  <div style={{ fontSize: '12px' }}>
-                    {reportData.summary?.totalPolls} polls
-                  </div>
-                }
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={8} md={6}>
-            <Card>
-              <Statistic
-                title="Chatbot Interactions"
-                value={reportData.summary?.chatbotInteractions}
-                prefix={<MessageOutlined style={{ color: '#722ed1' }} />}
-                suffix={
-                  <div style={{ fontSize: '12px' }}>
-                    Today
-                  </div>
-                }
-              />
-            </Card>
-          </Col>
-        </Row>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <UserOutlined className="text-xl" style={{color: 'white'}} />
+              </div>
+              <div className="flex items-center text-green-600 text-sm font-medium">
+                <RiseOutlined className="w-4 h-4 mr-1" />
+                +{reportData.summary?.newUsers}
+              </div>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm mb-1">Total Pengguna</p>
+              <p className="text-2xl font-bold text-gray-900">{reportData.summary?.totalUsers}</p>
+              <p className="text-xs text-gray-500 mt-1">+{reportData.summary?.newUsers} pengguna baru</p>
+            </div>
+          </div>
 
-        <Row gutter={[16, 16]}>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                <UserOutlined className="text-xl" style={{color: 'white'}} />
+              </div>
+              <div className="text-xs text-gray-500 font-medium">
+                Hari Ini
+              </div>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm mb-1">Pengguna Aktif</p>
+              <p className="text-2xl font-bold text-gray-900">{reportData.summary?.activeUsers}</p>
+              <p className="text-xs text-gray-500 mt-1">Sedang online</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                <BarChartOutlined className="text-xl" style={{color: 'white'}} />
+              </div>
+              <div className="text-xs text-gray-500 font-medium">
+                {reportData.summary?.totalPolls} polling
+              </div>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm mb-1">Suara Polling</p>
+              <p className="text-2xl font-bold text-gray-900">{reportData.summary?.pollVotes}</p>
+              <p className="text-xs text-gray-500 mt-1">Total suara hari ini</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <MessageOutlined className="text-xl" style={{color: 'white'}} />
+              </div>
+              <div className="text-xs text-gray-500 font-medium">
+                Hari Ini
+              </div>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm mb-1">Interaksi Chatbot</p>
+              <p className="text-2xl font-bold text-gray-900">{reportData.summary?.chatbotInteractions}</p>
+              <p className="text-xs text-gray-500 mt-1">Percakapan aktif</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* User Activity Timeline */}
-          <Col xs={24} lg={12}>
-            <Card title="User Activity Timeline" style={{ height: '500px' }}>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Timeline Aktivitas Pengguna</h3>
+              <p className="text-sm text-gray-600 mt-1">Aktivitas terbaru dari pengguna sistem</p>
+            </div>
+            <div className="p-6 max-h-96 overflow-y-auto">
               <Timeline>
                 {reportData.userActivity?.map(activity => (
                   <Timeline.Item
@@ -310,94 +341,103 @@ const DailyReport = () => {
                     dot={getActivityIcon(activity.type)}
                     color={getActivityColor(activity.type)}
                   >
-                    <div>
-                      <div style={{ fontWeight: 'bold' }}>
+                    <div className="space-y-1">
+                      <div className="font-semibold text-gray-900">
                         {activity.time} - {activity.action}
                       </div>
-                      <div style={{ color: '#666' }}>
-                        User: {activity.user}
+                      <div className="text-gray-600 text-sm">
+                        Pengguna: {activity.user}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#999' }}>
+                      <div className="text-xs text-gray-500">
                         {activity.details}
                       </div>
                     </div>
                   </Timeline.Item>
                 ))}
               </Timeline>
-            </Card>
-          </Col>
+            </div>
+          </div>
 
-          {/* System Metrics */}
-          <Col xs={24} lg={12}>
-            <Card title="System Performance" style={{ marginBottom: '16px' }}>
-              <Row gutter={[16, 16]}>
-                <Col span={12}>
+          <div className="space-y-6">
+            {/* System Performance */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Performa Sistem</h3>
+                <p className="text-sm text-gray-600 mt-1">Metrik performa server dan aplikasi</p>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <Text strong>Server Uptime</Text>
-                    <div style={{ fontSize: '24px', color: '#52c41a' }}>
+                    <p className="text-sm font-medium text-gray-600 mb-2">Server Uptime</p>
+                    <p className="text-2xl font-bold text-green-600">
                       {reportData.systemMetrics?.serverUptime}
-                    </div>
+                    </p>
                   </div>
-                </Col>
-                <Col span={12}>
                   <div>
-                    <Text strong>Response Time</Text>
-                    <div style={{ fontSize: '24px', color: '#1890ff' }}>
+                    <p className="text-sm font-medium text-gray-600 mb-2">Response Time</p>
+                    <p className="text-2xl font-bold text-blue-600">
                       {reportData.systemMetrics?.responseTime}
-                    </div>
+                    </p>
                   </div>
-                </Col>
-                <Col span={12}>
                   <div>
-                    <Text strong>Error Rate</Text>
-                    <div style={{ fontSize: '24px', color: '#52c41a' }}>
+                    <p className="text-sm font-medium text-gray-600 mb-2">Error Rate</p>
+                    <p className="text-2xl font-bold text-green-600">
                       {reportData.systemMetrics?.errorRate}
-                    </div>
+                    </p>
                   </div>
-                </Col>
-                <Col span={12}>
                   <div>
-                    <Text strong>API Calls</Text>
-                    <div style={{ fontSize: '24px', color: '#722ed1' }}>
+                    <p className="text-sm font-medium text-gray-600 mb-2">API Calls</p>
+                    <p className="text-2xl font-bold text-purple-600">
                       {reportData.systemMetrics?.apiCalls}
-                    </div>
+                    </p>
                   </div>
-                </Col>
-              </Row>
-            </Card>
+                </div>
+              </div>
+            </div>
 
             {/* Quick Stats */}
-            <Card title="Quick Stats">
-              <List
-                size="small"
-                dataSource={[
-                  { label: 'New Polls Created', value: reportData.summary?.newPolls },
-                  { label: 'Policy Views', value: reportData.summary?.policyViews },
-                  { label: 'Database Queries', value: reportData.systemMetrics?.databaseQueries },
-                ]}
-                renderItem={item => (
-                  <List.Item>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                      <span>{item.label}</span>
-                      <span style={{ fontWeight: 'bold' }}>{item.value}</span>
-                    </div>
-                  </List.Item>
-                )}
-              />
-            </Card>
-          </Col>
-        </Row>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Statistik Cepat</h3>
+                <p className="text-sm text-gray-600 mt-1">Ringkasan aktivitas hari ini</p>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Polling Baru Dibuat</span>
+                    <span className="font-bold text-gray-900">{reportData.summary?.newPolls}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Tampilan Kebijakan</span>
+                    <span className="font-bold text-gray-900">{reportData.summary?.policyViews}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Query Database</span>
+                    <span className="font-bold text-gray-900">{reportData.systemMetrics?.databaseQueries}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Polls Activity */}
-        <Card title="Today's Polls Activity" style={{ marginTop: '16px' }}>
-          <Table
-            columns={pollColumns}
-            dataSource={reportData.pollsData}
-            rowKey="id"
-            pagination={false}
-            size="small"
-          />
-        </Card>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Aktivitas Polling Hari Ini</h3>
+            <p className="text-sm text-gray-600 mt-1">Daftar polling yang aktif dan statistiknya</p>
+          </div>
+          <div className="overflow-hidden">
+            <Table
+              columns={pollColumns}
+              dataSource={reportData.pollsData}
+              rowKey="id"
+              pagination={false}
+              size="small"
+              className="border-0"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

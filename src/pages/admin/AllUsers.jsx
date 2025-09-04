@@ -265,118 +265,184 @@ const AllUsers = () => {
   return (
     <div className="flex h-screen">
       <SidebarComponents />
-      <div className="flex-1 p-6 overflow-auto">
-        <Title level={2} style={{ marginBottom: '24px', color: '#001529' }}>
-          👥 All Users
-        </Title>
+      <div className="flex-1 p-6 overflow-auto bg-gray-50">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
+              <UserOutlined className="text-xl" style={{color: 'white'}} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Semua Pengguna</h1>
+              <p className="text-gray-600 mt-1">Kelola dan pantau semua pengguna sistem</p>
+            </div>
+          </div>
+        </div>
 
         {/* Filters and Search */}
-        <Card style={{ marginBottom: '24px' }}>
-          <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} sm={8}>
-              <Input
-                placeholder="Search users..."
-                prefix={<SearchOutlined />}
-                value={searchText}
-                onChange={(e) => handleSearch(e.target.value)}
-                allowClear
-              />
-            </Col>
-            <Col xs={12} sm={4}>
-              <Select
-                placeholder="Filter by Role"
+        <div className="mb-4 flex justify-end">
+            <button className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center font-medium shadow-sm">
+              <PlusOutlined className="mr-2" />
+              Tambah Pengguna Baru
+            </button>
+          </div>
+          
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+          <div className="grid grid-cols-1 items-center md:grid-cols-4 gap-4">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Cari Pengguna</label>
+              <div className="relative">
+                <SearchOutlined className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Cari berdasarkan nama atau email..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  value={searchText}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Filter Peran</label>
+              <select
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200"
                 value={filterRole}
-                onChange={handleRoleFilter}
-                style={{ width: '100%' }}
+                onChange={(e) => handleRoleFilter(e.target.value)}
               >
-                <Option value="all">All Roles</Option>
-                <Option value="admin">Admin</Option>
-                <Option value="moderator">Moderator</Option>
-                <Option value="konsituen">Konsituen</Option>
-              </Select>
-            </Col>
-            <Col xs={12} sm={4}>
-              <Select
-                placeholder="Filter by Status"
-                value={filterStatus}
-                onChange={handleStatusFilter}
-                style={{ width: '100%' }}
-              >
-                <Option value="all">All Status</Option>
-                <Option value="active">Active</Option>
-                <Option value="inactive">Inactive</Option>
-                <Option value="pending">Pending</Option>
-              </Select>
-            </Col>
-            <Col xs={24} sm={8} style={{ textAlign: 'right' }}>
-              <Button type="primary" icon={<PlusOutlined />}>
-                Add New User
-              </Button>
-            </Col>
-          </Row>
-        </Card>
+                <option value="all">Semua Peran</option>
+                <option value="admin">Admin</option>
+                <option value="moderator">Moderator</option>
+                <option value="konsituen">Konsituen</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Filter Status</label>
+              <div className="flex items-end h-full">
+                <select
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200 mb-0"
+                  value={filterStatus}
+                  onChange={(e) => handleStatusFilter(e.target.value)}
+                >
+                  <option value="all">Semua Status</option>
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Tidak Aktif</option>
+                  <option value="pending">Menunggu</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+          
 
         {/* Users Table */}
-        <Card>
-          <Table
-            columns={columns}
-            dataSource={filteredUsers}
-            rowKey="id"
-            loading={loading}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} users`,
-            }}
-            scroll={{ x: 1000 }}
-          />
-        </Card>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                  <UserOutlined className="text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Daftar Pengguna</h3>
+              </div>
+              <div className="text-sm text-gray-500">
+                Total: {filteredUsers.length} pengguna
+              </div>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <Table
+              columns={columns}
+              dataSource={filteredUsers}
+              loading={loading}
+              rowKey="id"
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} pengguna`,
+              }}
+              scroll={{ x: 800 }}
+              className="custom-table"
+            />
+          </div>
+        </div>
 
         {/* User Detail Modal */}
         <Modal
-          title="User Details"
+          title={null}
           visible={isModalVisible}
           onCancel={() => setIsModalVisible(false)}
-          footer={[
-            <Button key="close" onClick={() => setIsModalVisible(false)}>
-              Close
-            </Button>,
-          ]}
+          footer={null}
           width={600}
+          className="custom-modal"
         >
           {selectedUser && (
-            <div>
-              <Row gutter={[16, 16]}>
-                <Col span={24} style={{ textAlign: 'center', marginBottom: '20px' }}>
-                  <Avatar size={80} icon={<UserOutlined />} src={selectedUser.avatar} />
-                  <Title level={4} style={{ marginTop: '10px', marginBottom: '5px' }}>
-                    {selectedUser.name}
-                  </Title>
-                  <Tag color={getRoleColor(selectedUser.role)}>
-                    {selectedUser.role.toUpperCase()}
-                  </Tag>
-                  <Tag color={getStatusColor(selectedUser.status)}>
-                    {selectedUser.status.toUpperCase()}
-                  </Tag>
-                </Col>
-                <Col span={12}>
-                  <strong>Email:</strong>
-                  <div>{selectedUser.email}</div>
-                </Col>
-                <Col span={12}>
-                  <strong>Phone:</strong>
-                  <div>{selectedUser.phone}</div>
-                </Col>
-                <Col span={12}>
-                  <strong>Join Date:</strong>
-                  <div>{new Date(selectedUser.joinDate).toLocaleDateString('id-ID')}</div>
-                </Col>
-                <Col span={12}>
-                  <strong>Last Login:</strong>
-                  <div>{selectedUser.lastLogin ? new Date(selectedUser.lastLogin).toLocaleString('id-ID') : 'Never'}</div>
-                </Col>
-              </Row>
+            <div className="p-6">
+              {/* Modal Header */}
+              <div className="text-center mb-8">
+                <div className="relative inline-block mb-4">
+                  <Avatar size={80} src={selectedUser.avatar} className="border-4 border-white shadow-lg" />
+                  <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white ${
+                    selectedUser.status === 'active' ? 'bg-green-500' : 
+                    selectedUser.status === 'inactive' ? 'bg-red-500' : 'bg-yellow-500'
+                  }`}></div>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedUser.name}</h2>
+                <div className="flex justify-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    selectedUser.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                    selectedUser.role === 'moderator' ? 'bg-blue-100 text-blue-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {selectedUser.role}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    selectedUser.status === 'active' ? 'bg-green-100 text-green-800' :
+                    selectedUser.status === 'inactive' ? 'bg-red-100 text-red-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {selectedUser.status === 'active' ? 'Aktif' : 
+                     selectedUser.status === 'inactive' ? 'Tidak Aktif' : 'Menunggu'}
+                  </span>
+                </div>
+              </div>
+              
+              {/* User Information */}
+              <div className="space-y-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
+                      <p className="text-gray-900 font-medium">{selectedUser.email}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Telepon</label>
+                      <p className="text-gray-900 font-medium">{selectedUser.phone}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Tanggal Bergabung</label>
+                      <p className="text-gray-900 font-medium">{new Date(selectedUser.joinDate).toLocaleDateString('id-ID')}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Login Terakhir</label>
+                      <p className="text-gray-900 font-medium">{selectedUser.lastLogin ? new Date(selectedUser.lastLogin).toLocaleString('id-ID') : 'Never'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Modal Actions */}
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+                <button 
+                  onClick={() => setIsModalVisible(false)}
+                  className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                >
+                  Tutup
+                </button>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                  Edit Pengguna
+                </button>
+              </div>
             </div>
           )}
         </Modal>

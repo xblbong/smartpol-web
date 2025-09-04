@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { chatAPI } from '../services/api';
+import { useState } from 'react';
 
 // Data dummy untuk percakapan chatbot
 const dummyMessages = [
@@ -38,78 +37,16 @@ const botResponses = [
   "Berdasarkan kebijakan yang berlaku saat ini, berikut informasi yang dapat saya berikan:"
 ];
 
-export const useChat = (sessionId = null) => {
-  const [messages, setMessages] = useState([]);
+export const useChat = () => {
+  const [messages, setMessages] = useState(dummyMessages);
   const [isTyping, setIsTyping] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState(sessionId || `session_${Date.now()}`);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Load chat history on component mount
-  useEffect(() => {
-    loadChatHistory();
-  }, [sessionId]);
-
-  const loadChatHistory = async () => {
-    try {
-      setIsLoading(true);
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      
-      if (user.id) {
-        const response = await chatAPI.getChatHistory(sessionId);
-        const chatHistory = response.chat_history || [];
-        
-        if (chatHistory.length > 0) {
-          const formattedMessages = chatHistory.map(msg => ({
-            text: msg.message,
-            isUser: msg.is_user,
-            timestamp: new Date(msg.timestamp).toLocaleTimeString('id-ID', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          }));
-          setMessages(formattedMessages);
-        } else {
-          // If no history, start with welcome message
-          setMessages([{
-            text: "Halo! Selamat datang di SmartPol. Saya PICO, asisten virtual yang siap membantu Anda. Ada yang bisa saya bantu hari ini?",
-            isUser: false,
-            timestamp: new Date().toLocaleTimeString('id-ID', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          }]);
-        }
-      } else {
-        // User not logged in, use dummy messages
-        setMessages(dummyMessages);
-      }
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-      // Fallback to dummy messages on error
-      setMessages(dummyMessages);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const saveChatMessage = async (message, isUser) => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (user.id) {
-        await chatAPI.saveChatMessage(message, isUser, currentSessionId);
-      }
-    } catch (error) {
-      console.error('Error saving chat message:', error);
-    }
-  };
-
-  const sendMessage = async (text, image = null) => {
-    if (!text.trim() && !image) return;
+  const sendMessage = (text) => {
+    if (!text.trim()) return;
 
     // Tambah pesan user
     const userMessage = {
       text: text.trim(),
-      image: image,
       isUser: true,
       timestamp: new Date().toLocaleTimeString('id-ID', { 
         hour: '2-digit', 
@@ -120,20 +57,11 @@ export const useChat = (sessionId = null) => {
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
 
-    // Save user message to database
-    await saveChatMessage(text.trim(), true);
-
     // Simulasi respons bot dengan delay
-    setTimeout(async () => {
-      let responseText = botResponses[Math.floor(Math.random() * botResponses.length)];
-      
-      // Jika ada gambar, berikan respons khusus
-      if (image) {
-        responseText = "Terima kasih telah mengirim gambar! Saya dapat melihat gambar yang Anda kirim. Berdasarkan gambar tersebut, saya akan memberikan analisis atau informasi yang relevan. Apakah ada hal spesifik yang ingin Anda tanyakan tentang gambar ini?";
-      }
-      
+    setTimeout(() => {
+      const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
       const botMessage = {
-        text: responseText,
+        text: randomResponse,
         isUser: false,
         timestamp: new Date().toLocaleTimeString('id-ID', { 
           hour: '2-digit', 
@@ -143,9 +71,6 @@ export const useChat = (sessionId = null) => {
 
       setMessages(prev => [...prev, botMessage]);
       setIsTyping(false);
-      
-      // Save bot message to database
-      await saveChatMessage(responseText, false);
     }, 1500 + Math.random() * 1000); // Random delay 1.5-2.5 detik
   };
 
@@ -153,27 +78,10 @@ export const useChat = (sessionId = null) => {
     setMessages([]);
   };
 
-  const startNewSession = () => {
-    const newSessionId = `session_${Date.now()}`;
-    setCurrentSessionId(newSessionId);
-    setMessages([{
-      text: "Halo! Selamat datang di SmartPol. Saya PICO, asisten virtual yang siap membantu Anda. Ada yang bisa saya bantu hari ini?",
-      isUser: false,
-      timestamp: new Date().toLocaleTimeString('id-ID', {
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    }]);
-  };
-
   return {
     messages,
     isTyping,
-    isLoading,
-    currentSessionId,
     sendMessage,
-    clearMessages,
-    startNewSession,
-    loadChatHistory
+    clearMessages
   };
 };

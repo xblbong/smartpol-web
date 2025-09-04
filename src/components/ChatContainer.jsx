@@ -32,7 +32,6 @@ const ChatContainer = ({ messages }) => {
             <ChatBubble
               key={index}
               message={message.text}
-              image={message.image}
               isUser={message.isUser}
               timestamp={message.timestamp}
             />

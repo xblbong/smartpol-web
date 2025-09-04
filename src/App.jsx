@@ -63,7 +63,7 @@ const App = () => {
       } />
       <Route path="/admin" element={
         // <AdminProtectedRoute>
-          <Home />
+          <Admin />
         // </AdminProtectedRoute>
       } />
       <Route path="/login" element={<Login />} />

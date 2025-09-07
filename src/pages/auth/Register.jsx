@@ -17,7 +17,7 @@ import HeaderForm from "../../components/HeaderForm";
 const { Option } = Select;
 const { TextArea } = AntInput;
 
-const   Register = () => {
+const Register = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);

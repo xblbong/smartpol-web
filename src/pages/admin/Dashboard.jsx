@@ -1,71 +1,100 @@
-import React from 'react';
-import { Row, Col, Card, Statistic, Progress, Typography, List, Avatar, Tag, Space } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Row, Col, Card, Statistic, Progress, Typography, List, Avatar, Tag, Space, Spin, message } from 'antd';
 import {
   FaUser, FaChartPie, FaFileAlt, FaRobot, FaTachometerAlt, FaPlusCircle, FaUserPlus, FaFileSignature, FaChartBar, FaClock
 } from 'react-icons/fa';
-import SidebarComponents from '../../components/layouts/SidebarComponents';
+import { adminAPI } from '../../services/api';
 
 const { Title, Text } = Typography;
 
 const Dashboard = () => {
-  const stats = {
-    totalUsers: 1250,
-    activePolls: 8,
-    totalPolicies: 45,
-    chatbotInteractions: 3420
-  };
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activePolls: 0,
+    totalPolicies: 0,
+    chatbotInteractions: 0
+  });
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [pollStats, setPollStats] = useState([]);
 
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch quick stats
+        const quickStats = await adminAPI.getDashboardQuickStats();
+        setStats({
+          totalUsers: quickStats.total_users || 0,
+          activePolls: quickStats.active_polls || 0,
+          totalPolicies: quickStats.total_policies || 0,
+          chatbotInteractions: quickStats.chatbot_interactions || 0
+        });
+
+        // Fetch poll analytics for poll statistics
+        const pollAnalytics = await adminAPI.getPollAnalytics();
+        if (pollAnalytics.poll_status_distribution) {
+          const pollStatsData = [
+            { 
+              name: 'Active Polls', 
+              value: pollAnalytics.poll_status_distribution.active || 0, 
+              color: '#10b981' 
+            },
+            { 
+              name: 'Completed Polls', 
+              value: pollAnalytics.poll_status_distribution.completed || 0, 
+              color: '#6366f1' 
+            },
+            { 
+              name: 'Draft Polls', 
+              value: pollAnalytics.poll_status_distribution.draft || 0, 
+              color: '#f59e0b' 
+            }
+          ];
+          setPollStats(pollStatsData);
+        }
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        message.error('Gagal memuat data dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Recent activities akan ditampilkan sebagai placeholder untuk saat ini
+  // Bisa dikembangkan lebih lanjut dengan endpoint khusus untuk activity log
   const recentActivities = [
     {
       id: 1,
-      type: 'user',
-      title: 'New user registered',
-      description: 'John Doe joined the platform',
-      time: '2 minutes ago',
-      icon: <FaUser />,
+      type: 'system',
+      title: 'Dashboard loaded',
+      description: 'Data dashboard berhasil dimuat dari database',
+      time: 'Just now',
+      icon: <FaTachometerAlt />,
       color: 'blue'
-    },
-    {
-      id: 2,
-      type: 'poll',
-      title: 'Poll created',
-      description: 'Infrastructure Development Survey',
-      time: '15 minutes ago',
-      icon: <FaChartPie />,
-      color: 'green'
-    },
-    {
-      id: 3,
-      type: 'policy',
-      title: 'Policy updated',
-      description: 'Environmental Protection Act',
-      time: '1 hour ago',
-      icon: <FaFileAlt />,
-      color: 'yellow' // Mengganti ke yellow agar konsisten dengan warna tag
-    },
-    {
-      id: 4,
-      type: 'chatbot',
-      title: 'High chatbot activity',
-      description: '150+ interactions in the last hour',
-      time: '2 hours ago',
-      icon: <FaRobot />,
-      color: 'purple'
     }
-  ];
-
-  const pollStats = [
-    { name: 'Active Polls', value: 8, color: '#10b981' },
-    { name: 'Completed Polls', value: 23, color: '#6366f1' },
-    { name: 'Draft Polls', value: 5, color: '#f59e0b' }
   ];
 
   const totalPolls = pollStats.reduce((sum, stat) => sum + stat.value, 0);
 
+  if (loading) {
+    return (
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <Spin size="large" />
+          <div className="mt-4 text-gray-600">Memuat data dashboard...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-screen bg-gray-50 font-sans">
-      <SidebarComponents />
-      <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100">
         <div className="mb-8 p-6 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
           <Title level={2} className="m-0 text-gray-800 flex items-center">
             <FaTachometerAlt className="text-indigo-600 text-3xl mr-3" />
@@ -280,7 +309,6 @@ const Dashboard = () => {
             </Card>
           </Col>
         </Row>
-      </div>
     </div>
   );
 };

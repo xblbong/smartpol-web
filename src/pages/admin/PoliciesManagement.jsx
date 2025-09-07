@@ -42,7 +42,7 @@ import {
   QuestionCircleOutlined,
   UnlockOutlined,
 } from "@ant-design/icons";
-import SidebarComponents from "../../components/layouts/SidebarComponents";
+
 import moment from "moment";
 
 const { Title, Text } = Typography;
@@ -541,9 +541,7 @@ const PoliciesManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
-      <SidebarComponents />
-      <div className="flex-1 p-6 lg:p-10 overflow-auto">
+    <div className="flex-1 p-6 lg:p-10 overflow-auto bg-gray-100">
         <div className="mb-8">
           <div className="flex items-center mb-3">
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
@@ -1008,7 +1006,6 @@ const PoliciesManagement = () => {
             </div>
           </Form>
         </Modal>
-      </div>
     </div>
   );
 };

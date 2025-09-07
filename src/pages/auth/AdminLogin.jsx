@@ -29,8 +29,8 @@ const AdminLogin = () => {
       localStorage.setItem('admin', JSON.stringify(response.user));
       localStorage.setItem('adminToken', response.token);
       
-      // Redirect ke halaman admin
-      navigate('/admin');
+      // Redirect ke dashboard admin
+      navigate('/dashboard');
       
     } catch (error) {
       console.error('Admin login error:', error);

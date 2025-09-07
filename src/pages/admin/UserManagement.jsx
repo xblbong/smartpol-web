@@ -13,7 +13,7 @@ import {
   XCircleIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
-import SidebarComponents from '../../components/layouts/SidebarComponents';
+
 import { Transition, Dialog } from '@headlessui/react'; // For a more modern modal
 
 const UserManagement = () => {
@@ -180,9 +180,7 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
-      <SidebarComponents />
-      <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
             <UsersIcon className="w-8 h-8 mr-3 text-indigo-600" />
@@ -684,7 +682,6 @@ const UserManagement = () => {
             </div>
           </Dialog>
         </Transition.Root>
-      </div>
     </div>
   );
 };

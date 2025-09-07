@@ -29,7 +29,7 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
 } from "@ant-design/icons";
-import SidebarComponents from "../../components/layouts/SidebarComponents";
+
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -279,9 +279,7 @@ const ReportPolling = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      <SidebarComponents />
-      <div className="flex-1 p-6 overflow-auto">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100">
         <div className="flex items-center space-x-4 mb-6">
           <div className="bg-gradient-to-r from-yellow-500 to-amber-600 p-3 rounded-lg">
             <BarChartOutlined className="text-2xl" style={{ color: "white" }} />
@@ -525,7 +523,6 @@ const ReportPolling = () => {
             </Card>
           </Col>
         </Row>
-      </div>
     </div>
   );
 };

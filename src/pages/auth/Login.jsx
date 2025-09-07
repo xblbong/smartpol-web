@@ -36,6 +36,17 @@ const Login = () => {
       
       const response = await authAPI.login(loginData);
       
+      // Validasi role yang diizinkan untuk login standar
+      const allowedRoles = ['konsituen', 'dpri', 'dprd', 'pimpinan_daerah'];
+      const userRole = response.user.role;
+      
+      if (!allowedRoles.includes(userRole)) {
+        // Logout user jika role tidak diizinkan
+        await authAPI.logout();
+        message.error('Akses ditolak. Hanya pengguna dengan peran Konsituen, DPRI/DPRD, atau Pimpinan Daerah yang dapat mengakses halaman ini.');
+        return;
+      }
+      
       message.success('Login berhasil!');
       console.log('User logged in:', response.user);
       
@@ -54,6 +65,15 @@ const Login = () => {
         
         if (status === 401) {
           errorMessage = 'Username atau password yang Anda masukkan salah. Silakan periksa kembali.';
+        } else if (status === 403) {
+          // Handle role-based access errors
+          if (errorData.error && errorData.error.includes('Admin users')) {
+            errorMessage = 'Akun admin tidak dapat login melalui halaman ini. Silakan gunakan portal admin.';
+          } else if (errorData.error && errorData.error.includes('Akses ditolak')) {
+            errorMessage = errorData.error;
+          } else {
+            errorMessage = 'Akses ditolak. Anda tidak memiliki izin untuk mengakses sistem ini.';
+          }
         } else if (status === 404) {
           errorMessage = 'Akun dengan username tersebut tidak ditemukan. Pastikan username sudah benar atau daftar terlebih dahulu.';
         } else if (status === 400) {

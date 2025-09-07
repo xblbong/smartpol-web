@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Card, Typography, Avatar, Dropdown, Button } from 'antd';
+import { Layout, Menu, Button, Typography, Avatar, Dropdown, Modal, message } from 'antd';
 import {
   DashboardOutlined,
   UserOutlined,
@@ -9,10 +9,12 @@ import {
   RobotOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  LogoutOutlined,
+  BellOutlined,
   SettingOutlined,
-  BellOutlined
+  LogoutOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../../services/api';
 import Dashboard from './Dashboard';
 import UserManagement from './UserManagement';
 import PollingManagement from './PollingManagement';
@@ -26,6 +28,61 @@ const { Title, Text } = Typography;
 const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState('dashboard');
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    Modal.confirm({
+      title: 'Konfirmasi Logout Admin',
+      content: 'Apakah Anda yakin ingin keluar dari panel admin?',
+      okText: 'Ya, Keluar',
+      cancelText: 'Batal',
+      onOk: async () => {
+        try {
+          // Call logout API
+          await authAPI.logout();
+          
+          // Clear all admin data from localStorage
+          localStorage.removeItem('admin');
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          
+          // Clear session storage as well
+          sessionStorage.clear();
+          
+          message.success('Berhasil logout dari panel admin');
+          
+          // Redirect to admin login page
+          navigate('/admin-login');
+          
+        } catch (error) {
+          console.error('Error during admin logout:', error);
+          
+          // Even if API call fails, clear local data and redirect
+          localStorage.removeItem('admin');
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          sessionStorage.clear();
+          
+          message.success('Berhasil logout dari panel admin');
+          navigate('/admin-login');
+        }
+      }
+    });
+  };
+
+  const handleMenuClick = ({ key }) => {
+    if (key === 'logout') {
+      handleLogout();
+    } else if (key === 'profile') {
+      // Handle profile action if needed
+      message.info('Fitur profil akan segera tersedia');
+    } else if (key === 'settings') {
+      // Handle settings action if needed
+      message.info('Fitur pengaturan akan segera tersedia');
+    }
+  };
 
   const menuItems = [
     {
@@ -91,6 +148,11 @@ const AdminLayout = () => {
       danger: true,
     },
   ];
+
+  const userMenuProps = {
+    items: userMenuItems,
+    onClick: handleMenuClick
+  };
 
   const renderContent = () => {
     switch (selectedKey) {
@@ -190,7 +252,7 @@ const AdminLayout = () => {
             />
             
             <Dropdown
-              menu={{ items: userMenuItems }}
+              menu={userMenuProps}
               placement="bottomRight"
               arrow
             >

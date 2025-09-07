@@ -1,33 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { chatAPI } from '../services/api';
 
-// Data dummy untuk percakapan chatbot
-const dummyMessages = [
-  {
-    text: "Halo! Selamat datang di SmartPol. Saya PICO, asisten virtual yang siap membantu Anda. Ada yang bisa saya bantu hari ini?",
-    isUser: false,
-    timestamp: "10:00"
-  },
-  {
-    text: "Halo PICO! Saya ingin tahu tentang kebijakan terbaru mengenai transparansi pemerintahan.",
-    isUser: true,
-    timestamp: "10:01"
-  },
-  {
-    text: "Tentu! Kebijakan transparansi pemerintahan terbaru mencakup beberapa poin penting:\n\n1. Keterbukaan informasi publik\n2. Akses data pemerintah\n3. Partisipasi masyarakat dalam pengambilan keputusan\n\nApakah ada aspek tertentu yang ingin Anda ketahui lebih detail?",
-    isUser: false,
-    timestamp: "10:02"
-  },
-  {
-    text: "Bagaimana cara saya mengakses data pemerintah yang terbuka untuk publik?",
-    isUser: true,
-    timestamp: "10:03"
-  },
-  {
-    text: "Untuk mengakses data pemerintah terbuka, Anda dapat:\n\n📊 Mengunjungi portal data.go.id\n📋 Mengajukan permohonan informasi melalui PPID\n🔍 Menggunakan fitur pencarian di website resmi instansi\n📱 Menggunakan aplikasi mobile yang tersedia\n\nApakah Anda memerlukan bantuan untuk mengakses data tertentu?",
-    isUser: false,
-    timestamp: "10:04"
-  }
-];
+// Initial welcome message
+const welcomeMessage = {
+  text: "Halo! Selamat datang di SmartPol. Saya PICO, asisten virtual yang siap membantu Anda. Ada yang bisa saya bantu hari ini?",
+  isUser: false,
+  timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+};
 
 const botResponses = [
   "Terima kasih atas pertanyaan Anda. Saya sedang memproses informasi yang Anda butuhkan...",
@@ -38,50 +17,91 @@ const botResponses = [
 ];
 
 export const useChat = () => {
-  const [messages, setMessages] = useState(dummyMessages);
+  const [messages, setMessages] = useState([welcomeMessage]);
   const [isTyping, setIsTyping] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const sendMessage = (text) => {
+  // Load chat history on component mount
+  useEffect(() => {
+    loadChatHistory();
+  }, []);
+
+  const loadChatHistory = async () => {
+    try {
+      setLoading(true);
+      const response = await chatAPI.getChatHistory();
+      
+      if (response.messages && response.messages.length > 0) {
+        const formattedMessages = response.messages.map(msg => ({
+          text: msg.message,
+          isUser: msg.is_user,
+          timestamp: new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+        }));
+        setMessages([welcomeMessage, ...formattedMessages]);
+        setSessionId(response.session_id);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      // Keep welcome message if loading fails
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendMessage = async (text) => {
     if (!text.trim()) return;
 
-    // Tambah pesan user
+    // Add user message immediately
     const userMessage = {
       text: text.trim(),
       isUser: true,
-      timestamp: new Date().toLocaleTimeString('id-ID', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      })
+      timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
     };
 
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
 
-    // Simulasi respons bot dengan delay
-    setTimeout(() => {
-      const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
-      const botMessage = {
-        text: randomResponse,
-        isUser: false,
-        timestamp: new Date().toLocaleTimeString('id-ID', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        })
-      };
+    try {
+      // Save user message to database
+      await chatAPI.saveChatMessage(text.trim(), true, sessionId);
 
-      setMessages(prev => [...prev, botMessage]);
+      // Simulate bot response (in real implementation, this would call chatbot API)
+      setTimeout(async () => {
+        const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
+        const botMessage = {
+          text: randomResponse,
+          isUser: false,
+          timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+        };
+
+        setMessages(prev => [...prev, botMessage]);
+        setIsTyping(false);
+
+        // Save bot response to database
+        try {
+          await chatAPI.saveChatMessage(randomResponse, false, sessionId);
+        } catch (error) {
+          console.error('Error saving bot message:', error);
+        }
+      }, 1500);
+    } catch (error) {
+      console.error('Error saving user message:', error);
       setIsTyping(false);
-    }, 1500 + Math.random() * 1000); // Random delay 1.5-2.5 detik
+    }
   };
 
-  const clearMessages = () => {
-    setMessages([]);
+  const clearChat = () => {
+    setMessages([welcomeMessage]);
+    setSessionId(null);
   };
 
   return {
     messages,
     isTyping,
+    loading,
     sendMessage,
-    clearMessages
+    clearChat,
+    loadChatHistory
   };
 };

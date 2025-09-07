@@ -7,6 +7,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 import pymysql
+from functools import wraps
 
 # Load environment variables
 load_dotenv()
@@ -16,13 +17,27 @@ app = Flask(__name__)
 
 # Configuration
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///smartpol.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+pymysql://root:@localhost:3306/smartpol_chatbot')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 CORS(app, origins=os.getenv('CORS_ORIGINS', 'http://localhost:5173').split(','), supports_credentials=True)
+
+# Admin authentication decorator
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        user = User.query.get(session['user_id'])
+        if not user or user.role != 'admin' or not user.is_active:
+            return jsonify({'error': 'Admin access required'}), 403
+            
+        return f(*args, **kwargs)
+    return decorated_function
 
 # User Model
 class User(db.Model):
@@ -339,8 +354,22 @@ def login():
         user = User.query.filter_by(username=data['username']).first()
         
         if user and user.check_password(data['password']) and user.is_active:
+            # Define allowed roles for standard login
+            allowed_roles = ['konsituen', 'dpri', 'dprd', 'pimpinan_daerah']
+            
+            # Block admin from logging in through regular login
+            if user.role == 'admin':
+                return jsonify({'error': 'Admin users must login through admin portal'}), 403
+            
+            # Block unauthorized roles from logging in
+            if user.role not in allowed_roles:
+                return jsonify({
+                    'error': 'Akses ditolak. Hanya pengguna dengan peran Konsituen, DPRI/DPRD, atau Pimpinan Daerah yang dapat mengakses sistem ini.'
+                }), 403
+                
             session['user_id'] = user.id
             session['username'] = user.username
+            session['role'] = user.role
             return jsonify({
                 'message': 'Login successful',
                 'user': user.to_dict()
@@ -373,6 +402,7 @@ def admin_login():
                 
             session['user_id'] = user.id
             session['username'] = user.username
+            session['role'] = user.role
             return jsonify({
                 'message': 'Admin login successful',
                 'user': user.to_dict(),
@@ -719,25 +749,14 @@ def get_policy(policy_id):
 
 # Admin API endpoints
 @app.route('/api/admin/users', methods=['GET'])
+@admin_required
 def get_all_users():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user = User.query.get(session['user_id'])
-    if not user or user.role != 'admin':
-        return jsonify({'error': 'Admin access required'}), 403
-    
     users = User.query.all()
     return jsonify([user.to_dict() for user in users]), 200
 
 @app.route('/api/admin/users', methods=['POST'])
+@admin_required
 def create_user():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user = User.query.get(session['user_id'])
-    if not user or user.role != 'admin':
-        return jsonify({'error': 'Admin access required'}), 403
     
     data = request.get_json()
     
@@ -769,9 +788,8 @@ def create_user():
     return jsonify({'message': 'User created successfully', 'user': new_user.to_dict()}), 201
 
 @app.route('/api/admin/users/<int:user_id>', methods=['PUT'])
+@admin_required
 def update_user(user_id):
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
     
     current_user = User.query.get(session['user_id'])
     if not current_user or current_user.role != 'admin':
@@ -808,13 +826,8 @@ def update_user(user_id):
     return jsonify({'message': 'User updated successfully', 'user': user_to_update.to_dict()}), 200
 
 @app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
+@admin_required
 def delete_user(user_id):
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    current_user = User.query.get(session['user_id'])
-    if not current_user or current_user.role != 'admin':
-        return jsonify({'error': 'Admin access required'}), 403
     
     user_to_delete = User.query.get(user_id)
     if not user_to_delete:
@@ -830,13 +843,8 @@ def delete_user(user_id):
     return jsonify({'message': 'User deleted successfully'}), 200
 
 @app.route('/api/admin/polls/<int:poll_id>', methods=['PUT'])
+@admin_required
 def update_poll(poll_id):
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user = User.query.get(session['user_id'])
-    if not user or user.role != 'admin':
-        return jsonify({'error': 'Admin access required'}), 403
     
     poll = Polling.query.get(poll_id)
     if not poll:
@@ -860,13 +868,8 @@ def update_poll(poll_id):
     return jsonify({'message': 'Poll updated successfully', 'poll': poll.to_dict()}), 200
 
 @app.route('/api/admin/polls/<int:poll_id>', methods=['DELETE'])
+@admin_required
 def delete_poll(poll_id):
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user = User.query.get(session['user_id'])
-    if not user or user.role != 'admin':
-        return jsonify({'error': 'Admin access required'}), 403
     
     poll = Polling.query.get(poll_id)
     if not poll:
@@ -882,13 +885,8 @@ def delete_poll(poll_id):
     return jsonify({'message': 'Poll deleted successfully'}), 200
 
 @app.route('/api/admin/policies/<int:policy_id>', methods=['PUT'])
+@admin_required
 def update_policy(policy_id):
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user = User.query.get(session['user_id'])
-    if not user or user.role != 'admin':
-        return jsonify({'error': 'Admin access required'}), 403
     
     policy = Policy.query.get(policy_id)
     if not policy:
@@ -914,13 +912,8 @@ def update_policy(policy_id):
     return jsonify({'message': 'Policy updated successfully', 'policy': policy.to_dict()}), 200
 
 @app.route('/api/admin/policies/<int:policy_id>', methods=['DELETE'])
+@admin_required
 def delete_policy(policy_id):
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user = User.query.get(session['user_id'])
-    if not user or user.role != 'admin':
-        return jsonify({'error': 'Admin access required'}), 403
     
     policy = Policy.query.get(policy_id)
     if not policy:
@@ -1159,6 +1152,1000 @@ def get_report_stats():
         'category_stats': [{'category': cat, 'count': count} for cat, count in category_stats],
         'priority_stats': [{'priority': pri, 'count': count} for pri, count in priority_stats]
     }), 200
+
+# Analytics and Dashboard Endpoints
+@app.route('/api/admin/analytics/overview', methods=['GET'])
+@admin_required
+def get_analytics_overview():
+    try:
+        # Get date range from query params
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
+        # Basic statistics
+        total_users = User.query.count()
+        active_users = User.query.filter_by(is_active=True).count()
+        total_polls = Polling.query.count()
+        active_polls = Polling.query.filter_by(status='active').count()
+        total_policies = Policy.query.count()
+        total_votes = PollingVote.query.count()
+        chatbot_sessions = ChatHistory.query.with_entities(ChatHistory.session_id).distinct().count()
+        
+        # User growth (last 30 days)
+        from datetime import datetime, timedelta
+        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        new_users = User.query.filter(User.created_at >= thirty_days_ago).count()
+        
+        # Poll engagement
+        poll_engagement = 0
+        if total_polls > 0:
+            poll_engagement = (total_votes / total_polls) if total_polls > 0 else 0
+        
+        # Recent activities
+        recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
+        recent_polls = Polling.query.order_by(Polling.created_at.desc()).limit(5).all()
+        recent_policies = Policy.query.order_by(Policy.created_at.desc()).limit(5).all()
+        
+        activities = []
+        for user in recent_users:
+            activities.append({
+                'type': 'user',
+                'title': 'New user registered',
+                'description': f'{user.full_name} joined the platform',
+                'time': user.created_at.isoformat(),
+                'icon': 'user',
+                'color': 'blue'
+            })
+        
+        for poll in recent_polls:
+            activities.append({
+                'type': 'poll',
+                'title': 'Poll created',
+                'description': poll.title,
+                'time': poll.created_at.isoformat(),
+                'icon': 'chart',
+                'color': 'green'
+            })
+        
+        for policy in recent_policies:
+            activities.append({
+                'type': 'policy',
+                'title': 'Policy updated',
+                'description': policy.title,
+                'time': policy.created_at.isoformat(),
+                'icon': 'file',
+                'color': 'yellow'
+            })
+        
+        # Sort activities by time
+        activities.sort(key=lambda x: x['time'], reverse=True)
+        activities = activities[:10]  # Limit to 10 most recent
+        
+        return jsonify({
+            'overview': {
+                'total_users': total_users,
+                'active_users': active_users,
+                'new_users': new_users,
+                'total_polls': total_polls,
+                'active_polls': active_polls,
+                'total_policies': total_policies,
+                'total_votes': total_votes,
+                'chatbot_sessions': chatbot_sessions,
+                'poll_engagement': round(poll_engagement, 2)
+            },
+            'recent_activities': activities
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/analytics/users', methods=['GET'])
+@admin_required
+def get_user_analytics():
+    try:
+        # User statistics by role
+        user_roles = db.session.query(
+            User.role,
+            db.func.count(User.id).label('count')
+        ).group_by(User.role).all()
+        
+        role_stats = [{'role': role, 'count': count} for role, count in user_roles]
+        
+        # User registration trend (last 30 days)
+        from datetime import datetime, timedelta
+        registration_trend = []
+        for i in range(30):
+            date = datetime.utcnow() - timedelta(days=i)
+            start_of_day = date.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_of_day = date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            
+            count = User.query.filter(
+                User.created_at >= start_of_day,
+                User.created_at <= end_of_day
+            ).count()
+            
+            registration_trend.append({
+                'date': date.strftime('%Y-%m-%d'),
+                'count': count
+            })
+        
+        registration_trend.reverse()
+        
+        # Active vs inactive users
+        active_users = User.query.filter_by(is_active=True).count()
+        inactive_users = User.query.filter_by(is_active=False).count()
+        
+        return jsonify({
+            'role_distribution': role_stats,
+            'registration_trend': registration_trend,
+            'activity_status': {
+                'active': active_users,
+                'inactive': inactive_users
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/analytics/polls', methods=['GET'])
+@admin_required
+def get_poll_analytics():
+    try:
+        # Poll statistics by category
+        poll_categories = db.session.query(
+            Polling.category,
+            db.func.count(Polling.id).label('count')
+        ).group_by(Polling.category).all()
+        
+        category_stats = [{'category': cat, 'count': count} for cat, count in poll_categories]
+        
+        # Poll statistics by status
+        poll_status = db.session.query(
+            Polling.status,
+            db.func.count(Polling.id).label('count')
+        ).group_by(Polling.status).all()
+        
+        status_stats = [{'status': status, 'count': count} for status, count in poll_status]
+        
+        # Vote statistics
+        total_votes = PollingVote.query.count()
+        unique_voters = PollingVote.query.with_entities(PollingVote.user_id).distinct().count()
+        
+        # Top performing polls
+        top_polls = db.session.query(
+            Polling.id,
+            Polling.title,
+            db.func.count(PollingVote.id).label('vote_count')
+        ).join(PollingVote).group_by(Polling.id).order_by(db.func.count(PollingVote.id).desc()).limit(10).all()
+        
+        top_polls_data = [{
+            'id': poll_id,
+            'title': title,
+            'vote_count': vote_count
+        } for poll_id, title, vote_count in top_polls]
+        
+        return jsonify({
+            'category_distribution': category_stats,
+            'status_distribution': status_stats,
+            'vote_statistics': {
+                'total_votes': total_votes,
+                'unique_voters': unique_voters
+            },
+            'top_polls': top_polls_data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/analytics/chatbot', methods=['GET'])
+@admin_required
+def get_chatbot_analytics():
+    try:
+        # Total chatbot interactions
+        total_interactions = ChatHistory.query.count()
+        
+        # Unique users who used chatbot
+        unique_users = ChatHistory.query.with_entities(ChatHistory.user_id).distinct().count()
+        
+        # Sessions count
+        total_sessions = ChatHistory.query.with_entities(ChatHistory.session_id).distinct().count()
+        
+        # Average messages per session
+        avg_messages_per_session = total_interactions / total_sessions if total_sessions > 0 else 0
+        
+        # Daily interaction trend (last 30 days)
+        from datetime import datetime, timedelta
+        interaction_trend = []
+        for i in range(30):
+            date = datetime.utcnow() - timedelta(days=i)
+            start_of_day = date.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_of_day = date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            
+            count = ChatHistory.query.filter(
+                ChatHistory.timestamp >= start_of_day,
+                ChatHistory.timestamp <= end_of_day
+            ).count()
+            
+            interaction_trend.append({
+                'date': date.strftime('%Y-%m-%d'),
+                'count': count
+            })
+        
+        interaction_trend.reverse()
+        
+        return jsonify({
+             'total_interactions': total_interactions,
+             'unique_users': unique_users,
+             'total_sessions': total_sessions,
+             'avg_messages_per_session': round(avg_messages_per_session, 2),
+             'interaction_trend': interaction_trend
+         })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Report Management Endpoints
+@app.route('/api/admin/reports/daily', methods=['GET'])
+@admin_required
+def get_daily_report():
+    try:
+        from datetime import datetime, timedelta
+        
+        # Get date from query params or use today
+        date_str = request.args.get('date')
+        if date_str:
+            target_date = datetime.strptime(date_str, '%Y-%m-%d')
+        else:
+            target_date = datetime.utcnow()
+        
+        start_of_day = target_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_of_day = target_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+        
+        # Daily statistics
+        daily_stats = {
+            'new_users': User.query.filter(
+                User.created_at >= start_of_day,
+                User.created_at <= end_of_day
+            ).count(),
+            'new_polls': Polling.query.filter(
+                Polling.created_at >= start_of_day,
+                Polling.created_at <= end_of_day
+            ).count(),
+            'new_votes': PollingVote.query.filter(
+                PollingVote.voted_at >= start_of_day,
+                PollingVote.voted_at <= end_of_day
+            ).count(),
+            'new_reports': Report.query.filter(
+                Report.created_at >= start_of_day,
+                Report.created_at <= end_of_day
+            ).count(),
+            'chatbot_interactions': ChatHistory.query.filter(
+                ChatHistory.timestamp >= start_of_day,
+                ChatHistory.timestamp <= end_of_day
+            ).count(),
+            'new_policies': Policy.query.filter(
+                Policy.created_at >= start_of_day,
+                Policy.created_at <= end_of_day
+            ).count()
+        }
+        
+        # Hourly breakdown
+        hourly_data = []
+        for hour in range(24):
+            hour_start = start_of_day.replace(hour=hour)
+            hour_end = start_of_day.replace(hour=hour, minute=59, second=59)
+            
+            hourly_stats = {
+                'hour': hour,
+                'users': User.query.filter(
+                    User.created_at >= hour_start,
+                    User.created_at <= hour_end
+                ).count(),
+                'votes': PollingVote.query.filter(
+                    PollingVote.voted_at >= hour_start,
+                    PollingVote.voted_at <= hour_end
+                ).count(),
+                'chatbot': ChatHistory.query.filter(
+                    ChatHistory.timestamp >= hour_start,
+                    ChatHistory.timestamp <= hour_end
+                ).count()
+            }
+            hourly_data.append(hourly_stats)
+        
+        return jsonify({
+            'date': target_date.strftime('%Y-%m-%d'),
+            'daily_stats': daily_stats,
+            'hourly_breakdown': hourly_data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/reports/monthly', methods=['GET'])
+@admin_required
+def get_monthly_report():
+    try:
+        from datetime import datetime, timedelta
+        import calendar
+        
+        # Get month and year from query params or use current month
+        month = int(request.args.get('month', datetime.utcnow().month))
+        year = int(request.args.get('year', datetime.utcnow().year))
+        
+        # Get first and last day of the month
+        first_day = datetime(year, month, 1)
+        last_day = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59)
+        
+        # Monthly statistics
+        monthly_stats = {
+            'total_users': User.query.filter(
+                User.created_at >= first_day,
+                User.created_at <= last_day
+            ).count(),
+            'total_polls': Polling.query.filter(
+                Polling.created_at >= first_day,
+                Polling.created_at <= last_day
+            ).count(),
+            'total_votes': PollingVote.query.filter(
+                PollingVote.voted_at >= first_day,
+                PollingVote.voted_at <= last_day
+            ).count(),
+            'total_reports': Report.query.filter(
+                Report.created_at >= first_day,
+                Report.created_at <= last_day
+            ).count(),
+            'chatbot_interactions': ChatHistory.query.filter(
+                ChatHistory.timestamp >= first_day,
+                ChatHistory.timestamp <= last_day
+            ).count(),
+            'total_policies': Policy.query.filter(
+                Policy.created_at >= first_day,
+                Policy.created_at <= last_day
+            ).count()
+        }
+        
+        # Daily breakdown for the month
+        daily_data = []
+        current_date = first_day
+        while current_date <= last_day:
+            day_start = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            day_end = current_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            
+            daily_stats = {
+                'date': current_date.strftime('%Y-%m-%d'),
+                'day': current_date.day,
+                'users': User.query.filter(
+                    User.created_at >= day_start,
+                    User.created_at <= day_end
+                ).count(),
+                'votes': PollingVote.query.filter(
+                    PollingVote.voted_at >= day_start,
+                    PollingVote.voted_at <= day_end
+                ).count(),
+                'reports': Report.query.filter(
+                    Report.created_at >= day_start,
+                    Report.created_at <= day_end
+                ).count()
+            }
+            daily_data.append(daily_stats)
+            current_date += timedelta(days=1)
+        
+        # Category breakdown
+        poll_categories = db.session.query(
+            Polling.category,
+            db.func.count(Polling.id).label('count')
+        ).filter(
+            Polling.created_at >= first_day,
+            Polling.created_at <= last_day
+        ).group_by(Polling.category).all()
+        
+        category_stats = [{'category': cat, 'count': count} for cat, count in poll_categories]
+        
+        return jsonify({
+            'month': month,
+            'year': year,
+            'monthly_stats': monthly_stats,
+            'daily_breakdown': daily_data,
+            'category_breakdown': category_stats
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/reports/annual', methods=['GET'])
+@admin_required
+def get_annual_report():
+    
+    try:
+        from datetime import datetime, timedelta
+        
+        # Get year from query params or use current year
+        year = int(request.args.get('year', datetime.utcnow().year))
+        
+        # Get first and last day of the year
+        first_day = datetime(year, 1, 1)
+        last_day = datetime(year, 12, 31, 23, 59, 59)
+        
+        # Annual statistics
+        annual_stats = {
+            'total_users': User.query.filter(
+                User.created_at >= first_day,
+                User.created_at <= last_day
+            ).count(),
+            'total_polls': Polling.query.filter(
+                Polling.created_at >= first_day,
+                Polling.created_at <= last_day
+            ).count(),
+            'total_votes': PollingVote.query.filter(
+                PollingVote.voted_at >= first_day,
+                PollingVote.voted_at <= last_day
+            ).count(),
+            'total_reports': Report.query.filter(
+                Report.created_at >= first_day,
+                Report.created_at <= last_day
+            ).count(),
+            'chatbot_interactions': ChatHistory.query.filter(
+                ChatHistory.timestamp >= first_day,
+                ChatHistory.timestamp <= last_day
+            ).count(),
+            'total_policies': Policy.query.filter(
+                Policy.created_at >= first_day,
+                Policy.created_at <= last_day
+            ).count()
+        }
+        
+        # Monthly breakdown for the year
+        monthly_data = []
+        for month in range(1, 13):
+            month_start = datetime(year, month, 1)
+            if month == 12:
+                month_end = datetime(year, 12, 31, 23, 59, 59)
+            else:
+                month_end = datetime(year, month + 1, 1) - timedelta(seconds=1)
+            
+            monthly_stats = {
+                'month': month,
+                'month_name': month_start.strftime('%B'),
+                'users': User.query.filter(
+                    User.created_at >= month_start,
+                    User.created_at <= month_end
+                ).count(),
+                'polls': Polling.query.filter(
+                    Polling.created_at >= month_start,
+                    Polling.created_at <= month_end
+                ).count(),
+                'votes': PollingVote.query.filter(
+                    PollingVote.voted_at >= month_start,
+                    PollingVote.voted_at <= month_end
+                ).count(),
+                'reports': Report.query.filter(
+                    Report.created_at >= month_start,
+                    Report.created_at <= month_end
+                ).count()
+            }
+            monthly_data.append(monthly_stats)
+        
+        # Top performing content
+        top_polls = db.session.query(
+            Polling.id,
+            Polling.title,
+            db.func.count(PollingVote.id).label('vote_count')
+        ).join(PollingVote).filter(
+            Polling.created_at >= first_day,
+            Polling.created_at <= last_day
+        ).group_by(Polling.id).order_by(db.func.count(PollingVote.id).desc()).limit(10).all()
+        
+        top_polls_data = [{
+            'id': poll_id,
+            'title': title,
+            'vote_count': vote_count
+        } for poll_id, title, vote_count in top_polls]
+        
+        return jsonify({
+            'year': year,
+            'annual_stats': annual_stats,
+            'monthly_breakdown': monthly_data,
+            'top_polls': top_polls_data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Policies Management Endpoints
+@app.route('/api/admin/policies', methods=['GET'])
+def get_all_policies_admin():
+    try:
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 10))
+        search = request.args.get('search', '')
+        category_filter = request.args.get('category')
+        status_filter = request.args.get('status')
+        
+        query = Policy.query
+        
+        # Apply search filter
+        if search:
+            query = query.filter(
+                db.or_(
+                    Policy.title.ilike(f'%{search}%'),
+                    Policy.description.ilike(f'%{search}%')
+                )
+            )
+        
+        # Apply category filter
+        if category_filter:
+            query = query.filter(Policy.category == category_filter)
+        
+        # Apply status filter
+        if status_filter:
+            query = query.filter(Policy.status == status_filter)
+        
+        # Paginate results
+        policies = query.order_by(Policy.created_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        
+        policies_data = []
+        for policy in policies.items:
+            policies_data.append({
+                'id': policy.id,
+                'title': policy.title,
+                'description': policy.description,
+                'category': policy.category,
+                'status': policy.status,
+                'policy_type': policy.policy_type,
+                'effective_date': policy.effective_date.isoformat() if policy.effective_date else None,
+                'created_at': policy.created_at.isoformat() if policy.created_at else None,
+                'creator': policy.creator.full_name if policy.creator else None
+            })
+        
+        return jsonify({
+            'policies': policies_data,
+            'total': policies.total,
+            'pages': policies.pages,
+            'current_page': page,
+            'per_page': per_page
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/policies/stats', methods=['GET'])
+def get_policies_stats():
+    try:
+        total_policies = Policy.query.count()
+        draft_policies = Policy.query.filter_by(status='draft').count()
+        approved_policies = Policy.query.filter_by(status='approved').count()
+        rejected_policies = Policy.query.filter_by(status='rejected').count()
+        
+        # Policies by category
+        category_stats = db.session.query(
+            Policy.category,
+            db.func.count(Policy.id).label('count')
+        ).group_by(Policy.category).all()
+        
+        category_data = [{'category': cat, 'count': count} for cat, count in category_stats]
+        
+        return jsonify({
+            'total_policies': total_policies,
+            'draft_policies': draft_policies,
+            'approved_policies': approved_policies,
+            'rejected_policies': rejected_policies,
+            'category_breakdown': category_data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Polling Management Endpoints
+@app.route('/api/admin/polls', methods=['GET'])
+def get_all_polls_admin():
+    try:
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 10))
+        search = request.args.get('search', '')
+        category_filter = request.args.get('category')
+        status_filter = request.args.get('status')
+        
+        query = Polling.query
+        
+        # Apply search filter
+        if search:
+            query = query.filter(
+                db.or_(
+                    Polling.title.ilike(f'%{search}%'),
+                    Polling.description.ilike(f'%{search}%')
+                )
+            )
+        
+        # Apply category filter
+        if category_filter:
+            query = query.filter(Polling.category == category_filter)
+        
+        # Apply status filter
+        if status_filter:
+            query = query.filter(Polling.status == status_filter)
+        
+        # Paginate results
+        polls = query.order_by(Polling.created_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        
+        polls_data = []
+        for poll in polls.items:
+            # Get vote count for each poll
+            vote_count = PollingVote.query.filter_by(polling_id=poll.id).count()
+            
+            polls_data.append({
+                'id': poll.id,
+                'title': poll.title,
+                'description': poll.description,
+                'category': poll.category,
+                'type': poll.type,
+                'status': poll.status,
+                'start_date': poll.start_date.isoformat() if poll.start_date else None,
+                'end_date': poll.end_date.isoformat() if poll.end_date else None,
+                'created_at': poll.created_at.isoformat() if poll.created_at else None,
+                'creator': poll.creator.full_name if poll.creator else None,
+                'vote_count': vote_count,
+                'options_count': len(poll.options)
+            })
+        
+        return jsonify({
+            'polls': polls_data,
+            'total': polls.total,
+            'pages': polls.pages,
+            'current_page': page,
+            'per_page': per_page
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/polls/stats', methods=['GET'])
+def get_polls_stats():
+    try:
+        total_polls = Polling.query.count()
+        active_polls = Polling.query.filter_by(status='active').count()
+        ended_polls = Polling.query.filter_by(status='ended').count()
+        total_votes = PollingVote.query.count()
+        
+        # Polls by category
+        category_stats = db.session.query(
+            Polling.category,
+            db.func.count(Polling.id).label('count')
+        ).group_by(Polling.category).all()
+        
+        category_data = [{'category': cat, 'count': count} for cat, count in category_stats]
+        
+        # Most voted polls
+        top_polls = db.session.query(
+            Polling.id,
+            Polling.title,
+            db.func.count(PollingVote.id).label('vote_count')
+        ).join(PollingVote).group_by(Polling.id).order_by(
+            db.func.count(PollingVote.id).desc()
+        ).limit(5).all()
+        
+        top_polls_data = [{
+            'id': poll_id,
+            'title': title,
+            'vote_count': vote_count
+        } for poll_id, title, vote_count in top_polls]
+        
+        return jsonify({
+            'total_polls': total_polls,
+            'active_polls': active_polls,
+            'ended_polls': ended_polls,
+            'total_votes': total_votes,
+            'category_breakdown': category_data,
+            'top_polls': top_polls_data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/polls/<int:poll_id>/results', methods=['GET'])
+@admin_required
+def get_poll_results(poll_id):
+    try:
+        poll = Polling.query.get_or_404(poll_id)
+        
+        # Get options with vote counts
+        options_data = []
+        total_votes = 0
+        
+        for option in poll.options:
+            vote_count = PollingVote.query.filter_by(
+                polling_id=poll.id,
+                option_id=option.id
+            ).count()
+            
+            options_data.append({
+                'id': option.id,
+                'option_text': option.option_text,
+                'vote_count': vote_count
+            })
+            total_votes += vote_count
+        
+        # Calculate percentages
+        for option in options_data:
+            if total_votes > 0:
+                option['percentage'] = round((option['vote_count'] / total_votes) * 100, 2)
+            else:
+                option['percentage'] = 0
+        
+        return jsonify({
+            'poll': {
+                'id': poll.id,
+                'title': poll.title,
+                'description': poll.description,
+                'status': poll.status,
+                'total_votes': total_votes
+            },
+            'options': options_data
+        })
+    except Exception as e:
+         return jsonify({'error': str(e)}), 500
+
+# Chatbot Reports Endpoints
+@app.route('/api/admin/reports/chatbot', methods=['GET'])
+def get_chatbot_reports():
+    try:
+        from datetime import datetime, timedelta
+        
+        # Get date range from query params
+        start_date_str = request.args.get('start_date')
+        end_date_str = request.args.get('end_date')
+        
+        if start_date_str and end_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        else:
+            # Default to last 30 days
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=30)
+        
+        # Chatbot interaction summary
+        total_interactions = ChatHistory.query.filter(
+            ChatHistory.timestamp >= start_date,
+            ChatHistory.timestamp <= end_date
+        ).count()
+        
+        unique_users = db.session.query(ChatHistory.user_id).filter(
+            ChatHistory.timestamp >= start_date,
+            ChatHistory.timestamp <= end_date
+        ).distinct().count()
+        
+        # Daily interaction breakdown
+        daily_interactions = []
+        current_date = start_date
+        while current_date <= end_date:
+            day_start = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            day_end = current_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            
+            interactions_count = ChatHistory.query.filter(
+                ChatHistory.timestamp >= day_start,
+                ChatHistory.timestamp <= day_end
+            ).count()
+            
+            daily_interactions.append({
+                'date': current_date.strftime('%Y-%m-%d'),
+                'interactions': interactions_count
+            })
+            current_date += timedelta(days=1)
+        
+        # Most active users
+        top_users = db.session.query(
+            ChatHistory.user_id,
+            User.full_name,
+            db.func.count(ChatHistory.id).label('interaction_count')
+        ).join(User).filter(
+            ChatHistory.timestamp >= start_date,
+            ChatHistory.timestamp <= end_date
+        ).group_by(ChatHistory.user_id).order_by(
+            db.func.count(ChatHistory.id).desc()
+        ).limit(10).all()
+        
+        top_users_data = [{
+            'user_id': user_id,
+            'full_name': full_name,
+            'interaction_count': interaction_count
+        } for user_id, full_name, interaction_count in top_users]
+        
+        return jsonify({
+            'summary': {
+                'total_interactions': total_interactions,
+                'unique_users': unique_users,
+                'date_range': {
+                    'start': start_date.strftime('%Y-%m-%d'),
+                    'end': end_date.strftime('%Y-%m-%d')
+                }
+            },
+            'daily_breakdown': daily_interactions,
+            'top_users': top_users_data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/reports/polling', methods=['GET'])
+def get_polling_reports():
+    try:
+        from datetime import datetime, timedelta
+        
+        # Get date range from query params
+        start_date_str = request.args.get('start_date')
+        end_date_str = request.args.get('end_date')
+        
+        if start_date_str and end_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        else:
+            # Default to last 30 days
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=30)
+        
+        # Polling summary
+        total_polls = Polling.query.filter(
+            Polling.created_at >= start_date,
+            Polling.created_at <= end_date
+        ).count()
+        
+        total_votes = PollingVote.query.filter(
+            PollingVote.voted_at >= start_date,
+            PollingVote.voted_at <= end_date
+        ).count()
+        
+        active_polls = Polling.query.filter(
+            Polling.created_at >= start_date,
+            Polling.created_at <= end_date,
+            Polling.status == 'active'
+        ).count()
+        
+        # Daily polling activity
+        daily_activity = []
+        current_date = start_date
+        while current_date <= end_date:
+            day_start = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            day_end = current_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            
+            polls_created = Polling.query.filter(
+                Polling.created_at >= day_start,
+                Polling.created_at <= day_end
+            ).count()
+            
+            votes_cast = PollingVote.query.filter(
+                PollingVote.voted_at >= day_start,
+                PollingVote.voted_at <= day_end
+            ).count()
+            
+            daily_activity.append({
+                'date': current_date.strftime('%Y-%m-%d'),
+                'polls_created': polls_created,
+                'votes_cast': votes_cast
+            })
+            current_date += timedelta(days=1)
+        
+        # Category performance
+        category_performance = db.session.query(
+            Polling.category,
+            db.func.count(Polling.id).label('poll_count'),
+            db.func.count(PollingVote.id).label('vote_count')
+        ).outerjoin(PollingVote).filter(
+            Polling.created_at >= start_date,
+            Polling.created_at <= end_date
+        ).group_by(Polling.category).all()
+        
+        category_data = [{
+            'category': category,
+            'poll_count': poll_count,
+            'vote_count': vote_count or 0
+        } for category, poll_count, vote_count in category_performance]
+        
+        return jsonify({
+            'summary': {
+                'total_polls': total_polls,
+                'total_votes': total_votes,
+                'active_polls': active_polls,
+                'date_range': {
+                    'start': start_date.strftime('%Y-%m-%d'),
+                    'end': end_date.strftime('%Y-%m-%d')
+                }
+            },
+            'daily_activity': daily_activity,
+            'category_performance': category_data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Additional Admin Utilities
+@app.route('/api/admin/users/stats', methods=['GET'])
+def get_users_stats():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        from datetime import datetime, timedelta
+        
+        # Total users
+        total_users = User.query.count()
+        
+        # Active users
+        active_users = User.query.filter_by(is_active=True).count()
+        
+        # Users by role
+        users_by_role = db.session.query(
+            User.role,
+            db.func.count(User.id).label('count')
+        ).group_by(User.role).all()
+        
+        role_stats = {role: count for role, count in users_by_role}
+        
+        # Users by verification status
+        verified_users = User.query.filter_by(nik_verified=True).count()
+        unverified_users = total_users - verified_users
+        
+        # Recent registrations (last 30 days)
+        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        recent_registrations = User.query.filter(User.created_at >= thirty_days_ago).count()
+        
+        return jsonify({
+            'total_users': total_users,
+            'active_users': active_users,
+            'inactive_users': total_users - active_users,
+            'verified_users': verified_users,
+            'unverified_users': unverified_users,
+            'recent_registrations': recent_registrations,
+            'users_by_role': role_stats
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/dashboard/quick-stats', methods=['GET'])
+@admin_required
+def get_dashboard_quick_stats():
+    try:
+        from datetime import datetime, timedelta
+        
+        # Today's stats
+        today = datetime.utcnow().date()
+        today_start = datetime.combine(today, datetime.min.time())
+        today_end = datetime.combine(today, datetime.max.time())
+        
+        # Get basic counts
+        total_users = User.query.count()
+        active_polls = Polling.query.filter_by(status='active').count()
+        total_policies = Policy.query.count()
+        chatbot_interactions = ChatHistory.query.with_entities(ChatHistory.session_id).distinct().count()
+        
+        # Format data sesuai dengan yang diharapkan frontend
+        stats = {
+            'total_users': total_users,
+            'active_polls': active_polls,
+            'total_policies': total_policies,
+            'chatbot_interactions': chatbot_interactions,
+            'today': {
+                'new_users': User.query.filter(
+                    User.created_at >= today_start,
+                    User.created_at <= today_end
+                ).count(),
+                'new_votes': PollingVote.query.filter(
+                    PollingVote.voted_at >= today_start,
+                    PollingVote.voted_at <= today_end
+                ).count(),
+                'chatbot_interactions': ChatHistory.query.filter(
+                    ChatHistory.timestamp >= today_start,
+                    ChatHistory.timestamp <= today_end
+                ).count(),
+                'new_reports': Report.query.filter(
+                    Report.created_at >= today_start,
+                    Report.created_at <= today_end
+                ).count()
+            },
+            'total': {
+                'users': total_users,
+                'polls': Polling.query.count(),
+                'policies': total_policies,
+                'reports': Report.query.count()
+            },
+            'active': {
+                'polls': active_polls,
+                'users': User.query.filter_by(is_active=True).count()
+            }
+        }
+        
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Create tables
 with app.app_context():

@@ -67,11 +67,6 @@ const SidebarComponents = () => {
       title: 'Analytics',
       icon: <FaChartBar className="w-5 h-5" />,
       path: '/admin/analytics'
-    },
-    {
-      title: 'Settings',
-      icon: <FaCog className="w-5 h-5" />,
-      path: '/settings'
     }
   ];
 

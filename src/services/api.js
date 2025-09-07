@@ -285,6 +285,52 @@ export const adminAPI = {
     } catch (error) {
       throw error.response?.data || { error: 'Network error' };
     }
+  },
+
+  // Analytics endpoints
+  getAnalyticsOverview: async () => {
+    try {
+      const response = await api.get('/admin/analytics/overview');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  getUserAnalytics: async () => {
+    try {
+      const response = await api.get('/admin/analytics/users');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  getPollAnalytics: async () => {
+    try {
+      const response = await api.get('/admin/analytics/polls');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  getChatbotAnalytics: async () => {
+    try {
+      const response = await api.get('/admin/analytics/chatbot');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  getDashboardQuickStats: async () => {
+    try {
+      const response = await api.get('/admin/dashboard/quick-stats');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
   }
 };
 

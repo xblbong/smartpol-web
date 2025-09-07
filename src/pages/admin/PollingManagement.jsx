@@ -42,7 +42,7 @@ import {
   MenuOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
-import SidebarComponents from "../../components/layouts/SidebarComponents";
+
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -103,11 +103,7 @@ const PollingManagement = () => {
   const [searchText, setSearchText] = useState("");
   const [filterStatus, setFilterStatus] = useState(undefined);
   const [loading, setLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
 
   const handleAdd = () => {
     setEditingPoll(null);
@@ -392,21 +388,7 @@ const PollingManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <SidebarComponents isOpen={isSidebarOpen} onClose={toggleSidebar} />
-
-      <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
-        {/* Mobile menu button */}
-        <div className="lg:hidden mb-6">
-          <Button
-            type="primary"
-            icon={<MenuOutlined />}
-            onClick={toggleSidebar}
-            className="bg-indigo-600 hover:bg-indigo-700 border-none rounded-lg shadow-md"
-          >
-            Menu
-          </Button>
-        </div>
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto bg-gray-50">
 
         {/* Header */}
         <div className="mb-8">
@@ -801,7 +783,6 @@ const PollingManagement = () => {
             </div>
           </Form>
         </Modal>
-      </div>
     </div>
   );
 };

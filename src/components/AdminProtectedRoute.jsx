@@ -1,30 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Spin } from 'antd';
+import { authAPI } from '../services/api';
 
 const AdminProtectedRoute = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdminAuth = () => {
+    const checkAdminAuth = async () => {
       try {
         const admin = localStorage.getItem('admin');
         const adminToken = localStorage.getItem('adminToken');
         
-        if (admin && adminToken) {
-          const adminData = JSON.parse(admin);
-          // Verifikasi bahwa user adalah admin
-          if (adminData.role === 'admin') {
+        // Block direct access to /admin without proper authentication
+        if (!admin || !adminToken) {
+          setIsAdminAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+
+        const adminData = JSON.parse(admin);
+        
+        // Verifikasi bahwa user adalah admin dan data valid
+        if (!adminData.role || adminData.role !== 'admin' || !adminData.id || !adminData.username) {
+          // Clear invalid admin session
+          localStorage.removeItem('admin');
+          localStorage.removeItem('adminToken');
+          setIsAdminAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+
+        // Verify session with backend - ensure admin role
+        try {
+          const response = await authAPI.checkAuth();
+          if (response.data.user && response.data.user.role === 'admin') {
             setIsAdminAuthenticated(true);
           } else {
+            // Clear invalid admin session
+            localStorage.removeItem('admin');
+            localStorage.removeItem('adminToken');
             setIsAdminAuthenticated(false);
           }
-        } else {
+        } catch (authError) {
+          // Session tidak valid di backend, hapus data lokal
+          localStorage.removeItem('admin');
+          localStorage.removeItem('adminToken');
           setIsAdminAuthenticated(false);
         }
+        
       } catch (error) {
         console.error('Admin auth check failed:', error);
+        // Clear corrupted admin session
+        localStorage.removeItem('admin');
+        localStorage.removeItem('adminToken');
         setIsAdminAuthenticated(false);
       } finally {
         setLoading(false);

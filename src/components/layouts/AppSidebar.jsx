@@ -85,41 +85,41 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
           </div>
           <button
             onClick={() => navigate('/')}
-            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-colors duration-200 group w-full text-left"
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <FaHome className="mr-3" style={{color: '#1C73FF'}} />
+            <FaHome className="mr-3" />
             Beranda
           </button>
           <button
             onClick={() => navigate('/polling')}
-            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-colors duration-200 group w-full text-left"
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             data-tutorial="polling"
           >
-            <FaVoteYea className="mr-3" style={{color: '#1C73FF'}} />
+            <FaVoteYea className="mr-3" />
             Polling
           </button>
           <button
             onClick={() => navigate('/policies')}
-            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-colors duration-200 group w-full text-left"
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             data-tutorial="kebijakan"
           >
-            <FaGavel className="mr-3" style={{color: '#1C73FF'}} />
+            <FaGavel className="mr-3" />
             Kebijakan
           </button>
           {user?.is_admin && (
             <button
               onClick={() => navigate('/admin')}
-              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-colors duration-200 group w-full text-left"
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <FaUserShield className="mr-3" style={{color: '#1C73FF'}} />
+              <FaUserShield className="mr-3" />
               Admin
             </button>
           )}
@@ -137,20 +137,20 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
           </div>
           <button
             onClick={() => setTutorialOpen(true)}
-            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-colors duration-200 group w-full text-left"
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <FaQuestionCircle className="mr-3" style={{color: '#1C73FF'}} />
+            <FaQuestionCircle className="mr-3" />
             Tutorial Pemakaian
           </button>
           <button
             onClick={() => navigate('/credits')}
-            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200 group w-full text-left"
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-colors duration-200 group w-full text-left"
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <FaHeart className="mr-3" style={{color: '#1C73FF'}} />
+            <FaHeart className="mr-3" />
             Tentang Tim
           </button>
         </nav>
@@ -161,23 +161,23 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
           <div className="space-y-2">
             <button
               onClick={() => navigate('/settings')}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200"
+              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-colors duration-200"
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               data-tutorial="edit-profile"
             >
-              <FaUser className="mr-3" style={{color: '#1C73FF'}} />
+              <FaUser className="mr-3" />
               Edit Profile
             </button>
             
             <button
               onClick={() => navigate('/nik-verification')}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200"
+              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-colors duration-200"
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               data-tutorial="nik-verification"
             >
-              <FaUserShield className="mr-3" style={{color: '#1C73FF'}} />
+              <FaUserShield className="mr-3" />
               Verifikasi NIK
             </button>
             
@@ -186,11 +186,11 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
                 localStorage.removeItem('token');
                 navigate('/login');
               }}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-white transition-colors duration-200"
+              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg  text-[#dc2626] hover:text-white transition-colors duration-200"
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <FaLock className="mr-3" style={{color: '#dc2626'}} />
+              <FaLock className="mr-3" />
               Logout
             </button>
           </div>

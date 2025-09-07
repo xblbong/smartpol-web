@@ -57,8 +57,8 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-2 sm:p-4 z-10 lg:left-64">
+      <div className="max-w-7xl mx-auto px-2 sm:px-0">
         {isTyping && (
           <div className="flex items-center gap-2 mb-3 text-gray-500 text-sm">
             <div className="flex gap-1">
@@ -102,38 +102,38 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
           <button
             type="button"
             onClick={handleImageButtonClick}
-            className="p-3 text-gray-400 hover:text-white transition-colors duration-200 rounded-l-2xl"
+            className="p-2 sm:p-3 text-gray-400 hover:text-white transition-colors duration-200 rounded-l-2xl flex-shrink-0"
             onMouseEnter={(e) => e.target.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
             title="Upload Gambar"
           >
-            <FaImage className="text-lg" />
+            <FaImage className="text-base sm:text-lg" />
           </button>
           <input
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Ketik pesan Anda di sini..."
-            className="flex-1 px-4 py-3 bg-transparent outline-none text-gray-800 placeholder-gray-400 text-base"
+            className="flex-1 px-2 sm:px-4 py-2 sm:py-3 bg-transparent outline-none text-gray-800 placeholder-gray-400 text-sm sm:text-base min-w-0"
             disabled={isTyping}
           />
           <button
             type="button"
-            className="p-3 text-gray-400 hover:text-white transition-colors duration-200"
+            className="p-2 sm:p-3 text-gray-400 hover:text-white transition-colors duration-200 flex-shrink-0"
             onMouseEnter={(e) => e.target.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
             title="Rekam Suara"
           >
-            <FaMicrophone className="text-lg" />
+            <FaMicrophone className="text-base sm:text-lg" />
           </button>
           <button
             type="submit"
             disabled={(!prompt.trim() && !selectedImage) || isTyping}
-            className="flex items-center px-5 py-3 text-white rounded-r-2xl hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center px-3 sm:px-5 py-2 sm:py-3 text-white rounded-r-2xl hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             style={{backgroundColor: '#01077A', focusRingColor: '#01077A'}}
             title="Kirim Pesan"
           >
-            <FaPaperPlane className="text-lg" />
+            <FaPaperPlane className="text-base sm:text-lg" />
           </button>
         </form>
       </div>

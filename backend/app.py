@@ -23,7 +23,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-CORS(app, origins=os.getenv('CORS_ORIGINS', 'http://localhost:5173').split(','), supports_credentials=True)
+CORS(app, origins=os.getenv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:5174').split(','), supports_credentials=True)
 
 # Admin authentication decorator
 def admin_required(f):

@@ -374,7 +374,7 @@ npm run dev
 #### Default Login Credentials
 
 **Admin User:**
-- Username: `admin`
+- Username: ` `
 - Password: `admin123`
 
 **Test User:**

@@ -72,11 +72,11 @@ function Home() {
         </div>
 
         {/* Chat Container */}
-        <div className="chat-container overflow-auto" data-tutorial="chat-container">
+        <div className="chat-container flex-1 overflow-auto pb-24" data-tutorial="chat-container">
           <ChatContainer messages={messages} />
         </div>
 
-        {/* Input Area */}
+        {/* Input Area - Now Fixed */}
         <PromptInput onSendMessage={sendMessage} isTyping={isTyping} />
       </div>
     </div>

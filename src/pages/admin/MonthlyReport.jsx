@@ -33,12 +33,11 @@ import {
   PieChartOutlined,
   GlobalOutlined,
 } from "@ant-design/icons";
-import SidebarComponents from "../../components/layouts/SidebarComponents";
+
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { TabPane } = Tabs;
 
 const MonthlyReport = () => {
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
@@ -299,9 +298,7 @@ const MonthlyReport = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <SidebarComponents />
-      <div className="flex-1 p-6 overflow-auto">
+    <div className="p-6 overflow-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
@@ -440,8 +437,14 @@ const MonthlyReport = () => {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-          <Tabs defaultActiveKey="1" className="p-6">
-            <TabPane tab="📊 Ringkasan" key="1">
+          <Tabs 
+            defaultActiveKey="1" 
+            className="p-6"
+            items={[
+              {
+                key: "1",
+                label: "📊 Ringkasan",
+                children: (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Top Performing Polls */}
                 <div className="lg:col-span-2">
@@ -546,9 +549,12 @@ const MonthlyReport = () => {
                   </div>
                 </div>
               </div>
-            </TabPane>
-
-            <TabPane tab="📅 Tren Mingguan" key="2">
+                )
+              },
+              {
+                key: "2",
+                label: "📅 Tren Mingguan",
+                children: (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-gray-50 rounded-lg p-6">
                   <div className="mb-4">
@@ -606,9 +612,12 @@ const MonthlyReport = () => {
                   </div>
                 </div>
               </div>
-            </TabPane>
-
-            <TabPane tab="🏷️ Categories" key="3">
+                )
+              },
+              {
+                key: "3",
+                label: "🏷️ Categories",
+                children: (
               <Card title="Poll Categories Performance">
                 <Table
                   columns={categoryColumns}
@@ -617,9 +626,12 @@ const MonthlyReport = () => {
                   pagination={false}
                 />
               </Card>
-            </TabPane>
-
-            <TabPane tab="👥 Demografi" key="4">
+                )
+              },
+              {
+                key: "4",
+                label: "👥 Demografi",
+                children: (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-gray-50 rounded-lg p-6">
                   <div className="mb-4">
@@ -679,10 +691,11 @@ const MonthlyReport = () => {
                   </div>
                 </div>
               </div>
-            </TabPane>
-          </Tabs>
+                )
+              }
+            ]}
+          />
         </div>
-      </div>
     </div>
   );
 };

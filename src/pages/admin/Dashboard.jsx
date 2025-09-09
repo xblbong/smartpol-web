@@ -9,6 +9,8 @@ const { Title, Text } = Typography;
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [stats, setStats] = useState({
     totalUsers: 0,
     activePolls: 0,
@@ -18,52 +20,68 @@ const Dashboard = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [pollStats, setPollStats] = useState([]);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
+  const fetchDashboardData = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
         setLoading(true);
-        
-        // Fetch quick stats
-        const quickStats = await adminAPI.getDashboardQuickStats();
-        setStats({
-          totalUsers: quickStats.total_users || 0,
-          activePolls: quickStats.active_polls || 0,
-          totalPolicies: quickStats.total_policies || 0,
-          chatbotInteractions: quickStats.chatbot_interactions || 0
-        });
-
-        // Fetch poll analytics for poll statistics
-        const pollAnalytics = await adminAPI.getPollAnalytics();
-        if (pollAnalytics.poll_status_distribution) {
-          const pollStatsData = [
-            { 
-              name: 'Active Polls', 
-              value: pollAnalytics.poll_status_distribution.active || 0, 
-              color: '#10b981' 
-            },
-            { 
-              name: 'Completed Polls', 
-              value: pollAnalytics.poll_status_distribution.completed || 0, 
-              color: '#6366f1' 
-            },
-            { 
-              name: 'Draft Polls', 
-              value: pollAnalytics.poll_status_distribution.draft || 0, 
-              color: '#f59e0b' 
-            }
-          ];
-          setPollStats(pollStatsData);
-        }
-
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        message.error('Gagal memuat data dashboard');
-      } finally {
-        setLoading(false);
       }
-    };
+      
+      // Fetch quick stats
+      const quickStats = await adminAPI.getDashboardQuickStats();
+      setStats({
+        totalUsers: quickStats.total_users || 0,
+        activePolls: quickStats.active_polls || 0,
+        totalPolicies: quickStats.total_policies || 0,
+        chatbotInteractions: quickStats.chatbot_interactions || 0
+      });
 
+      // Fetch poll analytics for poll statistics
+      const pollAnalytics = await adminAPI.getPollAnalytics();
+      if (pollAnalytics.poll_status_distribution) {
+        const pollStatsData = [
+          { 
+            name: 'Active Polls', 
+            value: pollAnalytics.poll_status_distribution.active || 0, 
+            color: '#10b981' 
+          },
+          { 
+            name: 'Completed Polls', 
+            value: pollAnalytics.poll_status_distribution.completed || 0, 
+            color: '#6366f1' 
+          },
+          { 
+            name: 'Draft Polls', 
+            value: pollAnalytics.poll_status_distribution.draft || 0, 
+            color: '#f59e0b' 
+          }
+        ];
+        setPollStats(pollStatsData);
+      }
+
+      setLastUpdated(new Date());
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      if (!isRefresh) {
+        message.error('Gagal memuat data dashboard');
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchDashboardData();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      fetchDashboardData(true);
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Recent activities akan ditampilkan sebagai placeholder untuk saat ini
@@ -100,8 +118,14 @@ const Dashboard = () => {
             <FaTachometerAlt className="text-indigo-600 text-3xl mr-3" />
             Admin Dashboard
           </Title>
-          <div className="hidden sm:block">
-            <Text type="secondary" className="text-sm text-gray-600">Welcome back, Admin!</Text>
+          <div className="hidden sm:block text-right">
+            <Text type="secondary" className="text-sm text-gray-600 block">Welcome back, Admin!</Text>
+            <div className="flex items-center justify-end mt-2">
+              <div className={`w-2 h-2 rounded-full mr-2 ${refreshing ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></div>
+              <Text type="secondary" className="text-xs text-gray-500">
+                {refreshing ? 'Updating...' : lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : 'Loading...'}
+              </Text>
+            </div>
           </div>
         </div>
 
@@ -205,7 +229,7 @@ const Dashboard = () => {
                 </Space>
               }
               className="rounded-xl shadow-sm border border-gray-200 h-full bg-white"
-              bodyStyle={{ padding: '0 24px' }}
+              styles={{ body: { padding: '0 24px' } }}
             >
               <List
                 itemLayout="horizontal"

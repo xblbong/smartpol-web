@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 import pymysql
 from functools import wraps
+from sqlalchemy import text
 
 # Load environment variables
 load_dotenv()
@@ -52,6 +53,7 @@ class User(db.Model):
     nik_verified = db.Column(db.Boolean, default=False)
     kecamatan = db.Column(db.String(50), nullable=True)
     dapil = db.Column(db.String(20), nullable=True)
+    avatar_url = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
 
@@ -73,6 +75,7 @@ class User(db.Model):
             'nik_verified': self.nik_verified,
             'kecamatan': self.kecamatan,
             'dapil': self.dapil,
+            'avatar_url': self.avatar_url,
             'created_at': self.created_at.isoformat(),
             'is_active': self.is_active
         }
@@ -292,6 +295,141 @@ class Report(db.Model):
 def health_check():
     return jsonify({'status': 'OK', 'message': 'SmartPol Backend is running'})
 
+# Database Health Check and Validation
+@app.route('/api/database/health', methods=['GET'])
+@admin_required
+def database_health_check():
+    try:
+        # Check database connection
+        db.session.execute(text('SELECT 1'))
+        
+        # Get table information
+        tables_result = db.session.execute(text('SHOW TABLES'))
+        tables = [row[0] for row in tables_result.fetchall()]
+        
+        # Get basic statistics
+        stats = {}
+        for table in tables:
+            if table != 'alembic_version':
+                count_result = db.session.execute(text(f'SELECT COUNT(*) FROM {table}'))
+                stats[table] = count_result.fetchone()[0]
+        
+        return jsonify({
+            'status': 'healthy',
+            'tables': tables,
+            'statistics': stats,
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.utcnow().isoformat()
+        }), 500
+
+@app.route('/api/database/validate', methods=['GET'])
+@admin_required
+def validate_database_integrity():
+    try:
+        validation_results = []
+        
+        # Validate user data integrity
+        users_with_invalid_email = User.query.filter(~User.email.contains('@')).count()
+        validation_results.append({
+            'check': 'user_email_format',
+            'status': 'pass' if users_with_invalid_email == 0 else 'fail',
+            'count': users_with_invalid_email
+        })
+        
+        # Validate polling data integrity
+        polls_without_options = db.session.execute(text(
+            'SELECT COUNT(*) FROM polling p LEFT JOIN polling_option po ON p.id = po.poll_id WHERE po.id IS NULL'
+        )).fetchone()[0]
+        validation_results.append({
+            'check': 'polls_with_options',
+            'status': 'pass' if polls_without_options == 0 else 'warning',
+            'count': polls_without_options
+        })
+        
+        # Validate votes integrity
+        orphaned_votes = db.session.execute(text(
+            'SELECT COUNT(*) FROM polling_vote pv LEFT JOIN polling_option po ON pv.option_id = po.id WHERE po.id IS NULL'
+        )).fetchone()[0]
+        validation_results.append({
+            'check': 'orphaned_votes',
+            'status': 'pass' if orphaned_votes == 0 else 'fail',
+            'count': orphaned_votes
+        })
+        
+        return jsonify({
+            'validation_results': validation_results,
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+        
+    except Exception as e:
+         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/database/sync', methods=['POST'])
+@admin_required
+def sync_database_data():
+    try:
+        sync_results = []
+        
+        # Sync user data - ensure all required fields are present
+        users_updated = 0
+        users = User.query.all()
+        for user in users:
+            updated = False
+            if not user.created_at:
+                user.created_at = datetime.utcnow()
+                updated = True
+            if user.is_active is None:
+                user.is_active = True
+                updated = True
+            if updated:
+                users_updated += 1
+        
+        # Sync polling data - ensure end dates are set for ended polls
+        polls_updated = 0
+        polls = Polling.query.filter_by(status='ended').all()
+        for poll in polls:
+            if not poll.end_date:
+                poll.end_date = datetime.utcnow()
+                polls_updated += 1
+        
+        # Sync policy data - ensure created_at is set
+        policies_updated = 0
+        policies = Policy.query.all()
+        for policy in policies:
+            updated = False
+            if not policy.created_at:
+                policy.created_at = datetime.utcnow()
+                updated = True
+            if not policy.updated_at:
+                policy.updated_at = datetime.utcnow()
+                updated = True
+            if updated:
+                policies_updated += 1
+        
+        db.session.commit()
+        
+        sync_results = [
+            {'table': 'users', 'updated_count': users_updated},
+            {'table': 'polling', 'updated_count': polls_updated},
+            {'table': 'policy', 'updated_count': policies_updated}
+        ]
+        
+        return jsonify({
+            'status': 'success',
+            'sync_results': sync_results,
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/auth/check', methods=['GET'])
 def check_auth():
     if 'user_id' in session:
@@ -414,6 +552,24 @@ def admin_login():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/admin/logout', methods=['POST'])
+def admin_logout():
+    try:
+        # Verify admin session exists
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        user = User.query.get(session['user_id'])
+        if not user or user.role != 'admin':
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        # Clear session
+        session.clear()
+        return jsonify({'message': 'Admin logout successful'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/profile', methods=['GET'])
 def get_profile():
     try:
@@ -460,6 +616,8 @@ def update_profile():
             if existing_user and existing_user.id != user.id:
                 return jsonify({'error': 'Username already exists'}), 400
             user.username = data['username']
+        if 'avatar_url' in data:
+            user.avatar_url = data['avatar_url']
         
         db.session.commit()
         
@@ -614,6 +772,15 @@ def vote_poll(poll_id):
             return jsonify({'error': 'Not authenticated'}), 401
             
         user_id = session['user_id']
+        
+        # Check if user has verified NIK
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        if not user.nik_verified:
+            return jsonify({'error': 'NIK verification required to vote'}), 400
+        
         data = request.get_json()
         option_id = data.get('option_id')
         
@@ -931,6 +1098,14 @@ def get_chat_history():
         return jsonify({'error': 'Not authenticated'}), 401
     
     user_id = session['user_id']
+    
+    # Check if user has verified NIK
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+        
+    if not user.nik_verified:
+        return jsonify({'error': 'NIK verification required to access chat'}), 400
     session_id = request.args.get('session_id')
     
     query = ChatHistory.query.filter_by(user_id=user_id)
@@ -948,12 +1123,22 @@ def save_chat_message():
     if 'user_id' not in session:
         return jsonify({'error': 'Not authenticated'}), 401
     
+    user_id = session['user_id']
+    
+    # Check if user has verified NIK
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+        
+    if not user.nik_verified:
+        return jsonify({'error': 'NIK verification required to access chat'}), 400
+    
     data = request.get_json()
     if not data or 'message' not in data or 'is_user' not in data:
         return jsonify({'error': 'Message and is_user fields are required'}), 400
     
     chat_message = ChatHistory(
-        user_id=session['user_id'],
+        user_id=user_id,
         message=data['message'],
         is_user=data['is_user'],
         session_id=data.get('session_id')
@@ -1646,6 +1831,7 @@ def get_annual_report():
 
 # Policies Management Endpoints
 @app.route('/api/admin/policies', methods=['GET'])
+@admin_required
 def get_all_policies_admin():
     try:
         page = int(request.args.get('page', 1))
@@ -1730,6 +1916,7 @@ def get_policies_stats():
 
 # Polling Management Endpoints
 @app.route('/api/admin/polls', methods=['GET'])
+@admin_required
 def get_all_polls_admin():
     try:
         page = int(request.args.get('page', 1))
@@ -1958,6 +2145,7 @@ def get_chatbot_reports():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/admin/reports/polling', methods=['GET'])
+@admin_required
 def get_polling_reports():
     try:
         from datetime import datetime, timedelta
@@ -2046,6 +2234,173 @@ def get_polling_reports():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/reports/polling-summary', methods=['GET'])
+@admin_required
+def get_polling_summary():
+    try:
+        from datetime import datetime, timedelta
+        
+        # Get date range from query params
+        start_date_str = request.args.get('start_date')
+        end_date_str = request.args.get('end_date')
+        
+        if start_date_str and end_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        else:
+            # Default to last 30 days
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=30)
+        
+        # Basic polling statistics
+        total_polls = Polling.query.filter(
+            Polling.created_at >= start_date,
+            Polling.created_at <= end_date
+        ).count()
+        
+        active_polls = Polling.query.filter(
+            Polling.status == 'active'
+        ).count()
+        
+        total_votes = PollingVote.query.filter(
+            PollingVote.voted_at >= start_date,
+            PollingVote.voted_at <= end_date
+        ).count()
+        
+        # Average votes per poll
+        avg_votes = total_votes / total_polls if total_polls > 0 else 0
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'total_polls': total_polls,
+                'active_polls': active_polls,
+                'total_votes': total_votes,
+                'average_votes_per_poll': round(avg_votes, 2)
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/admin/reports/poll-performance', methods=['GET'])
+@admin_required
+def get_poll_performance():
+    try:
+        from datetime import datetime, timedelta
+        from sqlalchemy import func
+        
+        # Get top performing polls by vote count
+        top_polls = db.session.query(
+            Polling.id,
+            Polling.title,
+            Polling.category,
+            func.count(PollingVote.id).label('vote_count')
+        ).join(PollingVote, Polling.id == PollingVote.polling_id)\
+         .group_by(Polling.id, Polling.title, Polling.category)\
+         .order_by(func.count(PollingVote.id).desc())\
+         .limit(10).all()
+        
+        performance_data = []
+        for poll in top_polls:
+            performance_data.append({
+                'id': poll.id,
+                'title': poll.title,
+                'category': poll.category,
+                'vote_count': poll.vote_count
+            })
+        
+        return jsonify({
+            'success': True,
+            'data': performance_data
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/admin/reports/category-stats', methods=['GET'])
+@admin_required
+def get_category_stats():
+    try:
+        from sqlalchemy import func
+        
+        # Get polling statistics by category
+        category_stats = db.session.query(
+            Polling.category,
+            func.count(Polling.id).label('poll_count'),
+            func.count(PollingVote.id).label('vote_count')
+        ).outerjoin(PollingVote, Polling.id == PollingVote.polling_id)\
+         .group_by(Polling.category)\
+         .order_by(func.count(Polling.id).desc()).all()
+        
+        stats_data = []
+        for stat in category_stats:
+            stats_data.append({
+                'category': stat.category,
+                'poll_count': stat.poll_count,
+                'vote_count': stat.vote_count or 0
+            })
+        
+        return jsonify({
+            'success': True,
+            'data': stats_data
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/admin/reports/recent-activities', methods=['GET'])
+@admin_required
+def get_recent_activities():
+    try:
+        from datetime import datetime, timedelta
+        
+        # Get recent polling activities (last 7 days)
+        end_date = datetime.utcnow()
+        start_date = end_date - timedelta(days=7)
+        
+        # Recent polls created
+        recent_polls = Polling.query.filter(
+            Polling.created_at >= start_date
+        ).order_by(Polling.created_at.desc()).limit(5).all()
+        
+        # Recent votes
+        recent_votes = db.session.query(
+            PollingVote.voted_at,
+            Polling.title,
+            User.username
+        ).join(Polling, PollingVote.polling_id == Polling.id)\
+         .join(User, PollingVote.user_id == User.id)\
+         .filter(PollingVote.voted_at >= start_date)\
+         .order_by(PollingVote.voted_at.desc()).limit(10).all()
+        
+        activities = []
+        
+        # Add recent polls
+        for poll in recent_polls:
+            activities.append({
+                'type': 'poll_created',
+                'title': f'New poll: {poll.title}',
+                'timestamp': poll.created_at.isoformat(),
+                'category': poll.category
+            })
+        
+        # Add recent votes
+        for vote in recent_votes:
+            activities.append({
+                'type': 'vote_cast',
+                'title': f'{vote.username} voted on {vote.title}',
+                'timestamp': vote.voted_at.isoformat(),
+                'category': 'voting'
+            })
+        
+        # Sort by timestamp
+        activities.sort(key=lambda x: x['timestamp'], reverse=True)
+        
+        return jsonify({
+            'success': True,
+            'data': activities[:15]  # Return top 15 activities
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 # Additional Admin Utilities
 @app.route('/api/admin/users/stats', methods=['GET'])

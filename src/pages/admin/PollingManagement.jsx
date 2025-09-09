@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -50,52 +50,9 @@ const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 
 const PollingManagement = () => {
-  const [polls, setPolls] = useState([
-    {
-      id: 1,
-      title: "Pemilihan Ketua RT 2024",
-      description: "Pemilihan ketua RT untuk periode 2024-2026",
-      category: "Pemilihan",
-      status: "active",
-      startDate: "2024-01-15",
-      endDate: "2024-02-15",
-      totalVotes: 245,
-      maxVotes: 500,
-      isPublic: true,
-      createdBy: "Admin",
-      createdDate: "2024-01-10",
-    },
-    {
-      id: 2,
-      title: "Survey Kepuasan Pelayanan Publik",
-      description:
-        "Survey untuk mengevaluasi kepuasan masyarakat terhadap pelayanan publik",
-      category: "Survey",
-      status: "completed",
-      startDate: "2024-01-01",
-      endDate: "2024-01-31",
-      totalVotes: 1250,
-      maxVotes: 1000,
-      isPublic: true,
-      createdBy: "Admin",
-      createdDate: "2023-12-25",
-    },
-    {
-      id: 3,
-      title: "Polling Anggaran Daerah 2024",
-      description:
-        "Polling untuk menentukan prioritas anggaran daerah tahun 2024",
-      category: "Anggaran",
-      status: "draft",
-      startDate: "2024-03-01",
-      endDate: "2024-03-31",
-      totalVotes: 0,
-      maxVotes: 2000,
-      isPublic: false,
-      createdBy: "Admin",
-      createdDate: "2024-01-20",
-    },
-  ]);
+  const [polls, setPolls] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPoll, setEditingPoll] = useState(null);
@@ -103,6 +60,59 @@ const PollingManagement = () => {
   const [searchText, setSearchText] = useState("");
   const [filterStatus, setFilterStatus] = useState(undefined);
   const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+
+  // Fetch polls from database using MySQL API
+  const fetchPolls = async () => {
+    try {
+      setRefreshing(true);
+      const response = await fetch('/api/admin/polls', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Ensure data is an array before mapping
+        const pollsArray = Array.isArray(data) ? data : [];
+        const formattedPolls = pollsArray.map(poll => ({
+          id: poll.id,
+          title: poll.title,
+          description: poll.description,
+          category: poll.category,
+          status: poll.status,
+          startDate: poll.start_date ? new Date(poll.start_date).toISOString().split('T')[0] : null,
+          endDate: poll.end_date ? new Date(poll.end_date).toISOString().split('T')[0] : null,
+          totalVotes: poll.total_votes || 0,
+          maxVotes: 1000, // Default value
+          isPublic: true, // Default value
+          createdBy: poll.created_by,
+          createdDate: poll.created_at ? new Date(poll.created_at).toISOString().split('T')[0] : null,
+          type: poll.type
+        }));
+        setPolls(formattedPolls);
+        setLastUpdated(new Date());
+      } else {
+        message.error('Gagal mengambil data polling');
+      }
+    } catch (error) {
+      console.error('Error fetching polls:', error);
+      message.error('Terjadi kesalahan saat mengambil data polling');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPolls();
+    
+    // Auto refresh every 30 seconds
+    const interval = setInterval(fetchPolls, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
 
   const handleAdd = () => {
@@ -120,45 +130,79 @@ const PollingManagement = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (pollId) => {
-    setPolls(polls.filter((poll) => poll.id !== pollId));
-    message.success("Poll berhasil dihapus!");
+  const handleDelete = async (pollId) => {
+    try {
+      const response = await fetch(`/api/admin/polls/${pollId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (response.ok) {
+        message.success('Polling berhasil dihapus!');
+        fetchPolls(); // Refresh data
+      } else {
+        message.error('Gagal menghapus polling');
+      }
+    } catch (error) {
+      console.error('Error deleting poll:', error);
+      message.error('Terjadi kesalahan saat menghapus polling');
+    }
   };
 
-  const handleSubmit = (values) => {
-    setLoading(true);
+  const handleSubmit = async (values) => {
+    setSubmitLoading(true);
 
-    setTimeout(() => {
+    try {
       const pollData = {
-        ...values,
-        startDate: values.dateRange[0].format("YYYY-MM-DD"),
-        endDate: values.dateRange[1].format("YYYY-MM-DD"),
+        title: values.title,
+        description: values.description,
+        category: values.category,
+        status: values.status,
+        start_date: values.dateRange[0].format("YYYY-MM-DD HH:mm:ss"),
+        end_date: values.dateRange[1].format("YYYY-MM-DD HH:mm:ss"),
+        type: 'polling'
       };
-      delete pollData.dateRange;
 
+      let response;
       if (editingPoll) {
-        setPolls(
-          polls.map((poll) =>
-            poll.id === editingPoll.id ? { ...poll, ...pollData } : poll
-          )
-        );
-        message.success("Poll berhasil diperbarui!");
+        // Update existing poll
+        response = await fetch(`/api/admin/polls/${editingPoll.id}`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(pollData)
+        });
       } else {
-        const newPoll = {
-          id: Date.now(),
-          ...pollData,
-          totalVotes: 0,
-          createdBy: "Admin",
-          createdDate: moment().format("YYYY-MM-DD"),
-        };
-        setPolls([...polls, newPoll]);
-        message.success("Poll berhasil dibuat!");
+        // Create new poll
+        response = await fetch('/api/polling', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(pollData)
+        });
       }
-
-      setIsModalVisible(false);
-      form.resetFields();
-      setLoading(false);
-    }, 1000);
+      
+      if (response.ok) {
+        message.success(editingPoll ? 'Polling berhasil diperbarui!' : 'Polling berhasil dibuat!');
+        setIsModalVisible(false);
+        form.resetFields();
+        fetchPolls(); // Refresh data
+      } else {
+        message.error('Gagal menyimpan polling');
+      }
+    } catch (error) {
+      console.error('Error saving poll:', error);
+      message.error('Terjadi kesalahan saat menyimpan polling');
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   const filteredPolls = polls.filter(
@@ -392,20 +436,35 @@ const PollingManagement = () => {
 
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center mb-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-4">
-              <BarChartOutlined
-                className="text-xl"
-                style={{ color: "white" }}
-              />
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+                <BarChartOutlined
+                  className="text-xl"
+                  style={{ color: "white" }}
+                />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Manajemen Polling
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Kelola dan pantau semua polling dalam sistem
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Manajemen Polling
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Kelola dan pantau semua polling dalam sistem
-              </p>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${refreshing ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                <span className="text-sm text-gray-600">
+                  {refreshing ? 'Refreshing...' : 'Terhubung'}
+                </span>
+              </div>
+              {lastUpdated && (
+                <span className="text-xs text-gray-500">
+                  Update: {lastUpdated.toLocaleTimeString()}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -595,7 +654,7 @@ const PollingManagement = () => {
           footer={null}
           width={900}
           centered
-          destroyOnClose
+          destroyOnHidden
           className="rounded-xl"
         >
           <Form
@@ -774,7 +833,7 @@ const PollingManagement = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={loading}
+                loading={submitLoading}
                 className="rounded-lg px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50"
                 size="large"
               >

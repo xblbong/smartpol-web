@@ -307,7 +307,7 @@ const Tutorial = ({ visible, onClose }) => {
       )}
 
       {/* CSS for highlighting */}
-      <style jsx global>{`
+      <style jsx="true" global="true">{`
         .tutorial-highlight {
           position: relative;
           z-index: 1000;

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   UserCircleIcon,
   PencilIcon,
@@ -17,50 +17,78 @@ import {
 import { Transition, Dialog } from '@headlessui/react'; // For a more modern modal
 
 const UserManagement = () => {
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      username: 'john_doe',
-      fullName: 'John Doe',
-      email: 'john.doe@example.com',
-      phone: '+62812345678',
-      role: 'konsituen',
-      status: 'active',
-      joinDate: '2024-01-15',
-      avatar: null,
-    },
-    {
-      id: 2,
-      username: 'jane_smith',
-      fullName: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      phone: '+62812345679',
-      role: 'admin',
-      status: 'active',
-      joinDate: '2024-01-10',
-      avatar: null,
-    },
-    {
-      id: 3,
-      username: 'bob_wilson',
-      fullName: 'Bob Wilson',
-      email: 'bob.wilson@example.com',
-      phone: '+62812345680',
-      role: 'konsituen',
-      status: 'inactive',
-      joinDate: '2024-01-20',
-      avatar: null,
-    },
-  ]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({});
   const [searchText, setSearchText] = useState('');
   const [filterRole, setFilterRole] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10); // Number of users per page
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  // Fetch users from database using MySQL API
+  const fetchUsers = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      const response = await fetch('/api/admin/users', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const formattedUsers = data.map(user => ({
+          id: user.id,
+          username: user.username,
+          fullName: user.full_name,
+          email: user.email,
+          phone: user.phone || '-',
+          role: user.role,
+          status: user.is_active ? 'active' : 'inactive',
+          joinDate: user.created_at ? new Date(user.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          avatar: null,
+        }));
+        setUsers(formattedUsers);
+        setLastUpdated(new Date());
+      } else {
+        console.error('Failed to fetch users');
+        // Fallback to empty array if API fails
+        setUsers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      // Fallback to empty array if error occurs
+      setUsers([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  // Load users on component mount
+  useEffect(() => {
+    fetchUsers();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      fetchUsers(true);
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -91,40 +119,94 @@ const UserManagement = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (userId) => {
+  const handleDelete = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter((user) => user.id !== userId));
-      alert('User deleted successfully!');
+      try {
+        const response = await fetch(`/api/admin/users/${userId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (response.ok) {
+          alert('User deleted successfully!');
+          fetchUsers(); // Refresh the user list
+        } else {
+          alert('Failed to delete user');
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('An error occurred while deleting user');
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitLoading(true);
 
-    setTimeout(() => {
+    try {
       if (editingUser) {
-        setUsers(
-          users.map((user) =>
-            user.id === editingUser.id ? { ...user, ...formData } : user
-          )
-        );
-        alert('User updated successfully!');
+        // Update existing user
+        const response = await fetch(`/api/admin/users/${editingUser.id}`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: formData.username,
+            full_name: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            role: formData.role,
+            is_active: formData.status === 'active'
+          })
+        });
+
+        if (response.ok) {
+          alert('User updated successfully!');
+          fetchUsers(); // Refresh the user list
+        } else {
+          alert('Failed to update user');
+        }
       } else {
-        const newUser = {
-          id: Date.now(),
-          ...formData,
-          joinDate: new Date().toISOString().split('T')[0],
-          avatar: null,
-        };
-        setUsers([...users, newUser]);
-        alert('User created successfully!');
+        // Create new user
+        const response = await fetch('/api/admin/users', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: formData.username,
+            full_name: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            role: formData.role,
+            is_active: formData.status === 'active',
+            password: formData.password || 'defaultpassword123'
+          })
+        });
+
+        if (response.ok) {
+          alert('User created successfully!');
+          fetchUsers(); // Refresh the user list
+        } else {
+          alert('Failed to create user');
+        }
       }
 
       setIsModalOpen(false);
       setFormData({});
-      setLoading(false);
-    }, 1000);
+    } catch (error) {
+      console.error('Error submitting user:', error);
+      alert('An error occurred while saving user');
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   const filteredUsers = useMemo(() => {
@@ -182,11 +264,26 @@ const UserManagement = () => {
   return (
     <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
-            <UsersIcon className="w-8 h-8 mr-3 text-indigo-600" />
-            Manajemen Pengguna
-          </h1>
-          <p className="text-gray-600">Kelola pengguna dan hak akses sistem</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
+                <UsersIcon className="w-8 h-8 mr-3 text-indigo-600" />
+                Manajemen Pengguna
+              </h1>
+              <p className="text-gray-600">Kelola pengguna dan hak akses sistem</p>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <div className={`w-2 h-2 rounded-full ${refreshing ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></div>
+                <span>{refreshing ? 'Memperbarui...' : 'Terhubung'}</span>
+              </div>
+              {lastUpdated && (
+                <div className="text-xs text-gray-400 mt-1">
+                  Terakhir diperbarui: {lastUpdated.toLocaleTimeString('id-ID')}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Statistics */}
@@ -373,7 +470,11 @@ const UserManagement = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(user.joinDate).toLocaleDateString('id-ID')}
+                        {new Date(user.joinDate).toLocaleDateString('id-ID', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center space-x-2">
@@ -669,7 +770,7 @@ const UserManagement = () => {
                           disabled={loading}
                           className="inline-flex justify-center rounded-lg border border-transparent bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                         >
-                          {loading ? (
+                          {submitLoading ? (
                             <ArrowPathIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                           ) : null}
                           {editingUser ? 'Perbarui Pengguna' : 'Buat Pengguna'}

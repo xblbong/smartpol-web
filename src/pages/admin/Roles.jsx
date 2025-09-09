@@ -28,7 +28,7 @@ import {
   SettingOutlined,
   LockOutlined
 } from '@ant-design/icons';
-import SidebarComponents from '../../components/layouts/SidebarComponents';
+
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -238,7 +238,11 @@ const Roles = () => {
       title: 'Last Updated',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      render: (date) => new Date(date).toLocaleDateString('id-ID'),
+      render: (date) => new Date(date).toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }),
     },
     {
       title: 'Actions',
@@ -285,9 +289,7 @@ const Roles = () => {
   ];
 
   return (
-    <div className="flex h-screen">
-      <SidebarComponents />
-      <div className="flex-1 p-6 overflow-auto bg-gray-50">
+     <div className="p-6 overflow-auto bg-gray-50">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-3">
@@ -346,7 +348,7 @@ const Roles = () => {
               </div>
             </div>
           }
-          visible={isModalVisible}
+          open={isModalVisible}
           onCancel={() => setIsModalVisible(false)}
           footer={null}
           width={700}
@@ -460,7 +462,7 @@ const Roles = () => {
               </div>
             </div>
           }
-          visible={isViewModalVisible}
+          open={isViewModalVisible}
           onCancel={() => setIsViewModalVisible(false)}
           footer={[
             <button
@@ -515,7 +517,11 @@ const Roles = () => {
                     <span className="font-medium text-gray-700">Dibuat:</span>
                   </div>
                   <div className="text-gray-800">
-                    {new Date(selectedRole.createdAt).toLocaleDateString('id-ID')}
+                    {new Date(selectedRole.createdAt).toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
                   </div>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -523,7 +529,11 @@ const Roles = () => {
                     <span className="font-medium text-gray-700">Terakhir Diperbarui:</span>
                   </div>
                   <div className="text-gray-800">
-                    {new Date(selectedRole.updatedAt).toLocaleDateString('id-ID')}
+                    {new Date(selectedRole.updatedAt).toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
                   </div>
                 </div>
               </div>
@@ -553,7 +563,6 @@ const Roles = () => {
             </div>
           )}
         </Modal>
-      </div>
     </div>
   );
 };

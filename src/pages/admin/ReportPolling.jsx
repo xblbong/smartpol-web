@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Row,
@@ -38,110 +38,128 @@ const { RangePicker } = DatePicker;
 const ReportPolling = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [pollingSummary, setPollingSummary] = useState({
+    totalPolls: 0,
+    activePolls: 0,
+    completedPolls: 0,
+    totalVotes: 0,
+    avgParticipation: 0,
+    topCategory: "-",
+  });
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  // Mock data for polling reports
-  const pollingSummary = {
-    totalPolls: 45,
-    activePolls: 12,
-    completedPolls: 28,
-    totalVotes: 15420,
-    avgParticipation: 68.5,
-    topCategory: "Pemilihan",
+  const [pollPerformance, setPollPerformance] = useState([]);
+
+  const [categoryStats, setCategoryStats] = useState([]);
+
+  const [recentActivities, setRecentActivities] = useState([]);
+
+  // Fetch polling report data from API
+  const fetchPollingReport = async () => {
+    try {
+      setRefreshing(true);
+      
+      // Fetch polling summary
+      const summaryResponse = await fetch('/api/admin/reports/polling-summary', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      
+      if (summaryResponse.ok) {
+        const summary = await summaryResponse.json();
+        setPollingSummary({
+          totalPolls: summary.total_polls || 0,
+          activePolls: summary.active_polls || 0,
+          completedPolls: summary.completed_polls || 0,
+          totalVotes: summary.total_votes || 0,
+          avgParticipation: summary.total_polls > 0 ? ((summary.total_votes / (summary.total_polls * 100)) * 100).toFixed(1) : 0,
+          topCategory: "Pemilihan",
+        });
+      }
+      
+      // Fetch poll performance data
+      const performanceResponse = await fetch('/api/admin/reports/poll-performance', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      
+      if (performanceResponse.ok) {
+        const performanceData = await performanceResponse.json();
+        if (Array.isArray(performanceData)) {
+          const formattedPerformance = performanceData.map(poll => ({
+            id: poll.id,
+            title: poll.title,
+            category: poll.category || 'Umum',
+            totalVotes: poll.total_votes || 0,
+            targetVotes: 1000, // Default target
+            participationRate: ((poll.total_votes / 1000) * 100).toFixed(1),
+            status: poll.status,
+            startDate: poll.start_date ? new Date(poll.start_date).toISOString().split('T')[0] : '',
+            endDate: poll.end_date ? new Date(poll.end_date).toISOString().split('T')[0] : '',
+            trend: poll.total_votes > 500 ? 'up' : 'down'
+          }));
+          setPollPerformance(formattedPerformance);
+        } else {
+          setPollPerformance([]);
+        }
+      }
+      
+      // Fetch category statistics
+      const categoryResponse = await fetch('/api/admin/reports/category-stats', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      
+      if (categoryResponse.ok) {
+        const categoryData = await categoryResponse.json();
+        setCategoryStats(categoryData);
+      }
+      
+      // Fetch recent activities
+      const activitiesResponse = await fetch('/api/admin/reports/recent-activities', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      
+      if (activitiesResponse.ok) {
+        const activitiesData = await activitiesResponse.json();
+        const formattedActivities = Array.isArray(activitiesData) ? activitiesData.map((poll, index) => {
+          const timeDiff = new Date() - new Date(poll.updated_at);
+          const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60));
+          const timeText = hoursAgo < 1 ? 'Baru saja' : hoursAgo < 24 ? `${hoursAgo} jam lalu` : `${Math.floor(hoursAgo / 24)} hari lalu`;
+          
+          return {
+            id: poll.id,
+            action: poll.status === 'completed' ? 'Poll Completed' : poll.status === 'active' ? 'Poll Active' : 'Poll Created',
+            title: poll.title,
+            timestamp: timeText,
+            votes: poll.total_votes || 0,
+            type: poll.status === 'completed' ? 'completed' : poll.total_votes > 100 ? 'milestone' : 'created'
+          };
+        }) : [];
+        setRecentActivities(formattedActivities);
+      }
+      
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Error fetching polling report:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
-
-  const pollPerformance = [
-    {
-      id: 1,
-      title: "Pemilihan Ketua RT 2024",
-      category: "Pemilihan",
-      totalVotes: 2450,
-      targetVotes: 3000,
-      participationRate: 81.7,
-      status: "completed",
-      startDate: "2024-01-15",
-      endDate: "2024-02-15",
-      trend: "up",
-    },
-    {
-      id: 2,
-      title: "Survey Kepuasan Pelayanan Publik",
-      category: "Survey",
-      totalVotes: 1850,
-      targetVotes: 2000,
-      participationRate: 92.5,
-      status: "completed",
-      startDate: "2024-01-01",
-      endDate: "2024-01-31",
-      trend: "up",
-    },
-    {
-      id: 3,
-      title: "Polling Anggaran Infrastruktur",
-      category: "Anggaran",
-      totalVotes: 1200,
-      targetVotes: 2500,
-      participationRate: 48.0,
-      status: "active",
-      startDate: "2024-02-01",
-      endDate: "2024-02-28",
-      trend: "down",
-    },
-    {
-      id: 4,
-      title: "Evaluasi Program Kesehatan",
-      category: "Kesehatan",
-      totalVotes: 980,
-      targetVotes: 1500,
-      participationRate: 65.3,
-      status: "active",
-      startDate: "2024-02-10",
-      endDate: "2024-03-10",
-      trend: "up",
-    },
-  ];
-
-  const categoryStats = [
-    { category: "Pemilihan", polls: 12, votes: 5420, avgParticipation: 78.5 },
-    { category: "Survey", polls: 8, votes: 3200, avgParticipation: 85.2 },
-    { category: "Anggaran", polls: 6, votes: 2800, avgParticipation: 62.1 },
-    { category: "Kesehatan", polls: 5, votes: 2100, avgParticipation: 71.8 },
-    { category: "Pendidikan", polls: 4, votes: 1900, avgParticipation: 68.9 },
-  ];
-
-  const recentActivities = [
-    {
-      id: 1,
-      action: "Poll Completed",
-      title: "Survey Kepuasan Pelayanan Publik",
-      timestamp: "2 hours ago",
-      votes: 1850,
-      type: "completed",
-    },
-    {
-      id: 2,
-      action: "High Participation",
-      title: "Pemilihan Ketua RT 2024",
-      timestamp: "5 hours ago",
-      votes: 2450,
-      type: "milestone",
-    },
-    {
-      id: 3,
-      action: "New Poll Created",
-      title: "Evaluasi Program Kesehatan",
-      timestamp: "1 day ago",
-      votes: 0,
-      type: "created",
-    },
-    {
-      id: 4,
-      action: "Low Participation Alert",
-      title: "Polling Anggaran Infrastruktur",
-      timestamp: "2 days ago",
-      votes: 1200,
-      type: "alert",
-    },
-  ];
+  
+  useEffect(() => {
+    fetchPollingReport();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchPollingReport, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const columns = [
     {
@@ -238,14 +256,22 @@ const ReportPolling = () => {
         <div>
           <div style={{ fontSize: "12px" }}>
             <CalendarOutlined style={{ marginRight: "4px" }} />
-            {new Date(record.startDate).toLocaleDateString("id-ID")}
+            {new Date(record.startDate).toLocaleDateString("id-ID", {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
           </div>
           <div style={{ fontSize: "12px", marginTop: "2px" }}>
             <Text type="secondary">to</Text>
           </div>
           <div style={{ fontSize: "12px" }}>
             <CalendarOutlined style={{ marginRight: "4px" }} />
-            {new Date(record.endDate).toLocaleDateString("id-ID")}
+            {new Date(record.endDate).toLocaleDateString("id-ID", {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
           </div>
         </div>
       ),
@@ -402,8 +428,24 @@ const ReportPolling = () => {
           {/* Poll Performance Table */}
           <Col xs={24} lg={16}>
             <Card
-              title="📈 Poll Performance Analysis"
-              
+              title={
+                <div className="flex items-center justify-between">
+                  <span>📈 Poll Performance Analysis</span>
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-3 h-3 rounded-full ${refreshing ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                      <span className="text-sm text-gray-600">
+                        {refreshing ? 'Refreshing...' : 'Terhubung'}
+                      </span>
+                    </div>
+                    {lastUpdated && (
+                      <span className="text-xs text-gray-500">
+                        Update: {lastUpdated.toLocaleTimeString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              }
             >
               <Table
                 columns={columns}

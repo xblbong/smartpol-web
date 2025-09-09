@@ -12,11 +12,13 @@ import Register from "./pages/auth/Register"
 import AdminLogin from "./pages/auth/AdminLogin"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminProtectedRoute from "./components/AdminProtectedRoute"
+import ErrorBoundary from "./components/ErrorBoundary"
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
       <Route path="/" element={
         <ProtectedRoute>
           <Home />
@@ -47,12 +49,7 @@ const App = () => {
           <Credits />
         </ProtectedRoute>
       } />
-      <Route path="/admin" element={
-        <AdminProtectedRoute>
-          <Admin />
-        </AdminProtectedRoute>
-      } />
-      <Route path="/dashboard" element={
+      <Route path="/admin/*" element={
         <AdminProtectedRoute>
           <Admin />
         </AdminProtectedRoute>
@@ -61,8 +58,9 @@ const App = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/admin-login" element={<AdminLogin />} />
       <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   )
 }
 

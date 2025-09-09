@@ -36,7 +36,7 @@ import {
   ThunderboltOutlined,
   GlobalOutlined,
 } from "@ant-design/icons";
-import SidebarComponents from "../../components/layouts/SidebarComponents";
+
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
@@ -351,7 +351,7 @@ const AnnualReport = () => {
       title: "Participants",
       dataIndex: "participants",
       key: "participants",
-      render: (participants) => <div>{participants.toLocaleString()}</div>,
+      render: (participants) => <div>{participants ? participants.toLocaleString() : '0'}</div>,
     },
     {
       title: "Duration",
@@ -385,8 +385,8 @@ const AnnualReport = () => {
       dataIndex: "users",
       key: "users",
       render: (value) => (
-        <div style={{ color: "#52c41a", fontWeight: "bold" }}>
-          {value.toLocaleString()}
+        <div style={{ color: "#faad14", fontWeight: "bold" }}>
+          {value ? value.toLocaleString() : '0'}
         </div>
       ),
     },
@@ -403,8 +403,8 @@ const AnnualReport = () => {
       dataIndex: "votes",
       key: "votes",
       render: (value) => (
-        <div style={{ color: "#faad14", fontWeight: "bold" }}>
-          {value.toLocaleString()}
+        <div style={{ color: "#1890ff", fontWeight: "bold" }}>
+          {value ? value.toLocaleString() : '0'}
         </div>
       ),
     },
@@ -414,7 +414,7 @@ const AnnualReport = () => {
       key: "interactions",
       render: (value) => (
         <div style={{ color: "#722ed1", fontWeight: "bold" }}>
-          {value.toLocaleString()}
+          {value ? value.toLocaleString() : '0'}
         </div>
       ),
     },
@@ -439,8 +439,8 @@ const AnnualReport = () => {
       dataIndex: "votes",
       key: "votes",
       render: (votes) => (
-        <div style={{ color: "#1890ff", fontWeight: "bold" }}>
-          {votes.toLocaleString()}
+        <div style={{ color: "#52c41a", fontWeight: "bold" }}>
+          {votes ? votes.toLocaleString() : '0'}
         </div>
       ),
     },
@@ -468,9 +468,7 @@ const AnnualReport = () => {
   ];
 
   return (
-    <div className="flex h-screen">
-      <SidebarComponents />
-      <div className="flex-1 p-6 overflow-auto">
+    <div className="p-6 overflow-auto">
         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 mb-6">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-4">
@@ -534,7 +532,7 @@ const AnnualReport = () => {
                 peningkatan {reportData.summary?.userGrowth}% dalam basis
                 pengguna,
                 {reportData.summary?.newPolls} polling baru dibuat, dan{" "}
-                {reportData.summary?.pollVotes?.toLocaleString()} total suara
+                {reportData.summary?.pollVotes ? reportData.summary.pollVotes.toLocaleString() : '0'} total suara
                 diberikan. Engagement platform mencapai{" "}
                 {reportData.summary?.totalEngagement}% dengan peningkatan
                 signifikan dalam kepuasan pengguna di semua kategori.
@@ -550,7 +548,7 @@ const AnnualReport = () => {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Pengguna</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {reportData.summary?.totalUsers?.toLocaleString()}
+                  {reportData.summary?.totalUsers ? reportData.summary.totalUsers.toLocaleString() : '0'}
                 </p>
                 <div className="flex items-center text-green-600 text-sm mt-1">
                   <RiseOutlined className="mr-1" />+
@@ -588,7 +586,7 @@ const AnnualReport = () => {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Suara</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {reportData.summary?.pollVotes?.toLocaleString()}
+                  {reportData.summary?.pollVotes ? reportData.summary.pollVotes.toLocaleString() : '0'}
                 </p>
                 <div className="flex items-center text-green-600 text-sm mt-1">
                   <RiseOutlined className="mr-1" />+
@@ -609,7 +607,7 @@ const AnnualReport = () => {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Interaksi Chatbot</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {reportData.summary?.chatbotInteractions?.toLocaleString()}
+                  {reportData.summary?.chatbotInteractions ? reportData.summary.chatbotInteractions.toLocaleString() : '0'}
                 </p>
                 <div className="flex items-center text-green-600 text-sm mt-1">
                   <RiseOutlined className="mr-1" />+
@@ -800,7 +798,7 @@ const AnnualReport = () => {
                       <div className="space-y-4">
                         <div>
                           <div className="text-2xl font-bold text-blue-600">
-                            {quarter.users?.toLocaleString()}
+                            {quarter.users ? quarter.users.toLocaleString() : '0'}
                           </div>
                           <div className="text-sm text-gray-600">
                             Pengguna Baru
@@ -818,7 +816,7 @@ const AnnualReport = () => {
 
                         <div>
                           <div className="text-xl font-bold text-purple-600">
-                            {quarter.votes?.toLocaleString()}
+                            {quarter.votes ? quarter.votes.toLocaleString() : '0'}
                           </div>
                           <div className="text-sm text-gray-600">
                             Total Suara
@@ -844,7 +842,6 @@ const AnnualReport = () => {
             </TabPane>
           </Tabs>
         </div>
-      </div>
     </div>
   );
 };

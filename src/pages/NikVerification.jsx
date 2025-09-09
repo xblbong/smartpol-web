@@ -21,8 +21,8 @@ const NikVerification = () => {
   const fetchUserData = async () => {
     try {
       const response = await authAPI.checkAuth();
-      if (response.data.authenticated) {
-        const userData = response.data.user;
+      if (response.authenticated) {
+        const userData = response.user;
         setUser(userData);
         setNikVerified(!!userData.nik_verified);
         if (userData.nik) {

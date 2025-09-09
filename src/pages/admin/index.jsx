@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Typography, Avatar, Dropdown, Modal, message } from 'antd';
 import {
   DashboardOutlined,
@@ -21,6 +21,11 @@ import PollingManagement from './PollingManagement';
 import PoliciesManagement from './PoliciesManagement';
 import ReportPolling from './ReportPolling';
 import ReportChatbot from './ReportChatbot';
+import Analytics from './Analytics';
+import Roles from './Roles';
+import DailyReport from './DailyReport';
+import MonthlyReport from './MonthlyReport';
+import AnnualReport from './AnnualReport';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -28,9 +33,23 @@ const { Title, Text } = Typography;
 const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState('dashboard');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth <= 768) {
+        setCollapsed(true);
+      }
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Modal.confirm({
       title: 'Konfirmasi Logout Admin',
       content: 'Apakah Anda yakin ingin keluar dari panel admin?',
@@ -38,17 +57,8 @@ const AdminLayout = () => {
       cancelText: 'Batal',
       onOk: async () => {
         try {
-          // Call logout API
-          await authAPI.logout();
-          
-          // Clear all admin data from localStorage
-          localStorage.removeItem('admin');
-          localStorage.removeItem('adminToken');
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
-          
-          // Clear session storage as well
-          sessionStorage.clear();
+          // Call admin logout API
+          await authAPI.adminLogout();
           
           message.success('Berhasil logout dari panel admin');
           
@@ -75,12 +85,6 @@ const AdminLayout = () => {
   const handleMenuClick = ({ key }) => {
     if (key === 'logout') {
       handleLogout();
-    } else if (key === 'profile') {
-      // Handle profile action if needed
-      message.info('Fitur profil akan segera tersedia');
-    } else if (key === 'settings') {
-      // Handle settings action if needed
-      message.info('Fitur pengaturan akan segera tersedia');
     }
   };
 
@@ -91,9 +95,22 @@ const AdminLayout = () => {
       label: 'Dashboard',
     },
     {
+      key: 'analytics',
+      icon: <BarChartOutlined />,
+      label: 'Analytics',
+    },
+    {
+      type: 'divider',
+    },
+    {
       key: 'users',
       icon: <UserOutlined />,
       label: 'User Management',
+    },
+    {
+      key: 'roles',
+      icon: <SettingOutlined />,
+      label: 'Roles & Permissions',
     },
     {
       key: 'polling',
@@ -114,6 +131,21 @@ const AdminLayout = () => {
       label: 'Reports',
       children: [
         {
+          key: 'daily-report',
+          icon: <BarChartOutlined />,
+          label: 'Daily Report',
+        },
+        {
+          key: 'monthly-report',
+          icon: <BarChartOutlined />,
+          label: 'Monthly Report',
+        },
+        {
+          key: 'annual-report',
+          icon: <BarChartOutlined />,
+          label: 'Annual Report',
+        },
+        {
           key: 'polling-report',
           icon: <PieChartOutlined />,
           label: 'Polling Report',
@@ -128,19 +160,6 @@ const AdminLayout = () => {
   ];
 
   const userMenuItems = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: 'Profile',
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: 'Settings',
-    },
-    {
-      type: 'divider',
-    },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
@@ -158,12 +177,22 @@ const AdminLayout = () => {
     switch (selectedKey) {
       case 'dashboard':
         return <Dashboard />;
+      case 'analytics':
+        return <Analytics />;
       case 'users':
         return <UserManagement />;
+      case 'roles':
+        return <Roles />;
       case 'polling':
         return <PollingManagement />;
       case 'policies':
         return <PoliciesManagement />;
+      case 'daily-report':
+        return <DailyReport />;
+      case 'monthly-report':
+        return <MonthlyReport />;
+      case 'annual-report':
+        return <AnnualReport />;
       case 'polling-report':
         return <ReportPolling />;
       case 'chatbot-report':
@@ -175,13 +204,33 @@ const AdminLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      {/* Mobile overlay when sidebar is open */}
+      {isMobile && !collapsed && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            zIndex: 999
+          }}
+          onClick={() => setCollapsed(true)}
+        />
+      )}
       <Sider 
         trigger={null} 
         collapsible 
         collapsed={collapsed}
+        breakpoint="lg"
+        collapsedWidth={isMobile ? 0 : 80}
         style={{
           background: '#001529',
-          boxShadow: '2px 0 8px rgba(0,0,0,0.15)'
+          boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
+          position: isMobile ? 'fixed' : 'relative',
+          height: isMobile ? '100vh' : 'auto',
+          zIndex: isMobile ? 1000 : 'auto'
         }}
         width={250}
       >
@@ -219,13 +268,15 @@ const AdminLayout = () => {
       
       <Layout>
         <Header style={{
-          padding: '0 24px',
+          padding: isMobile ? '0 16px' : '0 24px',
           background: '#fff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          zIndex: 1
+          zIndex: 1,
+          marginLeft: isMobile && !collapsed ? 250 : 0,
+          transition: 'margin-left 0.2s'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
@@ -255,6 +306,7 @@ const AdminLayout = () => {
               menu={userMenuProps}
               placement="bottomRight"
               arrow
+              trigger={['click']}
             >
               <div style={{
                 display: 'flex',
@@ -269,22 +321,26 @@ const AdminLayout = () => {
                   icon={<UserOutlined />} 
                   style={{ marginRight: '8px', backgroundColor: '#1890ff' }}
                 />
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <Text strong style={{ fontSize: '14px' }}>Admin User</Text>
-                  <Text type="secondary" style={{ fontSize: '12px' }}>Administrator</Text>
-                </div>
+                {!isMobile && (
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <Text strong style={{ fontSize: '14px' }}>Admin User</Text>
+                    <Text type="secondary" style={{ fontSize: '12px' }}>Administrator</Text>
+                  </div>
+                )}
               </div>
             </Dropdown>
           </div>
         </Header>
         
         <Content style={{
-          margin: '24px',
-          padding: '24px',
+          margin: isMobile ? '16px' : '24px',
+          padding: isMobile ? '16px' : '24px',
           background: '#f5f5f5',
           borderRadius: '8px',
           minHeight: 'calc(100vh - 112px)',
-          overflow: 'auto'
+          overflow: 'auto',
+          marginLeft: isMobile && !collapsed ? 250 : (isMobile ? '16px' : '24px'),
+          transition: 'margin-left 0.2s'
         }}>
           {renderContent()}
         </Content>

@@ -31,7 +31,7 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import SidebarComponents from '../../components/layouts/SidebarComponents';
+
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -198,9 +198,7 @@ const DailyReport = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <SidebarComponents />
-      <div className="flex-1 p-6 overflow-auto">
+    <div className="p-6 overflow-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
@@ -320,13 +318,12 @@ const DailyReport = () => {
               <p className="text-sm text-gray-600 mt-1">Aktivitas terbaru dari pengguna sistem</p>
             </div>
             <div className="p-6 max-h-96 overflow-y-auto">
-              <Timeline>
-                {reportData.userActivity?.map(activity => (
-                  <Timeline.Item
-                    key={activity.id}
-                    dot={getActivityIcon(activity.type)}
-                    color={getActivityColor(activity.type)}
-                  >
+              <Timeline
+                items={reportData.userActivity?.map(activity => ({
+                  key: activity.id,
+                  dot: getActivityIcon(activity.type),
+                  color: getActivityColor(activity.type),
+                  children: (
                     <div className="space-y-1">
                       <div className="font-semibold text-gray-900">
                         {activity.time} - {activity.action}
@@ -338,9 +335,9 @@ const DailyReport = () => {
                         {activity.details}
                       </div>
                     </div>
-                  </Timeline.Item>
-                ))}
-              </Timeline>
+                  )
+                })) || []}
+              />
             </div>
           </div>
 
@@ -424,7 +421,6 @@ const DailyReport = () => {
             />
           </div>
         </div>
-      </div>
     </div>
   );
 };

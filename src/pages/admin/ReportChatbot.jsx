@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Row,
@@ -17,6 +17,7 @@ import {
   Divider,
   Timeline,
   Rate,
+  Spin,
 } from "antd";
 import {
   RobotOutlined,
@@ -44,137 +45,73 @@ const { RangePicker } = DatePicker;
 const ReportChatbot = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [selectedMetric, setSelectedMetric] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [chatbotSummary, setChatbotSummary] = useState({
+    totalInteractions: 0,
+    activeUsers: 0,
+    avgResponseTime: 0,
+    satisfactionRate: 0,
+    resolutionRate: 0,
+    popularTopic: "",
+  });
 
-  // Mock data for chatbot reports
-  const chatbotSummary = {
-    totalInteractions: 8420,
-    activeUsers: 2150,
-    avgResponseTime: 1.2,
-    satisfactionRate: 4.3,
-    resolutionRate: 78.5,
-    popularTopic: "Polling Information",
+  const [interactionStats, setInteractionStats] = useState([]);
+
+  const [recentConversations, setRecentConversations] = useState([]);
+
+  const [performanceMetrics, setPerformanceMetrics] = useState([]);
+
+  const [commonIssues, setCommonIssues] = useState([]);
+
+  // Fetch chatbot report data from API
+  const fetchChatbotReport = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/reports/chatbot', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update summary data
+        setChatbotSummary({
+          totalInteractions: data.summary?.total_interactions || 0,
+          activeUsers: data.summary?.active_users || 0,
+          avgResponseTime: data.summary?.avg_response_time || 0,
+          satisfactionRate: data.summary?.satisfaction_rate || 0,
+          resolutionRate: data.summary?.resolution_rate || 0,
+          popularTopic: data.summary?.popular_topic || 'N/A',
+        });
+
+        // Update interaction stats
+        setInteractionStats(data.interaction_stats || []);
+        
+        // Update recent conversations
+        setRecentConversations(data.recent_conversations || []);
+        
+        // Update performance metrics
+        setPerformanceMetrics(data.performance_metrics || []);
+        
+        // Update common issues
+        setCommonIssues(data.common_issues || []);
+      } else {
+        console.error('Failed to fetch chatbot report data');
+      }
+    } catch (error) {
+      console.error('Error fetching chatbot report:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const interactionStats = [
-    {
-      id: 1,
-      topic: "Polling Information",
-      interactions: 2450,
-      avgResponseTime: 0.8,
-      satisfactionRate: 4.5,
-      resolutionRate: 85.2,
-      trend: "up",
-    },
-    {
-      id: 2,
-      topic: "User Registration",
-      interactions: 1850,
-      avgResponseTime: 1.2,
-      satisfactionRate: 4.2,
-      resolutionRate: 82.1,
-      trend: "up",
-    },
-    {
-      id: 3,
-      topic: "Policy Questions",
-      interactions: 1200,
-      avgResponseTime: 1.8,
-      satisfactionRate: 3.9,
-      resolutionRate: 72.5,
-      trend: "down",
-    },
-    {
-      id: 4,
-      topic: "Technical Support",
-      interactions: 980,
-      avgResponseTime: 2.1,
-      satisfactionRate: 3.7,
-      resolutionRate: 68.3,
-      trend: "down",
-    },
-    {
-      id: 5,
-      topic: "General Inquiry",
-      interactions: 1940,
-      avgResponseTime: 1.0,
-      satisfactionRate: 4.4,
-      resolutionRate: 79.8,
-      trend: "up",
-    },
-  ];
-
-  const recentConversations = [
-    {
-      id: 1,
-      user: "John Doe",
-      topic: "Polling Information",
-      timestamp: "5 minutes ago",
-      status: "resolved",
-      satisfaction: 5,
-      duration: "2m 15s",
-    },
-    {
-      id: 2,
-      user: "Jane Smith",
-      topic: "User Registration",
-      timestamp: "12 minutes ago",
-      status: "resolved",
-      satisfaction: 4,
-      duration: "3m 42s",
-    },
-    {
-      id: 3,
-      user: "Bob Wilson",
-      topic: "Technical Support",
-      timestamp: "25 minutes ago",
-      status: "escalated",
-      satisfaction: 2,
-      duration: "8m 30s",
-    },
-    {
-      id: 4,
-      user: "Alice Brown",
-      topic: "Policy Questions",
-      timestamp: "1 hour ago",
-      status: "resolved",
-      satisfaction: 4,
-      duration: "4m 18s",
-    },
-  ];
-
-  const performanceMetrics = [
-    { metric: "Response Accuracy", value: 87.5, target: 90, status: "warning" },
-    { metric: "User Satisfaction", value: 4.3, target: 4.5, status: "good" },
-    { metric: "Resolution Rate", value: 78.5, target: 80, status: "warning" },
-    { metric: "Avg Response Time", value: 1.2, target: 1.0, status: "poor" },
-  ];
-
-  const commonIssues = [
-    {
-      issue: "Unable to understand complex policy questions",
-      frequency: 45,
-      impact: "high",
-      status: "investigating",
-    },
-    {
-      issue: "Slow response for technical queries",
-      frequency: 32,
-      impact: "medium",
-      status: "in_progress",
-    },
-    {
-      issue: "Incorrect polling information provided",
-      frequency: 28,
-      impact: "high",
-      status: "resolved",
-    },
-    {
-      issue: "Registration process confusion",
-      frequency: 19,
-      impact: "low",
-      status: "monitoring",
-    },
-  ];
+  useEffect(() => {
+    fetchChatbotReport();
+  }, [selectedPeriod, selectedMetric]);
 
   const columns = [
     {
@@ -310,6 +247,18 @@ const ReportChatbot = () => {
         return { color: "#666", text: "Unknown" };
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100">
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" tip="Loading chatbot report data...">
+            <div style={{ minHeight: '200px' }} />
+          </Spin>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100">

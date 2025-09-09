@@ -27,8 +27,8 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
     const fetchUser = async () => {
       try {
         const response = await authAPI.checkAuth();
-        if (response.data.authenticated) {
-          setUser(response.data.user);
+        if (response.authenticated) {
+          setUser(response.user);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -197,7 +197,21 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
 
           {/* User Profile */}
           <div className="flex items-center px-3 py-2 mt-4">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3 shadow-inner" style={{backgroundColor: '#01077A'}}>
+            {user?.avatar_url ? (
+              <img 
+                src={user.avatar_url} 
+                alt="Profile" 
+                className="w-8 h-8 rounded-full object-cover mr-3 shadow-inner border border-gray-200"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <div 
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3 shadow-inner ${user?.avatar_url ? 'hidden' : ''}`} 
+              style={{backgroundColor: '#01077A'}}
+            >
               {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
             </div>
             <div className="flex-1 min-w-0">

@@ -38,9 +38,9 @@ if %errorlevel% equ 0 (
     echo ✗ Failed to set MYSQL_USER
 )
 
-setx MYSQL_PASSWORD "" >nul
+setx MYSQL_PASSWORD "EMPTY" >nul
 if %errorlevel% equ 0 (
-    echo ✓ MYSQL_PASSWORD set to empty (for Laragon)
+    echo ✓ MYSQL_PASSWORD set to EMPTY (for Laragon)
 ) else (
     echo ✗ Failed to set MYSQL_PASSWORD
 )

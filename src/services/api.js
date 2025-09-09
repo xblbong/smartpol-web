@@ -95,7 +95,7 @@ export const authAPI = {
   // Admin logout
   adminLogout: async () => {
     try {
-      await api.post('/logout');
+      await api.post('/admin/logout');
       // Hapus admin data dari localStorage
       localStorage.removeItem('admin');
       localStorage.removeItem('adminToken');

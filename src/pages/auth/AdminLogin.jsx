@@ -30,7 +30,7 @@ const AdminLogin = () => {
       localStorage.setItem('adminToken', response.token);
       
       // Redirect ke dashboard admin
-      navigate('/dashboard');
+      navigate('/admin');
       
     } catch (error) {
       console.error('Admin login error:', error);

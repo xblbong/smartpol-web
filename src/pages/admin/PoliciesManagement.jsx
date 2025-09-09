@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -50,98 +50,9 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 const PoliciesManagement = () => {
-  const [policies, setPolicies] = useState([
-    {
-      id: 1,
-      title: "Peraturan Daerah tentang Pengelolaan Sampah",
-      description:
-        "Peraturan yang mengatur pengelolaan sampah di wilayah daerah untuk menjaga kebersihan dan kesehatan lingkungan.",
-      content:
-        "Isi lengkap peraturan daerah tentang pengelolaan sampah, termasuk sanksi dan tata cara pembuangan yang benar...",
-      category: "Lingkungan",
-      status: "active",
-      priority: "high",
-      effectiveDate: "2024-01-01",
-      expiryDate: "2026-12-31",
-      createdBy: "Admin",
-      createdDate: "2023-12-15",
-      lastModified: "2024-01-10",
-      attachments: ["perda_sampah.pdf", "sosialisasi_sampah.pptx"],
-      isPublic: true,
-    },
-    {
-      id: 2,
-      title: "Kebijakan Anggaran Pendidikan 2024",
-      description:
-        "Kebijakan alokasi anggaran untuk sektor pendidikan tahun 2024, berfokus pada pemerataan kualitas pendidikan.",
-      content:
-        "Detail kebijakan anggaran pendidikan, termasuk pos-pos anggaran untuk beasiswa, infrastruktur, dan pelatihan guru...",
-      category: "Pendidikan",
-      status: "draft",
-      priority: "medium",
-      effectiveDate: "2024-03-01",
-      expiryDate: "2024-12-31",
-      createdBy: "Admin",
-      createdDate: "2024-01-15",
-      lastModified: "2024-01-20",
-      attachments: [],
-      isPublic: false,
-    },
-    {
-      id: 3,
-      title: "Peraturan Keamanan dan Ketertiban Umum",
-      description:
-        "Peraturan yang mengatur keamanan dan ketertiban di ruang publik untuk menciptakan lingkungan yang aman dan nyaman.",
-      content:
-        "Isi peraturan keamanan dan ketertiban umum, mencakup larangan, sanksi, dan tanggung jawab warga negara...",
-      category: "Keamanan",
-      status: "review",
-      priority: "high",
-      effectiveDate: "2024-02-01",
-      expiryDate: "2025-01-31",
-      createdBy: "Admin",
-      createdDate: "2024-01-05",
-      lastModified: "2024-01-18",
-      attachments: ["peraturan_kamtibmas.pdf", "lampiran_sanksi.pdf"],
-      isPublic: true,
-    },
-    {
-      id: 4,
-      title: "Standar Pelayanan Publik",
-      description:
-        "Pedoman untuk memastikan kualitas pelayanan publik yang prima dan merata bagi seluruh masyarakat.",
-      content:
-        "Rincian standar pelayanan publik, mulai dari waktu pelayanan, persyaratan, hingga mekanisme pengaduan...",
-      category: "Umum",
-      status: "active",
-      priority: "medium",
-      effectiveDate: "2023-07-01",
-      expiryDate: "2025-06-30",
-      createdBy: "Staff",
-      createdDate: "2023-06-20",
-      lastModified: "2024-02-01",
-      attachments: ["sop_pelayanan.pdf"],
-      isPublic: true,
-    },
-    {
-      id: 5,
-      title: "Kebijakan Pembangunan Infrastruktur",
-      description:
-        "Arah kebijakan pembangunan infrastruktur daerah untuk mendukung pertumbuhan ekonomi dan konektivitas.",
-      content:
-        "Penjelasan lengkap mengenai proyek-proyek infrastruktur prioritas, alokasi dana, dan jadwal pelaksanaan...",
-      category: "Infrastruktur",
-      status: "draft",
-      priority: "high",
-      effectiveDate: "2024-04-01",
-      expiryDate: "2027-03-31",
-      createdBy: "Kepala Dinas",
-      createdDate: "2024-02-10",
-      lastModified: "2024-02-28",
-      attachments: [],
-      isPublic: false,
-    },
-  ]);
+  const [policies, setPolicies] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState(null);
@@ -149,6 +60,61 @@ const PoliciesManagement = () => {
   const [searchText, setSearchText] = useState("");
   const [filterStatus, setFilterStatus] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+
+  // Fetch policies from database
+  const fetchPolicies = async () => {
+    try {
+      setRefreshing(true);
+      const response = await fetch('/api/admin/policies', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Ensure data is an array before mapping
+        const policiesArray = Array.isArray(data) ? data : [];
+        const formattedPolicies = policiesArray.map(policy => ({
+          id: policy.id,
+          title: policy.title,
+          description: policy.description,
+          content: policy.content,
+          category: policy.category,
+          status: policy.status,
+          priority: 'medium', // Default value
+          effectiveDate: policy.effective_date ? new Date(policy.effective_date).toISOString().split('T')[0] : null,
+          expiryDate: null, // Not in database schema
+          createdBy: policy.created_by,
+          createdDate: policy.created_at ? new Date(policy.created_at).toISOString().split('T')[0] : null,
+          lastModified: policy.updated_at ? new Date(policy.updated_at).toISOString().split('T')[0] : null,
+          attachments: [], // Default empty array
+          isPublic: true, // Default value
+          policyType: policy.policy_type
+        }));
+        setPolicies(formattedPolicies);
+        setLastUpdated(new Date());
+      } else {
+        message.error('Gagal mengambil data kebijakan');
+      }
+    } catch (error) {
+      console.error('Error fetching policies:', error);
+      message.error('Terjadi kesalahan saat mengambil data kebijakan');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPolicies();
+    
+    // Auto refresh every 30 seconds
+    const interval = setInterval(fetchPolicies, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleAdd = () => {
     setEditingPolicy(null);
@@ -174,53 +140,69 @@ const PoliciesManagement = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (policyId) => {
-    setPolicies(policies.filter((policy) => policy.id !== policyId));
-    message.success("Policy deleted successfully");
+  const handleDelete = async (policyId) => {
+    try {
+      const response = await fetch(`/api/admin/policies/${policyId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        message.success('Kebijakan berhasil dihapus!');
+        fetchPolicies(); // Refresh data
+      } else {
+        message.error('Gagal menghapus kebijakan');
+      }
+    } catch (error) {
+      console.error('Error deleting policy:', error);
+      message.error('Terjadi kesalahan saat menghapus kebijakan');
+    }
   };
 
-  const handleSubmit = (values) => {
-    setLoading(true);
+  const handleSubmit = async (values) => {
+    setSubmitLoading(true);
 
-    setTimeout(() => {
+    try {
       const policyData = {
-        ...values,
-        effectiveDate: values.effectiveDate.format("YYYY-MM-DD"),
-        expiryDate: values.expiryDate.format("YYYY-MM-DD"),
-        attachments: values.attachments
-          ? values.attachments.fileList.map((f) => f.name)
-          : [],
+        title: values.title,
+        description: values.description,
+        content: values.content,
+        category: values.category,
+        status: values.status,
+        policy_type: values.priority,
+        effective_date: values.effectiveDate ? values.effectiveDate.format("YYYY-MM-DD HH:mm:ss") : null,
+        created_by: 1
       };
 
-      if (editingPolicy) {
-        setPolicies(
-          policies.map((policy) =>
-            policy.id === editingPolicy.id
-              ? {
-                  ...policy,
-                  ...policyData,
-                  lastModified: moment().format("YYYY-MM-DD"),
-                }
-              : policy
-          )
-        );
-        message.success("Policy updated successfully");
-      } else {
-        const newPolicy = {
-          id: Date.now(),
-          ...policyData,
-          createdBy: "Admin",
-          createdDate: moment().format("YYYY-MM-DD"),
-          lastModified: moment().format("YYYY-MM-DD"),
-        };
-        setPolicies([...policies, newPolicy]);
-        message.success("Policy created successfully");
-      }
+      const url = editingPolicy ? `/api/admin/policies/${editingPolicy.id}` : '/api/admin/policies';
+      const method = editingPolicy ? 'PUT' : 'POST';
 
-      setIsModalVisible(false);
-      form.resetFields();
-      setLoading(false);
-    }, 1000);
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(policyData)
+      });
+      
+      if (response.ok) {
+        message.success(editingPolicy ? 'Kebijakan berhasil diperbarui!' : 'Kebijakan berhasil dibuat!');
+        setIsModalVisible(false);
+        form.resetFields();
+        fetchPolicies(); // Refresh data
+      } else {
+        message.error('Gagal menyimpan kebijakan');
+      }
+    } catch (error) {
+      console.error('Error saving policy:', error);
+      message.error('Terjadi kesalahan saat menyimpan kebijakan');
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   const filteredPolicies = policies.filter(
@@ -543,20 +525,35 @@ const PoliciesManagement = () => {
   return (
     <div className="flex-1 p-6 lg:p-10 overflow-auto bg-gray-100">
         <div className="mb-8">
-          <div className="flex items-center mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-              <FileTextOutlined
-                className="text-xl"
-                style={{ color: "white" }}
-              />
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+                <FileTextOutlined
+                  className="text-xl"
+                  style={{ color: "white" }}
+                />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Manajemen Kebijakan
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Kelola dan pantau semua kebijakan organisasi
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Manajemen Kebijakan
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Kelola dan pantau semua kebijakan organisasi
-              </p>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${refreshing ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                <span className="text-sm text-gray-600">
+                  {refreshing ? 'Refreshing...' : 'Terhubung'}
+                </span>
+              </div>
+              {lastUpdated && (
+                <span className="text-xs text-gray-500">
+                  Update: {lastUpdated.toLocaleTimeString()}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -998,7 +995,7 @@ const PoliciesManagement = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={loading}
+                loading={submitLoading}
                 className="h-12 px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
               >
                 {editingPolicy ? "Perbarui Kebijakan" : "Buat Kebijakan"}

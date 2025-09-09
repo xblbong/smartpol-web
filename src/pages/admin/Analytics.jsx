@@ -44,12 +44,11 @@ import {
   ExclamationCircleOutlined,
   DashboardOutlined,
 } from "@ant-design/icons";
-import SidebarComponents from "../../components/layouts/SidebarComponents";
+
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
 
 const Analytics = () => {
@@ -324,9 +323,7 @@ const Analytics = () => {
   ];
 
   return (
-    <div className="flex h-screen">
-      <SidebarComponents />
-      <div className="flex-1 p-6 overflow-auto">
+    <div className="p-6 overflow-auto">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center mb-4 lg:mb-0">
@@ -505,8 +502,14 @@ const Analytics = () => {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-          <Tabs defaultActiveKey="1" className="p-6">
-            <TabPane tab="📈 Analitik Pengguna" key="1">
+          <Tabs 
+            defaultActiveKey="1" 
+            className="p-6"
+            items={[
+              {
+                key: "1",
+                label: "📈 Analitik Pengguna",
+                children: (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <div className="bg-gray-50 rounded-lg p-6">
@@ -596,9 +599,12 @@ const Analytics = () => {
                   </div>
                 </div>
               </div>
-            </TabPane>
-
-            <TabPane tab="🗳️ Analitik Polling" key="2">
+                )
+              },
+              {
+                key: "2",
+                label: "🗳️ Analitik Polling",
+                children: (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <div className="bg-gray-50 rounded-lg p-6">
@@ -696,9 +702,12 @@ const Analytics = () => {
                   </div>
                 </div>
               </div>
-            </TabPane>
-
-            <TabPane tab="🤖 Analitik Chatbot" key="3">
+                )
+              },
+              {
+                key: "3",
+                label: "🤖 Analitik Chatbot",
+                children: (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
@@ -808,9 +817,12 @@ const Analytics = () => {
                   </div>
                 </div>
               </div>
-            </TabPane>
-
-            <TabPane tab="⚡ Performa" key="4">
+                )
+              },
+              {
+                key: "4",
+                label: "⚡ Performa",
+                children: (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
                   <div className="bg-gray-50 rounded-lg p-6">
@@ -960,10 +972,11 @@ const Analytics = () => {
                   </div>
                 </div>
               </div>
-            </TabPane>
-          </Tabs>
+                )
+              }
+            ]}
+          />
         </div>
-      </div>
     </div>
   );
 };

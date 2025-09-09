@@ -35,7 +35,8 @@ const AdminProtectedRoute = ({ children }) => {
         // Verify session with backend - ensure admin role
         try {
           const response = await authAPI.checkAuth();
-          if (response.data.user && response.data.user.role === 'admin') {
+          
+          if (response.authenticated && response.user && response.user.role === 'admin') {
             setIsAdminAuthenticated(true);
           } else {
             // Clear invalid admin session

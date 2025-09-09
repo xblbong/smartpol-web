@@ -19,10 +19,18 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Session expired atau invalid, hapus dari localStorage
+      // Session expired atau invalid, hapus semua data dari localStorage
       localStorage.removeItem('user');
-      // Redirect ke login jika diperlukan
-      window.location.href = '/login';
+      localStorage.removeItem('admin');
+      localStorage.removeItem('adminToken');
+      
+      // Redirect berdasarkan path saat ini
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/admin') || currentPath.includes('/dashboard')) {
+        window.location.href = '/admin-login';
+      } else {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -80,6 +88,21 @@ export const authAPI = {
     } catch (error) {
       // Tetap hapus data lokal meskipun request gagal
       localStorage.removeItem('user');
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Admin logout
+  adminLogout: async () => {
+    try {
+      await api.post('/logout');
+      // Hapus admin data dari localStorage
+      localStorage.removeItem('admin');
+      localStorage.removeItem('adminToken');
+    } catch (error) {
+      // Tetap hapus data lokal meskipun request gagal
+      localStorage.removeItem('admin');
+      localStorage.removeItem('adminToken');
       throw error.response?.data || { error: 'Network error' };
     }
   },

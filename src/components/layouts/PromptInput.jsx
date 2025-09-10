@@ -60,27 +60,27 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
     <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-2 sm:p-4 z-10 lg:left-64">
       <div className="max-w-7xl mx-auto px-2 sm:px-0">
         {isTyping && (
-          <div className="flex items-center gap-2 mb-3 text-gray-500 text-sm">
+          <div className="flex items-center gap-2 mb-3 text-gray-500 text-sm animate-fade-in">
             <div className="flex gap-1">
               <div className="w-2 h-2 rounded-full animate-bounce" style={{backgroundColor: '#01077A'}}></div>
               <div className="w-2 h-2 rounded-full animate-bounce" style={{backgroundColor: '#01077A', animationDelay: '0.1s'}}></div>
               <div className="w-2 h-2 rounded-full animate-bounce" style={{backgroundColor: '#01077A', animationDelay: '0.2s'}}></div>
             </div>
-            <span>PICO sedang mengetik...</span>
+            <span className="animate-pulse">PICO sedang mengetik...</span>
           </div>
         )}
         {/* Image Preview */}
         {imagePreview && (
-          <div className="mb-3 relative inline-block">
+          <div className="mb-3 relative inline-block animate-fade-in">
             <img 
               src={imagePreview} 
               alt="Preview" 
-              className="max-w-xs max-h-32 rounded-lg border border-gray-200 shadow-sm"
+              className="max-w-xs max-h-32 rounded-lg border border-gray-200 shadow-sm hover:scale-105 transition-transform duration-300"
             />
             <button
               type="button"
               onClick={handleRemoveImage}
-              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-all duration-300 hover:scale-110 hover:animate-pulse"
               title="Hapus Gambar"
             >
               <FaTimes className="text-xs" />
@@ -90,7 +90,7 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
         
         <form
           onSubmit={handleSubmit}
-          className="flex items-center bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+          className="flex items-center bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 animate-fade-in-up"
         >
           <input
             type="file"
@@ -102,7 +102,7 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
           <button
             type="button"
             onClick={handleImageButtonClick}
-            className="p-2 sm:p-3 text-gray-400 hover:text-white transition-colors duration-200 rounded-l-2xl flex-shrink-0"
+            className="p-2 sm:p-3 text-gray-400 hover:text-white transition-all duration-300 rounded-l-2xl flex-shrink-0 hover:scale-110 hover:animate-pulse"
             onMouseEnter={(e) => e.target.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
             title="Upload Gambar"
@@ -119,7 +119,7 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
           />
           <button
             type="button"
-            className="p-2 sm:p-3 text-gray-400 hover:text-white transition-colors duration-200 flex-shrink-0"
+            className="p-2 sm:p-3 text-gray-400 hover:text-white transition-all duration-300 flex-shrink-0 hover:scale-110 hover:animate-pulse"
             onMouseEnter={(e) => e.target.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
             title="Rekam Suara"
@@ -129,7 +129,7 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
           <button
             type="submit"
             disabled={(!prompt.trim() && !selectedImage) || isTyping}
-            className="flex items-center px-3 sm:px-5 py-2 sm:py-3 text-white rounded-r-2xl hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            className="flex items-center px-3 sm:px-5 py-2 sm:py-3 text-white rounded-r-2xl hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 hover:scale-110 hover:animate-pulse"
             style={{backgroundColor: '#01077A', focusRingColor: '#01077A'}}
             title="Kirim Pesan"
           >

@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Progress, Button, Badge, message, Spin, Tabs, Statistic, Row, Col, Alert, Tooltip } from 'antd';
+import { Card, Progress, Button, Badge, message, Spin, Tabs, Alert, Tooltip } from 'antd';
 import AppSidebar from '../components/layouts/AppSidebar';
-import { FaBars, FaChartBar, FaUsers, FaClock, FaCheckCircle, FaFileAlt, FaVoteYea, FaSync, FaExclamationTriangle } from 'react-icons/fa';
+import { FaBars, FaChartBar, FaUsers, FaClock, FaCheckCircle, FaFileAlt, FaVoteYea, FaSync, FaArrowRight, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { authAPI, pollingAPI } from '../services/api';
-
-
-
-
 
 const Polling = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [votedPolls, setVotedPolls] = useState(new Set());
+  const [userVotes, setUserVotes] = useState(new Map());
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [polls, setPolls] = useState([]);
-  const [pollsLoading, setPollsLoading] = useState(true);
+  const [pollsLoading, setPollsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('polling');
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -24,20 +21,91 @@ const Polling = () => {
     completed: 0,
     totalVotes: 0
   });
+  const [showCompletedPolls, setShowCompletedPolls] = useState(false);
+
+  // Dummy data
+  const dummyPolls = [
+    {
+      id: 1,
+      title: "Pendapat tentang Pembangunan Jembatan Penyeberangan",
+      description: "Bagaimana pendapat Anda tentang rencana pembangunan jembatan penyeberangan di kawasan pusat kota?",
+      category: "Infrastruktur",
+      status: "active",
+      type: "polling",
+      totalVotes: 245,
+      startDate: "2024-01-01",
+      endDate: "2024-12-31",
+      options: [
+        { id: 1, text: "Sangat Setuju", votes: 89 },
+        { id: 2, text: "Setuju", votes: 76 },
+        { id: 3, text: "Netral", votes: 45 },
+        { id: 4, text: "Tidak Setuju", votes: 23 },
+        { id: 5, text: "Sangat Tidak Setuju", votes: 12 }
+      ]
+    },
+    {
+      id: 2,
+      title: "Evaluasi Pelayanan Publik di Kantor Kelurahan",
+      description: "Bagaimana penilaian Anda terhadap kualitas pelayanan di kantor kelurahan?",
+      category: "Pelayanan",
+      status: "active",
+      type: "polling",
+      totalVotes: 189,
+      startDate: "2024-01-15",
+      endDate: "2024-12-31",
+      options: [
+        { id: 6, text: "Sangat Puas", votes: 67 },
+        { id: 7, text: "Puas", votes: 58 },
+        { id: 8, text: "Cukup Puas", votes: 42 },
+        { id: 9, text: "Kurang Puas", votes: 15 },
+        { id: 10, text: "Tidak Puas", votes: 7 }
+      ]
+    },
+    {
+      id: 3,
+      title: "Prioritas Program Pemberdayaan Masyarakat",
+      description: "Program pemberdayaan masyarakat mana yang menurut Anda paling prioritas untuk tahun depan?",
+      category: "Sosial",
+      status: "active",
+      type: "polling",
+      totalVotes: 156,
+      startDate: "2024-02-01",
+      endDate: "2024-12-31",
+      options: [
+        { id: 11, text: "Pelatihan Keterampilan", votes: 45 },
+        { id: 12, text: "Bantuan Modal Usaha", votes: 38 },
+        { id: 13, text: "Pendidikan Non-Formal", votes: 32 },
+        { id: 14, text: "Kesehatan Masyarakat", votes: 28 },
+        { id: 15, text: "Lingkungan Hidup", votes: 13 }
+      ]
+    },
+    {
+      id: 4,
+      title: "Kepuasan terhadap Kebersihan Lingkungan",
+      description: "Bagaimana tingkat kepuasan Anda terhadap kebersihan lingkungan di wilayah tempat tinggal?",
+      category: "Lingkungan",
+      status: "completed",
+      type: "polling",
+      totalVotes: 312,
+      startDate: "2024-01-01",
+      endDate: "2024-03-31",
+      options: [
+        { id: 16, text: "Sangat Puas", votes: 98 },
+        { id: 17, text: "Puas", votes: 87 },
+        { id: 18, text: "Cukup Puas", votes: 76 },
+        { id: 19, text: "Kurang Puas", votes: 35 },
+        { id: 20, text: "Tidak Puas", votes: 16 }
+      ]
+    }
+  ];
 
   useEffect(() => {
     fetchUserData();
     fetchPolls();
-    
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(() => {
-      handleRefresh(true);
-    }, 30000);
-
+    const interval = setInterval(() => handleRefresh(true), 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Calculate statistics whenever polls change
   useEffect(() => {
     const stats = {
       total: polls.length,
@@ -59,36 +127,14 @@ const Polling = () => {
 
   const fetchPolls = useCallback(async (isRefresh = false) => {
     try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setPollsLoading(true);
-      }
-      
-      const response = await pollingAPI.getPolls();
-      
-      // Format data polling untuk mencocokkan dengan frontend
-      const formattedPolls = (response.polls || []).map(poll => ({
-        ...poll,
-        totalVotes: poll.total_votes || 0,
-        endDate: poll.end_date,
-        startDate: poll.start_date,
-        options: (poll.options || []).map(option => ({
-          id: option.id,
-          text: option.option_text,
-          votes: option.votes_count || 0
-        }))
-      }));
-      
-      setPolls(formattedPolls);
+      if (isRefresh) setRefreshing(true);
+      else setPollsLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      setPolls(dummyPolls);
       setLastUpdated(new Date());
-      
-      if (isRefresh) {
-        message.success('Data polling berhasil diperbarui');
-      }
+      if (isRefresh) message.success('Data polling berhasil diperbarui');
     } catch (error) {
       message.error('Gagal memuat data polling');
-      console.error('Error fetching polls:', error);
     } finally {
       setPollsLoading(false);
       setRefreshing(false);
@@ -100,7 +146,11 @@ const Polling = () => {
   }, [fetchPolls]);
 
   const getFilteredPolls = () => {
-    return polls.filter(poll => poll.type === activeTab);
+    let filteredPolls = polls.filter(poll => poll.type === activeTab);
+    if (!showCompletedPolls) {
+      filteredPolls = filteredPolls.filter(poll => !votedPolls.has(poll.id) || poll.status === 'completed');
+    }
+    return filteredPolls;
   };
 
   const handleVote = async (pollId, optionId) => {
@@ -108,275 +158,356 @@ const Polling = () => {
       message.error('Anda harus login terlebih dahulu');
       return;
     }
-
     if (!user.nik_verified) {
-      message.error('Anda harus verifikasi NIK terlebih dahulu untuk dapat melakukan polling');
+      message.error('Anda harus verifikasi NIK terlebih dahulu');
       return;
     }
-
     if (votedPolls.has(pollId)) {
-      message.warning('Anda sudah memberikan suara untuk polling ini!');
+      message.warning('Anda sudah memberikan suara!');
       return;
     }
 
     setLoading(true);
     try {
-      await pollingAPI.vote(pollId, optionId);
+      // Simulate API call for voting
+      await new Promise(resolve => setTimeout(resolve, 800));
+
       setVotedPolls(prev => new Set(prev).add(pollId));
-      message.success('Suara Anda berhasil dicatat!');
-      
-      // Refresh data polling untuk mendapatkan hasil terbaru
-      await fetchPolls(true);
+      setUserVotes(prev => new Map(prev).set(pollId, optionId));
+
+      message.success('Suara Anda berhasil dicatat!', 3);
+
+      setPolls(prevPolls =>
+        prevPolls.map(poll => {
+          if (poll.id === pollId) {
+            const updatedOptions = poll.options.map(option =>
+              option.id === optionId ? { ...option, votes: option.votes + 1 } : option
+            );
+            return {
+              ...poll,
+              options: updatedOptions,
+              totalVotes: poll.totalVotes + 1
+            };
+          }
+          return poll;
+        })
+      );
     } catch (error) {
-      if (error.response?.status === 409) {
-        message.warning('Anda sudah memberikan suara untuk polling ini!');
-        setVotedPolls(prev => new Set(prev).add(pollId));
-      } else {
-        message.error(error.message || 'Gagal mencatat suara. Silakan coba lagi.');
-      }
-      console.error('Error submitting vote:', error);
+      message.error('Gagal mencatat suara. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <AppSidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
-      />
-      
+    <div className="flex h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <AppSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
-        <div className="lg:hidden bg-white shadow-sm border-b px-4 py-3 flex items-center justify-between">
+        <div className="lg:hidden bg-white shadow-sm border-b px-4 py-4 flex items-center justify-between">
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            className="p-2.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-all duration-200"
           >
             <FaBars className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-semibold text-gray-900">{activeTab === 'polling' ? 'Polling Kebijakan' : 'Survey Publik'}</h1>
-          <div className="w-9"></div>
+          <h1 className="text-lg font-bold text-gray-900">
+            {activeTab === 'polling' ? (
+              <span className="flex items-center  gap-2">
+                <FaVoteYea /> Polling Kebijakan
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <FaChartBar /> Survey Publik
+              </span>
+            )}
+          </h1>
+          <div className="w-10"></div>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 overflow-auto">
-          <div className="p-6 space-y-6 max-w-4xl mx-auto">
-            <div className="space-y-2">
-              <div className="flex justify-between items-start mb-4">
+          <div className="p-4 sm:p-6 space-y-6 max-w-5xl mx-auto">
+            {/* Header Section */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-blue-800">Polling & Survey</h1>
-                  <p className="text-gray-600">
-                    Berpartisipasi dalam pengambilan keputusan dan memberikan pendapat melalui polling dan survey
-                  </p>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-blue-800 to-indigo-700 bg-clip-text text-transparent">
+                    Polling & Survey Publik
+                  </h1>
+                  <p className="text-gray-600 mt-1">Berikan suara Anda untuk membangun kebijakan yang lebih baik</p>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex flex-wrap gap-2 items-center">
                   {lastUpdated && (
-                    <span className="text-sm text-gray-500">
-                      Terakhir diperbarui: {lastUpdated.toLocaleTimeString('id-ID')}
+                    <span className="text-xs sm:text-sm text-gray-500 bg-white px-3 py-1.5 rounded-full shadow-sm">
+                      <FaSync className="inline mr-1" /> Terakhir: {lastUpdated.toLocaleTimeString('id-ID')}
                     </span>
                   )}
+                  <Button
+                    type={showCompletedPolls ? "primary" : "default"}
+                    onClick={() => setShowCompletedPolls(!showCompletedPolls)}
+                    size="small"
+                    className="rounded-full"
+                  >
+                    {showCompletedPolls ? "Sembunyikan Selesai" : "Tampilkan Selesai"}
+                  </Button>
                   <Tooltip title="Refresh Data">
-                    <Button 
-                      icon={<FaSync className={refreshing ? 'animate-spin' : ''} />}
+                    <Button
+                      icon={<FaSync className={`transition-transform ${refreshing ? 'animate-spin' : ''}`} />}
                       onClick={() => handleRefresh(false)}
                       loading={refreshing}
-                      type="primary"
-                      ghost
+                      type="dashed"
+                      className="rounded-full"
                     >
                       Refresh
                     </Button>
                   </Tooltip>
                 </div>
               </div>
-              
-              {/* Statistics Dashboard */}
-              <Row gutter={16} className="mb-6">
-                <Col xs={12} sm={6}>
-                  <Card size="small">
-                    <Statistic
-                      title="Total Polling"
-                      value={pollStats.total}
-                      prefix={<FaFileAlt className="text-blue-500" />}
-                    />
+
+              {/* Stats Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                {[
+                  { title: "Total Polling", value: pollStats.total, icon: <FaFileAlt className="text-blue-500 w-5 h-5" />, bg: "from-blue-50 to-blue-100" },
+                  { title: "Aktif", value: pollStats.active, icon: <FaClock className="text-green-500 w-5 h-5" />, bg: "from-green-50 to-green-100" },
+                  { title: "Selesai", value: pollStats.completed, icon: <FaCheckCircle className="text-gray-500 w-5 h-5" />, bg: "from-gray-50 to-gray-100" },
+                  { title: "Total Suara", value: pollStats.totalVotes, icon: <FaVoteYea className="text-purple-500 w-5 h-5" />, bg: "from-purple-50 to-purple-100" }
+                ].map((stat, idx) => (
+                  <Card key={idx} size="small" className={`rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 bg-gradient-to-r ${stat.bg}`}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium">{stat.title}</p>
+                        <p className="text-lg sm:text-xl font-bold text-gray-800">{stat.value}</p>
+                      </div>
+                      <div className="p-2.5 bg-white rounded-full shadow-sm">
+                        {stat.icon}
+                      </div>
+                    </div>
                   </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Card size="small">
-                    <Statistic
-                      title="Polling Aktif"
-                      value={pollStats.active}
-                      prefix={<FaClock className="text-green-500" />}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Card size="small">
-                    <Statistic
-                      title="Polling Selesai"
-                      value={pollStats.completed}
-                      prefix={<FaCheckCircle className="text-gray-500" />}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Card size="small">
-                    <Statistic
-                      title="Total Suara"
-                      value={pollStats.totalVotes}
-                      prefix={<FaVoteYea className="text-purple-500" />}
-                    />
-                  </Card>
-                </Col>
-              </Row>
-              
-              {/* User Status Alert */}
+                ))}
+              </div>
+
+              {/* User Alert */}
               {user && !user.nik_verified && (
                 <Alert
-                  message="Verifikasi NIK Diperlukan"
-                  description="Anda perlu memverifikasi NIK untuk dapat berpartisipasi dalam polling."
+                  message={<span className="font-semibold flex items-center gap-2"><FaExclamationTriangle /> Verifikasi NIK Diperlukan</span>}
+                  description="Verifikasi NIK Anda terlebih dahulu untuk berpartisipasi dalam polling."
                   type="warning"
-                  icon={<FaExclamationTriangle />}
                   showIcon
-                  className="mb-4"
+                  className="rounded-lg"
                 />
               )}
             </div>
 
-            <Tabs 
-              activeKey={activeTab} 
+            {/* Tabs */}
+            <Tabs
+              activeKey={activeTab}
               onChange={setActiveTab}
               className="polling-tabs"
               items={[
                 {
                   key: 'polling',
                   label: (
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-2 font-medium">
                       <FaVoteYea className="w-4 h-4" />
                       Polling Kebijakan
                     </span>
                   ),
                   children: (
-                    <div className="space-y-4">
-                      <p className="text-gray-600">
-                        Berpartisipasi dalam pengambilan keputusan kebijakan publik
-                      </p>
+                    <div className="space-y-6">
                       {pollsLoading ? (
-                        <div className="text-center py-12">
-                          <Spin size="large" />
-                          <p className="mt-4 text-gray-600">Memuat data polling...</p>
+                        <div className="text-center py-16">
+                          <Spin size="large" tip="Memuat polling..." />
                         </div>
                       ) : (
-                        <div className="space-y-6">
+                        <>
                           {getFilteredPolls().map((poll) => {
-                             const hasVoted = votedPolls.has(poll.id);
-                             const isActive = poll.status === "active";
-                             const canVote = user && user.nik_verified && isActive && !hasVoted;
-                             
-                             return (
-                               <Card key={poll.id} className="shadow-md hover:shadow-lg transition-shadow">
-                                 <div className="p-6">
-                                   <div className="flex items-start justify-between mb-4">
-                                     <div className="space-y-2 flex-1">
-                                       <h3 className="text-xl font-semibold text-gray-900">{poll.title}</h3>
-                                       <p className="text-gray-600">{poll.description}</p>
-                                     </div>
-                                     <div className="flex gap-2 ml-4">
-                                       <Badge color="purple">{poll.category}</Badge>
-                                       <Badge 
-                                         color={isActive ? "green" : "default"}
-                                       >
-                                         {isActive ? (
-                                           <>
-                                             <FaClock className="w-3 h-3 mr-1" />
-                                             Aktif
-                                           </>
-                                         ) : (
-                                           <>
-                                             <FaCheckCircle className="w-3 h-3 mr-1" />
-                                             Selesai
-                                           </>
-                                         )}
-                                       </Badge>
-                                     </div>
-                                   </div>
+                            const hasVoted = votedPolls.has(poll.id);
+                            const userVote = userVotes.get(poll.id);
+                            const isActive = poll.status === "active";
+                            const canVote = user && user.nik_verified && isActive && !hasVoted;
 
-                                   <div className="space-y-3">
-                                     {poll.options.map((option) => {
-                                       const percentage = poll.totalVotes > 0 ? (option.votes / poll.totalVotes) * 100 : 0;
-                                       
-                                       return (
-                                         <div key={option.id} className="space-y-2">
-                                           <div className="flex items-center justify-between">
-                                             <span className="text-sm font-medium">{option.text}</span>
-                                             {(hasVoted || !isActive) && (
-                                               <div className="flex items-center gap-2">
-                                                 <span className="text-sm text-gray-500">
-                                                   {option.votes} responden
-                                                 </span>
-                                                 <span className="text-sm font-medium">
-                                                   {percentage.toFixed(1)}%
-                                                 </span>
-                                               </div>
-                                             )}
-                                           </div>
-                                           
-                                           {hasVoted || !isActive ? (
-                                             <Progress 
-                                               percent={percentage} 
-                                               size="small" 
-                                               strokeColor="#7c3aed"
-                                             />
-                                           ) : canVote ? (
-                                             <Button
-                                               type="default"
-                                               className="w-full text-left"
-                                               loading={loading}
-                                               onClick={() => handleVote(poll.id, option.id)}
-                                             >
-                                               {option.text}
-                                             </Button>
-                                           ) : (
-                                             <div className="w-full p-3 bg-gray-100 rounded border text-gray-500 text-center">
-                                               {!user ? 'Login untuk mengisi survey' : !user.nik_verified ? 'Verifikasi NIK untuk mengisi survey' : option.text}
-                                             </div>
-                                           )}
-                                         </div>
-                                       );
-                                     })}
-                                   </div>
+                            return (
+                              <div
+                                key={poll.id}
+                                className={`rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border-0 ${hasVoted ? 'bg-gradient-to-r from-green-50 to-emerald-50 ring-1 ring-green-200' : 'bg-white'
+                                  }`}
+                              >
+                                <div className="p-5 sm:p-6">
+                                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
+                                    <div className="space-y-2 flex-1">
+                                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{poll.title}</h3>
+                                      <p className="text-gray-600 text-sm sm:text-base">{poll.description}</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                      <Badge color="purple" className="px-2.5 py-1 rounded-md">{poll.category}</Badge>
+                                      <Badge
+                                        color={isActive ? "green" : "default"}
+                                        className="px-2.5 py-1 rounded-md"
+                                      >
+                                        {isActive ? (
+                                          <>
+                                            <FaClock className="inline w-3 h-3 mr-1" />
+                                            Aktif
+                                          </>
+                                        ) : (
+                                          <>
+                                            <FaCheckCircle className="inline w-3 h-3 mr-1" />
+                                            Selesai
+                                          </>
+                                        )}
+                                      </Badge>
+                                    </div>
+                                  </div>
 
-                                   <div className="flex items-center justify-between pt-4 border-t mt-4">
-                                     <div className="flex items-center gap-2 text-gray-500">
-                                       <FaUsers className="w-4 h-4" />
-                                       <span className="text-sm">{poll.totalVotes} total responden</span>
-                                     </div>
-                                     <div className="flex items-center gap-2 text-gray-500">
-                                       <FaChartBar className="w-4 h-4" />
-                                       <span className="text-sm">
-                                         Berakhir: {new Date(poll.endDate).toLocaleDateString("id-ID", {
-                                           year: 'numeric',
-                                           month: 'short',
-                                           day: 'numeric'
-                                         })}
-                                       </span>
-                                     </div>
-                                   </div>
+                                  <div className="space-y-4">
+                                    {poll.options.map((option) => {
+                                      const percentage = poll.totalVotes > 0 ? (option.votes / poll.totalVotes) * 100 : 0;
+                                      const isUserChoice = userVote === option.id;
+                                      const isVotedOrInactive = hasVoted || !isActive;
 
-                                   {hasVoted && isActive && (
-                                     <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
-                                       <p className="text-sm text-green-800">
-                                         ✓ Terima kasih! Respon Anda telah berhasil dicatat.
-                                       </p>
-                                     </div>
-                                   )}
-                                 </div>
-                               </Card>
-                             );
-                           })}
-                        </div>
+                                      return (
+                                        <div key={option.id} className="space-y-2">
+                                          {isVotedOrInactive ? (
+                                            <>
+                                              <div className="flex items-center justify-between">
+                                                <span className={`font-medium ${isUserChoice ? 'text-green-700' : 'text-gray-800'}`}>
+                                                  {option.text}
+                                                  {isUserChoice && (
+                                                    <span className="ml-2 inline-flex items-center gap-1 text-green-600 font-semibold">
+                                                      <FaCheck className="w-3 h-3" /> Pilihan Anda
+                                                    </span>
+                                                  )}
+                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                  <span className="text-xs text-gray-500">{option.votes} suara</span>
+                                                  <span className="text-sm font-semibold text-gray-700">{percentage.toFixed(1)}%</span>
+                                                </div>
+                                              </div>
+                                              <Progress
+                                                percent={percentage}
+                                                size="small"
+                                                strokeColor={isUserChoice ? "#10b981" : "#8b5cf6"}
+                                                className={`transition-all duration-500 ${isUserChoice ? 'animate-pulse' : ''}`}
+                                                showInfo={false}
+                                              />
+                                            </>
+                                          ) : canVote ? (
+                                            <Button
+                                              block
+                                              className={`text-left px-4 py-3 rounded-lg border-2 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] ${isUserChoice
+                                                  ? 'border-green-500 bg-green-50 text-green-800 font-bold shadow-md'
+                                                  : 'border-gray-200 hover:border-green-400 hover:bg-green-50 hover:text-green-700'
+                                                }`}
+                                              loading={loading && isUserChoice}
+                                              onClick={() => handleVote(poll.id, option.id)}
+                                            >
+                                              <div className="flex items-center justify-between">
+                                                <span>{option.text}</span>
+                                                {isUserChoice && <FaCheck className="w-4 h-4 text-green-600" />}
+                                              </div>
+                                            </Button>
+                                          ) : (
+                                            <div className="w-full p-3 bg-gray-100 rounded-lg border text-center text-gray-500">
+                                              {!user ? <span className="flex items-center justify-center gap-2"><FaExclamationTriangle /> Login dulu ya</span> : !user.nik_verified ? <span className="flex items-center justify-center gap-2"><FaCheckCircle /> Verifikasi NIK dulu</span> : option.text}
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+
+                                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 mt-5 border-t border-gray-100 gap-3">
+                                    <div className="flex items-center gap-2 text-gray-500">
+                                      <FaUsers className="w-4 h-4" />
+                                      <span className="text-sm">{poll.totalVotes} responden</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-gray-500">
+                                      <FaChartBar className="w-4 h-4" />
+                                      <span className="text-sm">
+                                        Berakhir: {new Date(poll.endDate).toLocaleDateString("id-ID", {
+                                          year: 'numeric',
+                                          month: 'short',
+                                          day: 'numeric'
+                                        })}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {hasVoted && isActive && (
+                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mt-5 animate-fade-in">
+                                      <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                          <FaCheck className="text-white w-4 h-4" />
+                                        </div>
+                                        <div>
+                                          <p className="text-green-800 font-medium text-sm">
+                                            Terima kasih! Suara Anda telah kami catat 🎉
+                                          </p>
+                                          <p className="text-green-600 text-xs mt-1">
+                                            Partisipasi Anda sangat berarti untuk kemajuan bersama.
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div >
+                            );
+                          })}
+
+                          {!pollsLoading && getFilteredPolls().length === 0 && (
+                            <div className="text-center py-16 bg-white rounded-xl shadow-sm">
+                              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <FaVoteYea className="w-10 h-10 text-gray-400" />
+                              </div>
+                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {showCompletedPolls ? 'Belum ada polling yang diisi' : 'Tidak ada polling aktif'}
+                              </h3>
+                              <p className="text-gray-500 max-w-md mx-auto">
+                                {showCompletedPolls
+                                  ? 'Anda belum mengisi polling apapun. Cek kembali polling aktif!'
+                                  : 'Silakan cek kembali nanti atau lihat polling yang sudah selesai.'
+                                }
+                              </p>
+                              {!showCompletedPolls && (
+                                <Button
+                                  type="link"
+                                  onClick={() => setShowCompletedPolls(true)}
+                                  className="mt-4"
+                                >
+                                  Lihat polling yang sudah diisi <FaArrowRight className="inline ml-1" />
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </>
                       )}
+                    </div>
+                  )
+                },
+                {
+                  key: 'survey',
+                  label: (
+                    <span className="flex items-center gap-2 font-medium">
+                      <FaChartBar className="w-4 h-4" />
+                      Survey Publik
+                    </span>
+                  ),
+                  children: (
+                    <div className="space-y-6">
+                      <div className="text-center py-16 bg-white rounded-xl shadow-sm">
+                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <FaChartBar className="w-10 h-10 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          Belum ada Survey Publik tersedia
+                        </h3>
+                        <p className="text-gray-500 max-w-md mx-auto">
+                          Mohon maaf, saat ini belum ada survey yang tersedia untuk Anda ikuti.
+                          Silakan cek kembali nanti untuk informasi terbaru.
+                        </p>
+                      </div>
                     </div>
                   )
                 }
@@ -386,14 +517,13 @@ const Polling = () => {
         </div>
       </div>
 
-      {/* Mobile Overlay */}
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-    </div>
+    </div >
   );
 };
 

@@ -71,7 +71,7 @@ const ChatHistory = ({ onSelectSession, onNewChat, currentSessionId }) => {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
+     <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <FaHistory className="text-blue-600" />
           <Title level={5} className="mb-0" style={{ color: '#01077A' }}>

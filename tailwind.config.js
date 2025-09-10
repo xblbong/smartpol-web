@@ -56,11 +56,51 @@ export default {
       animation: {
         'bounce-gentle': 'bounce 2s infinite',
         'fade-in': 'fadeIn 0.5s ease-in-out',
+        'float': 'float 6s ease-in-out infinite',
+        'float-slow': 'float-slow 8s ease-in-out infinite',
+        'float-tiny': 'float-tiny 10s ease-in-out infinite',
+        'pulse-size': 'pulse-size 5s ease-in-out infinite alternate',
+        'float-rotate': 'float-rotate 7s linear infinite',
+        'float-rotate-slow': 'float-rotate-slow 10s linear infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0) translateX(0)' },
+          '25%': { transform: 'translateY(-10px) translateX(5px)' },
+          '50%': { transform: 'translateY(10px) translateX(-5px)' },
+          '75%': { transform: 'translateY(-5px) translateX(10px)' },
+        },
+        'float-slow': {
+          '0%, 100%': { transform: 'translateY(0) translateX(0)' },
+          '25%': { transform: 'translateY(-8px) translateX(4px)' },
+          '50%': { transform: 'translateY(8px) translateX(-4px)' },
+          '75%': { transform: 'translateY(-4px) translateX(8px)' },
+        },
+        'float-tiny': {
+          '0%, 100%': { transform: 'translateY(0) translateX(0)' },
+          '25%': { transform: 'translateY(-3px) translateX(2px)' },
+          '50%': { transform: 'translateY(3px) translateX(-2px)' },
+          '75%': { transform: 'translateY(-2px) translateX(3px)' },
+        },
+        'pulse-size': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.1)' },
+        },
+        'float-rotate': {
+          '0%, 100%': { transform: 'translateY(0) translateX(0) rotate(0deg)' },
+          '25%': { transform: 'translateY(-10px) translateX(5px) rotate(45deg)' },
+          '50%': { transform: 'translateY(10px) translateX(-5px) rotate(90deg)' },
+          '75%': { transform: 'translateY(-5px) translateX(10px) rotate(135deg)' },
+        },
+        'float-rotate-slow': {
+          '0%, 100%': { transform: 'translateY(0) translateX(0) rotate(0deg)' },
+          '25%': { transform: 'translateY(-8px) translateX(4px) rotate(30deg)' },
+          '50%': { transform: 'translateY(8px) translateX(-4px) rotate(60deg)' },
+          '75%': { transform: 'translateY(-4px) translateX(8px) rotate(90deg)' },
         },
       },
     },

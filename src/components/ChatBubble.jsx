@@ -1,13 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaRobot, FaUser, FaFlag } from 'react-icons/fa';
 import { Modal, Form, Input, Select, Button, message } from 'antd';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-const ChatBubble = ({ message, image, isUser, timestamp }) => {
+const ChatBubble = ({ message, image, isUser, timestamp, isTyping = false }) => {
   const [reportModalVisible, setReportModalVisible] = useState(false);
   const [reportForm] = Form.useForm();
+  const [displayedMessage, setDisplayedMessage] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Typing effect for bot messages
+  useEffect(() => {
+    if (isTyping && !isUser && message) {
+      const timer = setTimeout(() => {
+        if (currentIndex < message.length) {
+          setDisplayedMessage(prev => prev + message[currentIndex]);
+          setCurrentIndex(prev => prev + 1);
+        }
+      }, 30); // Adjust speed here
+      
+      return () => clearTimeout(timer);
+    } else if (!isTyping && !isUser) {
+      setDisplayedMessage(message || '');
+      setCurrentIndex(0);
+    }
+  }, [isTyping, message, isUser, currentIndex]);
 
   const createImageUrl = (file) => {
     if (file instanceof File) {
@@ -42,43 +61,57 @@ const ChatBubble = ({ message, image, isUser, timestamp }) => {
     }
   };
   return (
-    <div className={`flex items-start gap-3 mb-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+    <div className={`flex items-start gap-3 mb-4 animate-fade-in-up ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       {/* Avatar */}
       <div className="flex-shrink-0">
         {isUser ? (
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{backgroundColor: '#01077A'}}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white hover:animate-pulse transition-all duration-300 hover:scale-110" style={{backgroundColor: '#01077A'}}>
             <FaUser className="text-xs" />
           </div>
         ) : (
-          <img 
-            src="/images/logo.png" 
-            alt="Bot Avatar" 
-            className="w-8 h-8 rounded-full object-cover"
-          />
+          <div className="relative">
+            <img 
+              src="/images/logo.png" 
+              alt="Bot Avatar" 
+              className="w-8 h-8 rounded-full object-cover hover:animate-zoom-pulse transition-all duration-300 hover:scale-110"
+            />
+            {isTyping && (
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+            )}
+          </div>
         )}
       </div>
       
       {/* Message Bubble */}
-      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl shadow-sm ${
+      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 ${
         isUser 
           ? 'text-white rounded-br-md' 
           : 'bg-white text-gray-800 border border-gray-200 rounded-bl-md'
       }`} style={isUser ? {backgroundColor: '#01077A'} : {}}>
         {/* Image */}
         {image && (
-          <div className="mb-2">
+          <div className="mb-2 animate-fade-in">
             <img 
               src={createImageUrl(image)} 
               alt="Uploaded image" 
-              className="max-w-full h-auto rounded-lg border border-gray-200"
+              className="max-w-full h-auto rounded-lg border border-gray-200 hover:scale-105 transition-transform duration-300"
               style={{ maxHeight: '200px' }}
             />
           </div>
         )}
         
         {/* Text Message */}
-        {message && (
-          <p className="text-sm leading-relaxed">{message}</p>
+        {(message || displayedMessage) && (
+          <div className="text-sm leading-relaxed">
+            {isTyping && !isUser ? (
+              <span>
+                {displayedMessage}
+                <span className="animate-pulse">|</span>
+              </span>
+            ) : (
+              <span className="animate-fade-in">{isUser ? message : displayedMessage}</span>
+            )}
+          </div>
         )}
         
         {timestamp && (

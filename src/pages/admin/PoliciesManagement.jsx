@@ -44,6 +44,7 @@ import {
 } from "@ant-design/icons";
 
 import moment from "moment";
+import { policiesAPI } from '../../services/api';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -62,22 +63,15 @@ const PoliciesManagement = () => {
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  // Fetch policies from database
+  // Fetch policies from database using policiesAPI
   const fetchPolicies = async () => {
     try {
       setRefreshing(true);
-      const response = await fetch('/api/admin/policies', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'
-      });
+      const data = await policiesAPI.getPolicies();
+      console.log('📋 Policies API Response:', data);
       
-      if (response.ok) {
-        const data = await response.json();
-        // Ensure data is an array before mapping
-        const policiesArray = Array.isArray(data) ? data : [];
+      // Ensure data.policies is an array before mapping
+      const policiesArray = Array.isArray(data.policies) ? data.policies : [];
         const formattedPolicies = policiesArray.map(policy => ({
           id: policy.id,
           title: policy.title,
@@ -97,11 +91,13 @@ const PoliciesManagement = () => {
         }));
         setPolicies(formattedPolicies);
         setLastUpdated(new Date());
-      } else {
-        message.error('Gagal mengambil data kebijakan');
-      }
     } catch (error) {
-      console.error('Error fetching policies:', error);
+      console.error('❌ Error fetching policies:', error);
+      console.log('🔍 Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       message.error('Terjadi kesalahan saat mengambil data kebijakan');
     } finally {
       setRefreshing(false);

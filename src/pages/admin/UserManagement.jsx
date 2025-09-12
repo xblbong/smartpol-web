@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { Transition, Dialog } from '@headlessui/react'; // For a more modern modal
+import { adminAPI } from '../../services/api';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -31,7 +32,7 @@ const UserManagement = () => {
   const [usersPerPage] = useState(10); // Number of users per page
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  // Fetch users from database using MySQL API
+  // Fetch users from database using adminAPI
   const fetchUsers = async (isRefresh = false) => {
     try {
       if (isRefresh) {
@@ -40,36 +41,29 @@ const UserManagement = () => {
         setLoading(true);
       }
 
-      const response = await fetch('/api/admin/users', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const formattedUsers = data.map(user => ({
-          id: user.id,
-          username: user.username,
-          fullName: user.full_name,
-          email: user.email,
-          phone: user.phone || '-',
-          role: user.role,
-          status: user.is_active ? 'active' : 'inactive',
-          joinDate: user.created_at ? new Date(user.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          avatar: null,
-        }));
-        setUsers(formattedUsers);
-        setLastUpdated(new Date());
-      } else {
-        console.error('Failed to fetch users');
-        // Fallback to empty array if API fails
-        setUsers([]);
-      }
+      const data = await adminAPI.getAllUsers();
+      console.log('👥 Users API Response:', data);
+      
+      const formattedUsers = data.map(user => ({
+        id: user.id,
+        username: user.username,
+        fullName: user.full_name,
+        email: user.email,
+        phone: user.phone || '-',
+        role: user.role,
+        status: user.is_active ? 'active' : 'inactive',
+        joinDate: user.created_at ? new Date(user.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        avatar: null,
+      }));
+      setUsers(formattedUsers);
+      setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('❌ Error fetching users:', error);
+      console.log('🔍 Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       // Fallback to empty array if error occurs
       setUsers([]);
     } finally {

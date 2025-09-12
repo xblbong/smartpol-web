@@ -101,7 +101,7 @@ const ChatHistory = ({ onSelectSession, onNewChat, currentSessionId }) => {
           renderItem={(session) => (
             <List.Item
               className={`cursor-pointer hover:bg-gray-50 rounded-lg p-2 mb-2 transition-colors ${
-                currentSessionId === session.session_id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                currentSessionId === session.session_id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
               }`}
               onClick={() => handleSelectSession(session.session_id)}
             >

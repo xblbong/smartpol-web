@@ -11,13 +11,14 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [dataSource, setDataSource] = useState('loading'); // 'api', 'fallback', 'error', 'loading'
   const [stats, setStats] = useState({
     totalUsers: 0,
     activePolls: 0,
     totalPolicies: 0,
     chatbotInteractions: 0
   });
-  const [analyticsData, setAnalyticsData] = useState(null);
+
   const [pollStats, setPollStats] = useState([]);
 
   const fetchDashboardData = async (isRefresh = false) => {
@@ -30,6 +31,8 @@ const Dashboard = () => {
       
       // Fetch quick stats
       const quickStats = await adminAPI.getDashboardQuickStats();
+      console.log('🏠 Dashboard Quick Stats API Response:', quickStats);
+      
       setStats({
         totalUsers: quickStats.total_users || 0,
         activePolls: quickStats.active_polls || 0,
@@ -37,43 +40,49 @@ const Dashboard = () => {
         chatbotInteractions: quickStats.chatbot_interactions || 0
       });
 
-      // Fetch poll analytics for poll statistics
-      const pollAnalytics = await adminAPI.getPollAnalytics();
-      if (pollAnalytics.poll_status_distribution) {
-        const pollStatsData = [
-          { 
-            name: 'Active Polls', 
-            value: pollAnalytics.poll_status_distribution.active || 0, 
-            color: '#10b981' 
-          },
-          { 
-            name: 'Completed Polls', 
-            value: pollAnalytics.poll_status_distribution.completed || 0, 
-            color: '#6366f1' 
-          },
-          { 
-            name: 'Draft Polls', 
-            value: pollAnalytics.poll_status_distribution.draft || 0, 
-            color: '#f59e0b' 
-          }
-        ];
-        setPollStats(pollStatsData);
-      }
+      // Set default poll stats data
+      const pollStatsData = [
+        { 
+          name: 'Active Polls', 
+          value: stats.activePolls || 0, 
+          color: '#10b981' 
+        },
+        { 
+          name: 'Completed Polls', 
+          value: 0, 
+          color: '#6366f1' 
+        },
+        { 
+          name: 'Draft Polls', 
+          value: 0, 
+          color: '#f59e0b' 
+        }
+      ];
+      setPollStats(pollStatsData);
 
+      setDataSource('api');
       setLastUpdated(new Date());
 
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('❌ Error fetching dashboard data:', error);
+      console.log('🔍 Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      setDataSource('error');
       if (!isRefresh) {
         message.error('Gagal memuat data dashboard');
       }
     } finally {
+      console.log('✅ Dashboard data fetch completed');
       setLoading(false);
       setRefreshing(false);
     }
   };
 
   useEffect(() => {
+    console.log('🚀 Dashboard component mounted - starting data fetch');
     fetchDashboardData();
     
     // Auto-refresh every 30 seconds
@@ -121,10 +130,34 @@ const Dashboard = () => {
           <div className="hidden sm:block text-right">
             <Text type="secondary" className="text-sm text-gray-600 block">Welcome back, Admin!</Text>
             <div className="flex items-center justify-end mt-2">
-              <div className={`w-2 h-2 rounded-full mr-2 ${refreshing ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></div>
+              <div className={`w-2 h-2 rounded-full mr-2 ${
+                dataSource === 'api' ? 'bg-green-500' :
+                dataSource === 'error' ? 'bg-red-500' :
+                dataSource === 'loading' ? 'bg-yellow-500 animate-pulse' :
+                'bg-gray-500'
+              }`}></div>
               <Text type="secondary" className="text-xs text-gray-500">
-                {refreshing ? 'Updating...' : lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : 'Loading...'}
+                {refreshing ? 'Updating...' : 
+                 dataSource === 'api' ? `API Data - ${lastUpdated?.toLocaleTimeString()}` :
+                 dataSource === 'error' ? 'API Error - Using fallback' :
+                 dataSource === 'loading' ? 'Loading...' :
+                 'Unknown status'
+                }
               </Text>
+            </div>
+            <div className="mt-1">
+              <Tag color={
+                dataSource === 'api' ? 'green' :
+                dataSource === 'error' ? 'red' :
+                dataSource === 'loading' ? 'orange' :
+                'default'
+              } size="small">
+                {dataSource === 'api' ? '🟢 Live Data' :
+                 dataSource === 'error' ? '🔴 Fallback Data' :
+                 dataSource === 'loading' ? '🟡 Loading' :
+                 '⚪ Unknown'
+                }
+              </Tag>
             </div>
           </div>
         </div>

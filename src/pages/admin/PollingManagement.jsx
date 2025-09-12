@@ -42,6 +42,7 @@ import {
   MenuOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
+import { pollingAPI } from '../../services/api';
 
 
 const { Title, Text } = Typography;
@@ -62,44 +63,39 @@ const PollingManagement = () => {
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  // Fetch polls from database using MySQL API
+  // Fetch polls from database using pollingAPI
   const fetchPolls = async () => {
     try {
       setRefreshing(true);
-      const response = await fetch('/api/admin/polls', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const data = await pollingAPI.getPolls();
+      console.log('📊 Polls API Response:', data);
       
-      if (response.ok) {
-        const data = await response.json();
-        // Ensure data is an array before mapping
-        const pollsArray = Array.isArray(data) ? data : [];
-        const formattedPolls = pollsArray.map(poll => ({
-          id: poll.id,
-          title: poll.title,
-          description: poll.description,
-          category: poll.category,
-          status: poll.status,
-          startDate: poll.start_date ? new Date(poll.start_date).toISOString().split('T')[0] : null,
-          endDate: poll.end_date ? new Date(poll.end_date).toISOString().split('T')[0] : null,
-          totalVotes: poll.total_votes || 0,
-          maxVotes: 1000, // Default value
-          isPublic: true, // Default value
-          createdBy: poll.created_by,
-          createdDate: poll.created_at ? new Date(poll.created_at).toISOString().split('T')[0] : null,
-          type: poll.type
-        }));
-        setPolls(formattedPolls);
-        setLastUpdated(new Date());
-      } else {
-        message.error('Gagal mengambil data polling');
-      }
+      // Ensure data.polls is an array before mapping
+      const pollsArray = Array.isArray(data.polls) ? data.polls : [];
+      const formattedPolls = pollsArray.map(poll => ({
+        id: poll.id,
+        title: poll.title,
+        description: poll.description,
+        category: poll.category,
+        status: poll.status,
+        startDate: poll.start_date ? new Date(poll.start_date).toISOString().split('T')[0] : null,
+        endDate: poll.end_date ? new Date(poll.end_date).toISOString().split('T')[0] : null,
+        totalVotes: poll.total_votes || 0,
+        maxVotes: 1000, // Default value
+        isPublic: true, // Default value
+        createdBy: poll.created_by,
+        createdDate: poll.created_at ? new Date(poll.created_at).toISOString().split('T')[0] : null,
+        type: poll.type
+      }));
+      setPolls(formattedPolls);
+      setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error fetching polls:', error);
+      console.error('❌ Error fetching polls:', error);
+      console.log('🔍 Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       message.error('Terjadi kesalahan saat mengambil data polling');
     } finally {
       setRefreshing(false);

@@ -214,6 +214,69 @@ export const policiesAPI = {
   }
 };
 
+// Reports API functions
+export const reportAPI = {
+  // Get all reports
+  getReports: async () => {
+    try {
+      const response = await api.get('/reports');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Create new report
+  createReport: async (reportData) => {
+    try {
+      const response = await api.post('/reports', reportData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Get specific report
+  getReport: async (reportId) => {
+    try {
+      const response = await api.get(`/reports/${reportId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Update report (admin only)
+  updateReport: async (reportId, reportData) => {
+    try {
+      const response = await api.put(`/reports/${reportId}`, reportData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Delete report (admin only)
+  deleteReport: async (reportId) => {
+    try {
+      const response = await api.delete(`/reports/${reportId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Get report statistics (admin only)
+  getReportStats: async () => {
+    try {
+      const response = await api.get('/reports/stats');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  }
+};
+
 // Utility functions
 export const getStoredUser = () => {
   try {
@@ -310,42 +373,7 @@ export const adminAPI = {
     }
   },
 
-  // Analytics endpoints
-  getAnalyticsOverview: async () => {
-    try {
-      const response = await api.get('/admin/analytics/overview');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { error: 'Network error' };
-    }
-  },
 
-  getUserAnalytics: async () => {
-    try {
-      const response = await api.get('/admin/analytics/users');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { error: 'Network error' };
-    }
-  },
-
-  getPollAnalytics: async () => {
-    try {
-      const response = await api.get('/admin/analytics/polls');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { error: 'Network error' };
-    }
-  },
-
-  getChatbotAnalytics: async () => {
-    try {
-      const response = await api.get('/admin/analytics/chatbot');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { error: 'Network error' };
-    }
-  },
 
   getDashboardQuickStats: async () => {
     try {
@@ -354,7 +382,9 @@ export const adminAPI = {
     } catch (error) {
       throw error.response?.data || { error: 'Network error' };
     }
-  }
+  },
+
+
 };
 
 // Chat History API

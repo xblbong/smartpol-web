@@ -59,14 +59,8 @@ const SidebarComponents = () => {
         { title: 'Daily Reports', path: '/admin/reports/daily' },
         { title: 'Monthly Reports', path: '/admin/reports/monthly' },
         { title: 'Annual Reports', path: '/admin/reports/annual' },
-        { title: 'Polling Reports', path: '/admin/reports/polling' },
-        { title: 'Chatbot Reports', path: '/admin/reports/chatbot' }
+        
       ]
-    },
-    {
-      title: 'Analytics',
-      icon: <FaChartBar className="w-5 h-5" />,
-      path: '/admin/analytics'
     }
   ];
 

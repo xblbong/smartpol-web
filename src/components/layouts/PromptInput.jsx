@@ -1,12 +1,67 @@
-import { useState, useRef } from "react";
-import { FaPlus, FaPaperPlane, FaMicrophone, FaImage, FaTimes } from "react-icons/fa";
+import { useState, useRef, useEffect } from "react";
+import { FaPlus, FaPaperPlane, FaMicrophone, FaImage, FaTimes, FaMicrophoneSlash } from "react-icons/fa";
 import { message } from "antd";
 
 const PromptInput = ({ onSendMessage, isTyping }) => {
   const [prompt, setPrompt] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
   const fileInputRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      setSpeechSupported(true);
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'id-ID';
+      
+      recognitionRef.current.onstart = () => {
+        setIsListening(true);
+      };
+      
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setPrompt(prev => prev + (prev ? ' ' : '') + transcript);
+        setIsListening(false);
+        
+        // Auto-submit after speech recognition completes
+        setTimeout(() => {
+          if (transcript.trim() && !isTyping) {
+            handleSubmit({ preventDefault: () => {} });
+          }
+        }, 500);
+      };
+      
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        if (event.error === 'not-allowed') {
+          message.error('Akses mikrofon ditolak. Silakan izinkan akses mikrofon di browser.');
+        } else if (event.error === 'no-speech') {
+          message.warning('Tidak ada suara yang terdeteksi. Silakan coba lagi.');
+        } else {
+          message.error('Terjadi kesalahan pada pengenalan suara.');
+        }
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -56,6 +111,25 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
     fileInputRef.current?.click();
   };
 
+  const handleSpeechRecognition = () => {
+    if (!speechSupported) {
+      message.error('Browser Anda tidak mendukung pengenalan suara.');
+      return;
+    }
+    
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current?.start();
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        message.error('Gagal memulai pengenalan suara.');
+      }
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-2 sm:p-4 z-10 lg:left-64">
       <div className="max-w-7xl mx-auto px-2 sm:px-0">
@@ -90,7 +164,7 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
         
         <form
           onSubmit={handleSubmit}
-          className="flex items-center bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 animate-fade-in-up"
+          className="flex items-center bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in-up"
         >
           <input
             type="file"
@@ -119,12 +193,32 @@ const PromptInput = ({ onSendMessage, isTyping }) => {
           />
           <button
             type="button"
-            className="p-2 sm:p-3 text-gray-400 hover:text-white transition-all duration-300 flex-shrink-0 hover:scale-110 hover:animate-pulse"
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#FAC62A'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-            title="Rekam Suara"
+            onClick={handleSpeechRecognition}
+            disabled={isTyping}
+            className={`p-2 sm:p-3 transition-all duration-300 flex-shrink-0 hover:scale-110 ${
+              isListening 
+                ? 'text-red-500 animate-pulse bg-red-100' 
+                : speechSupported 
+                  ? 'text-gray-400 hover:text-white hover:animate-pulse' 
+                  : 'text-gray-300 cursor-not-allowed'
+            }`}
+            onMouseEnter={(e) => {
+              if (!isListening && speechSupported && !isTyping) {
+                e.target.style.backgroundColor = '#FAC62A';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isListening) {
+                e.target.style.backgroundColor = 'transparent';
+              }
+            }}
+            title={isListening ? 'Klik untuk berhenti merekam' : 'Rekam Suara'}
           >
-            <FaMicrophone className="text-base sm:text-lg" />
+            {isListening ? (
+              <FaMicrophoneSlash className="text-base sm:text-lg" />
+            ) : (
+              <FaMicrophone className="text-base sm:text-lg" />
+            )}
           </button>
           <button
             type="submit"

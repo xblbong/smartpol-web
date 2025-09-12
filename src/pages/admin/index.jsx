@@ -19,13 +19,7 @@ import Dashboard from './Dashboard';
 import UserManagement from './UserManagement';
 import PollingManagement from './PollingManagement';
 import PoliciesManagement from './PoliciesManagement';
-import ReportPolling from './ReportPolling';
-import ReportChatbot from './ReportChatbot';
-import Analytics from './Analytics';
-import Roles from './Roles';
-import DailyReport from './DailyReport';
-import MonthlyReport from './MonthlyReport';
-import AnnualReport from './AnnualReport';
+
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -95,11 +89,6 @@ const AdminLayout = () => {
       label: 'Dashboard',
     },
     {
-      key: 'analytics',
-      icon: <BarChartOutlined />,
-      label: 'Analytics',
-    },
-    {
       type: 'divider',
     },
     {
@@ -107,11 +96,7 @@ const AdminLayout = () => {
       icon: <UserOutlined />,
       label: 'User Management',
     },
-    {
-      key: 'roles',
-      icon: <SettingOutlined />,
-      label: 'Roles & Permissions',
-    },
+
     {
       key: 'polling',
       icon: <PieChartOutlined />,
@@ -125,38 +110,7 @@ const AdminLayout = () => {
     {
       type: 'divider',
     },
-    {
-      key: 'reports',
-      icon: <BarChartOutlined />,
-      label: 'Reports',
-      children: [
-        {
-          key: 'daily-report',
-          icon: <BarChartOutlined />,
-          label: 'Daily Report',
-        },
-        {
-          key: 'monthly-report',
-          icon: <BarChartOutlined />,
-          label: 'Monthly Report',
-        },
-        {
-          key: 'annual-report',
-          icon: <BarChartOutlined />,
-          label: 'Annual Report',
-        },
-        {
-          key: 'polling-report',
-          icon: <PieChartOutlined />,
-          label: 'Polling Report',
-        },
-        {
-          key: 'chatbot-report',
-          icon: <RobotOutlined />,
-          label: 'Chatbot Report',
-        },
-      ],
-    },
+
   ];
 
   const userMenuItems = [
@@ -177,26 +131,15 @@ const AdminLayout = () => {
     switch (selectedKey) {
       case 'dashboard':
         return <Dashboard />;
-      case 'analytics':
-        return <Analytics />;
+
       case 'users':
         return <UserManagement />;
-      case 'roles':
-        return <Roles />;
+
       case 'polling':
         return <PollingManagement />;
       case 'policies':
         return <PoliciesManagement />;
-      case 'daily-report':
-        return <DailyReport />;
-      case 'monthly-report':
-        return <MonthlyReport />;
-      case 'annual-report':
-        return <AnnualReport />;
-      case 'polling-report':
-        return <ReportPolling />;
-      case 'chatbot-report':
-        return <ReportChatbot />;
+
       default:
         return <Dashboard />;
     }

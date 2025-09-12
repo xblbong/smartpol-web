@@ -129,12 +129,43 @@ const Polling = () => {
     try {
       if (isRefresh) setRefreshing(true);
       else setPollsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      setPolls(dummyPolls);
+      
+      const response = await fetch('/api/polling', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch polls');
+      }
+      
+      setPolls(data.polls);
+      
+      // Update voted polls based on backend data
+      const votedPollIds = new Set();
+      const userVotesMap = new Map();
+      
+      data.polls.forEach(poll => {
+        if (poll.has_voted) {
+          votedPollIds.add(poll.id);
+          if (poll.voted_option_id) {
+            userVotesMap.set(poll.id, poll.voted_option_id);
+          }
+        }
+      });
+      
+      setVotedPolls(votedPollIds);
+      setUserVotes(userVotesMap);
+      
       setLastUpdated(new Date());
       if (isRefresh) message.success('Data polling berhasil diperbarui');
     } catch (error) {
+      console.error('Error fetching polls:', error);
       message.error('Gagal memuat data polling');
+      // Fallback to dummy data if API fails
+      setPolls(dummyPolls);
     } finally {
       setPollsLoading(false);
       setRefreshing(false);
@@ -147,8 +178,12 @@ const Polling = () => {
 
   const getFilteredPolls = () => {
     let filteredPolls = polls.filter(poll => poll.type === activeTab);
+    
+    // Hide polls that user has already voted on
+    filteredPolls = filteredPolls.filter(poll => !votedPolls.has(poll.id));
+    
     if (!showCompletedPolls) {
-      filteredPolls = filteredPolls.filter(poll => !votedPolls.has(poll.id) || poll.status === 'completed');
+      filteredPolls = filteredPolls.filter(poll => poll.status !== 'completed');
     }
     return filteredPolls;
   };
@@ -169,30 +204,37 @@ const Polling = () => {
 
     setLoading(true);
     try {
-      // Simulate API call for voting
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Call actual API for voting
+      const response = await fetch(`/api/polling/${pollId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ option_id: optionId })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.error === 'You have already voted on this poll') {
+          message.warning('Anda sudah memberikan suara pada polling ini!');
+          setVotedPolls(prev => new Set(prev).add(pollId));
+        } else {
+          message.error(data.error || 'Gagal mencatat suara');
+        }
+        return;
+      }
 
       setVotedPolls(prev => new Set(prev).add(pollId));
       setUserVotes(prev => new Map(prev).set(pollId, optionId));
 
       message.success('Suara Anda berhasil dicatat!', 3);
 
-      setPolls(prevPolls =>
-        prevPolls.map(poll => {
-          if (poll.id === pollId) {
-            const updatedOptions = poll.options.map(option =>
-              option.id === optionId ? { ...option, votes: option.votes + 1 } : option
-            );
-            return {
-              ...poll,
-              options: updatedOptions,
-              totalVotes: poll.totalVotes + 1
-            };
-          }
-          return poll;
-        })
-      );
+      // Refresh polls data to get updated vote counts
+      fetchPolls();
     } catch (error) {
+      console.error('Error voting:', error);
       message.error('Gagal mencatat suara. Silakan coba lagi.');
     } finally {
       setLoading(false);

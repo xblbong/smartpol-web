@@ -14,14 +14,12 @@ def apply_admin_decorators():
     
     # List of admin endpoints that need the decorator
     admin_endpoints = [
-        r"(@app\.route\('/api/admin/reports/annual', methods=\['GET'\]\)\s*\ndef get_annual_report\(\):)",
         r"(@app\.route\('/api/admin/policies', methods=\['GET'\]\)\s*\ndef get_admin_policies\(\):)",
         r"(@app\.route\('/api/admin/policies/stats', methods=\['GET'\]\)\s*\ndef get_policy_stats\(\):)",
         r"(@app\.route\('/api/admin/polls', methods=\['GET'\]\)\s*\ndef get_admin_polls\(\):)",
         r"(@app\.route\('/api/admin/polls/stats', methods=\['GET'\]\)\s*\ndef get_poll_stats\(\):)",
         r"(@app\.route\('/api/admin/polls/<int:poll_id>/results', methods=\['GET'\]\)\s*\ndef get_poll_results\([^)]*\):)",
-        r"(@app\.route\('/api/admin/reports/chatbot', methods=\['GET'\]\)\s*\ndef get_chatbot_report\(\):)",
-        r"(@app\.route\('/api/admin/reports/polling', methods=\['GET'\]\)\s*\ndef get_polling_report\(\):)",
+
         r"(@app\.route\('/api/admin/users/stats', methods=\['GET'\]\)\s*\ndef get_user_stats\(\):)",
         r"(@app\.route\('/api/admin/polls/<int:poll_id>', methods=\['PUT'\]\)\s*\ndef update_poll\([^)]*\):)",
         r"(@app\.route\('/api/admin/polls/<int:poll_id>', methods=\['DELETE'\]\)\s*\ndef delete_poll\([^)]*\):)",

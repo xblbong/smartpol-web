@@ -15,8 +15,8 @@ function Home() {
     await loadChatHistory(sessionId);
   };
   
-  const handleNewChat = () => {
-    startNewSession();
+  const handleNewChat = async () => {
+    await startNewSession();
   };
   
   const chatBackground = {
@@ -39,6 +39,7 @@ function Home() {
           <ChatHistory 
             onSelectSession={handleSelectSession}
             onNewChat={handleNewChat}
+            currentSessionId={currentSessionId}
           />
         }
       />

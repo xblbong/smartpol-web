@@ -31,9 +31,12 @@ const AdminLayout = () => {
 
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      if (window.innerWidth <= 768) {
+      const isMobileSize = window.innerWidth < 1024; // lg breakpoint
+      setIsMobile(isMobileSize);
+      if (isMobileSize) {
         setCollapsed(true);
+      } else {
+        setCollapsed(false);
       }
     };
 
@@ -146,17 +149,20 @@ const AdminLayout = () => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="admin-layout">
       {/* Mobile overlay when sidebar is open */}
       {isMobile && !collapsed && (
         <div
+          className="fixed inset-0 z-50"
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            backgroundColor: 'rgba(0, 0, 0, 0.50)',
+            backdropFilter: 'blur(8px)',           
+            WebkitBackdropFilter: 'blur(8px)',
             zIndex: 999
           }}
           onClick={() => setCollapsed(true)}
@@ -168,14 +174,19 @@ const AdminLayout = () => {
         collapsed={collapsed}
         breakpoint="lg"
         collapsedWidth={isMobile ? 0 : 80}
+        className={`admin-sidebar ${isMobile ? 'fixed z-50' : 'relative'} ${!collapsed ? 'open' : ''}`}
         style={{
           background: '#001529',
           boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
-          position: isMobile ? 'fixed' : 'relative',
-          height: isMobile ? '100vh' : 'auto',
-          zIndex: isMobile ? 1000 : 'auto'
         }}
         width={250}
+        onBreakpoint={(broken) => {
+          if (broken) {
+            setCollapsed(true);
+          } else {
+            setCollapsed(false);
+          }
+        }}
       >
         <div style={{
           height: '64px',
@@ -202,24 +213,24 @@ const AdminLayout = () => {
           selectedKeys={[selectedKey]}
           items={menuItems}
           onClick={({ key }) => setSelectedKey(key)}
+          className="h-full overflow-y-auto"
           style={{
             border: 'none',
-            fontSize: '14px'
+            fontSize: '14px',
+            height: 'calc(100vh - 80px)',
+            overflowY: 'auto'
           }}
         />
       </Sider>
       
-      <Layout>
-        <Header style={{
+      <Layout className="flex-1 flex flex-col">
+        <Header className={`bg-white shadow-sm z-10 transition-all duration-300 ${
+          isMobile && !collapsed ? 'ml-64' : ''
+        }`} style={{
           padding: isMobile ? '0 16px' : '0 24px',
-          background: '#fff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          zIndex: 1,
-          marginLeft: isMobile && !collapsed ? 250 : 0,
-          transition: 'margin-left 0.2s'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
@@ -230,8 +241,7 @@ const AdminLayout = () => {
                 fontSize: '16px',
                 width: 40,
                 height: 40,
-                marginRight: '16px'
-              }}
+              color: '#fff'              }}
             />
             <Title level={4} style={{ margin: 0, color: '#001529' }}>
               {menuItems.find(item => item.key === selectedKey)?.label || 'Dashboard'}
@@ -242,7 +252,7 @@ const AdminLayout = () => {
             <Button
               type="text"
               icon={<BellOutlined />}
-              style={{ fontSize: '16px' }}
+              style={{ fontSize: '16px', color: '#fff' }}
             />
             
             <Dropdown
@@ -266,8 +276,8 @@ const AdminLayout = () => {
                 />
                 {!isMobile && (
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Text strong style={{ fontSize: '14px' }}>Admin User</Text>
-                    <Text type="secondary" style={{ fontSize: '12px' }}>Administrator</Text>
+                    <Text strong style={{ fontSize: '14px', color: '#fff' }}>Admin User</Text>
+                    <Text type="secondary" style={{ fontSize: '12px', color: '#dedede' }}>Administrator</Text>
                   </div>
                 )}
               </div>
@@ -275,15 +285,11 @@ const AdminLayout = () => {
           </div>
         </Header>
         
-        <Content style={{
+        <Content className={`admin-content ${isMobile && !collapsed ? 'sidebar-open' : ''}`} style={{
           margin: isMobile ? '16px' : '24px',
           padding: isMobile ? '16px' : '24px',
           background: '#f5f5f5',
           borderRadius: '8px',
-          minHeight: 'calc(100vh - 112px)',
-          overflow: 'auto',
-          marginLeft: isMobile && !collapsed ? 250 : (isMobile ? '16px' : '24px'),
-          transition: 'margin-left 0.2s'
         }}>
           {renderContent()}
         </Content>

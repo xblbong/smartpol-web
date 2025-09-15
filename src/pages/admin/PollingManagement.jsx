@@ -264,23 +264,22 @@ const PollingManagement = () => {
     {
       title: "Informasi Polling",
       key: "pollInfo",
+      width: 300,
       render: (_, record) => (
-        <div className="flex items-center space-x-3">
-          <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-lg border border-indigo-200">
-            <FundOutlined />
+        <div className="flex items-start space-x-2 sm:space-x-3">
+          <div className="flex-shrink-0 w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg sm:rounded-xl flex items-center justify-center text-indigo-600 font-bold text-sm sm:text-lg border border-indigo-200">
+            <FundOutlined className="text-sm sm:text-base" />
           </div>
-          <div>
-            <Text strong className="text-base text-gray-800">
+          <div className="flex-1 min-w-0">
+            <Text strong className="text-sm sm:text-base text-gray-800 block truncate">
               {record.title}
             </Text>
-            <br />
-            <Text type="secondary" className="text-sm text-gray-500">
-              {record.description.length > 60
-                ? `${record.description.substring(0, 60)}...`
+            <Text type="secondary" className="text-xs sm:text-sm text-gray-500 block mt-1 line-clamp-2">
+              {record.description.length > 50
+                ? `${record.description.substring(0, 50)}...`
                 : record.description}
             </Text>
-            <br />
-            <Tag color="blue" className="mt-1 font-medium">
+            <Tag color="blue" className="mt-1 font-medium text-xs">
               {record.category}
             </Tag>
           </div>
@@ -428,28 +427,28 @@ const PollingManagement = () => {
   };
 
   return (
-    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto bg-gray-50">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto bg-gray-50 min-h-screen">
 
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
+        <div className="mb-6 lg:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 lg:mb-2 gap-4">
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3 sm:mr-4">
                 <BarChartOutlined
-                  className="text-xl"
+                  className="text-lg sm:text-xl"
                   style={{ color: "white" }}
                 />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   Manajemen Polling
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-sm sm:text-base text-gray-600 mt-1">
                   Kelola dan pantau semua polling dalam sistem
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
               <div className="flex items-center space-x-2">
                 <div className={`w-3 h-3 rounded-full ${refreshing ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
                 <span className="text-sm text-gray-600">
@@ -466,21 +465,21 @@ const PollingManagement = () => {
         </div>
 
         {/* Statistics */}
-        <Row gutter={[24, 24]} className="mb-8">
+        <Row gutter={[16, 16]} className="mb-6 lg:mb-8">
           <Col xs={24} sm={12} lg={6}>
             <Card className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
                     Total Polling
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {pollStats.total}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <LineChartOutlined
-                    className="text-xl"
+                    className="text-lg sm:text-xl"
                     style={{ color: "white" }}
                   />
                 </div>
@@ -490,17 +489,17 @@ const PollingManagement = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
                     Polling Aktif
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {pollStats.active}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <CheckCircleOutlined
-                    className="text-xl"
+                    className="text-lg sm:text-xl"
                     style={{ color: "white" }}
                   />
                 </div>
@@ -510,17 +509,17 @@ const PollingManagement = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
                     Selesai
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {pollStats.completed}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <FundOutlined
-                    className="text-xl"
+                    className="text-lg sm:text-xl"
                     style={{ color: "white" }}
                   />
                 </div>
@@ -530,17 +529,17 @@ const PollingManagement = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
                     Total Suara
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {pollStats.totalVotes}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <UserOutlined
-                    className="text-xl"
+                    className="text-lg sm:text-xl"
                     style={{ color: "white" }}
                   />
                 </div>
@@ -550,77 +549,89 @@ const PollingManagement = () => {
         </Row>
 
         {/* Controls */}
-        <div className="mb-6 p-6 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb">
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cari Polling
-              </label>
-              <Input
-                placeholder="Cari berdasarkan judul, deskripsi, atau kategori..."
-                prefix={<SearchOutlined className="text-gray-400" />}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                allowClear
-                className="rounded-lg h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filter Status
-              </label>
-              <Select
-                placeholder="Semua status"
-                style={{ width: "100%", height: "44px" }}
-                allowClear
-                onChange={setFilterStatus}
-                className="rounded-lg"
+        <div className="mb-6 p-4 sm:p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div className="flex-1">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  Daftar Polling
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Kelola semua polling yang tersedia dalam sistem
+                </p>
+              </div>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAdd}
+                size="large"
+                className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none rounded-lg shadow-md px-4 sm:px-6 py-2 h-10 sm:h-11"
               >
-                <Option value="active">Aktif</Option>
-                <Option value="completed">Selesai</Option>
-                <Option value="draft">Draft</Option>
-                <Option value="cancelled">Dibatalkan</Option>
-              </Select>
+                <span className="hidden sm:inline">Buat Polling Baru</span>
+                <span className="sm:hidden">Tambah</span>
+              </Button>
             </div>
-          </div>
-          <div className="lg:ml-6">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleAdd}
-              size="large"
-              className="w-full lg:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none rounded-lg shadow-md px-6 py-2 h-11"
-            >
-              Buat Polling Baru
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cari Polling
+                </label>
+                <Input
+                  placeholder="Cari berdasarkan judul, deskripsi, atau kategori..."
+                  prefix={<SearchOutlined className="text-gray-400" />}
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  allowClear
+                  className="rounded-lg h-10 sm:h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </div>
+              <div className="w-full sm:w-48">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Filter Status
+                </label>
+                <Select
+                  placeholder="Semua status"
+                  style={{ width: "100%", height: "40px" }}
+                  allowClear
+                  onChange={setFilterStatus}
+                  className="rounded-lg [&_.ant-select-selector]:!h-10 sm:[&_.ant-select-selector]:!h-11"
+                >
+                  <Option value="active">Aktif</Option>
+                  <Option value="completed">Selesai</Option>
+                  <Option value="draft">Draft</Option>
+                  <Option value="cancelled">Dibatalkan</Option>
+                </Select>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Polls Table */}
-        <div className="bg-white px-4 rounded-xl shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Daftar Polling ({filteredPolls.length})
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Kelola semua polling yang tersedia dalam sistem
-            </p>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="overflow-x-auto">
+            <Table
+              columns={columns}
+              dataSource={filteredPolls}
+              rowKey="id"
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) => (
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    {range[0]}-{range[1]} dari {total} polling
+                  </span>
+                ),
+                className: "px-2 sm:px-4 py-4",
+                size: "small",
+                responsive: true,
+              }}
+              scroll={{ x: 1000 }}
+              className="[&_.ant-table]:!bg-transparent [&_.ant-table-thead>tr>th]:!bg-gray-50 [&_.ant-table-thead>tr>th]:!border-gray-200 [&_.ant-table-tbody>tr>td]:!border-gray-200 [&_.ant-table-tbody>tr:hover>td]:!bg-gray-50 [&_.ant-table-thead>tr>th]:!text-xs [&_.ant-table-tbody>tr>td]:!text-xs sm:[&_.ant-table-thead>tr>th]:!text-sm sm:[&_.ant-table-tbody>tr>td]:!text-sm"
+              bordered={false}
+              size="small"
+            />
           </div>
-          <Table
-            columns={columns}
-            dataSource={filteredPolls}
-            rowKey="id"
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} dari ${total} polling`,
-              className: "px-6 py-4",
-            }}
-            scroll={{ x: 1200 }}
-            className="overflow-hidden"
-          />
         </div>
 
         {/* Add/Edit Poll Modal */}

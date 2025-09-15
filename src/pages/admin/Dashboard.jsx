@@ -121,7 +121,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto bg-gray-100">
         <div className="mb-8 p-6 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
           <Title level={2} className="m-0 text-gray-800 flex items-center">
             <FaTachometerAlt className="text-indigo-600 text-3xl mr-3" />

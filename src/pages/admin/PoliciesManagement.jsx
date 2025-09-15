@@ -321,39 +321,41 @@ const PoliciesManagement = () => {
     {
       title: "Policy Information",
       key: "policyInfo",
+      width: 300,
       render: (_, record) => (
-        <div className="flex items-start space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br text-white from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mt-1 flex-shrink-0">
+        <div className="flex items-start space-x-2 sm:space-x-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br text-white from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mt-1 flex-shrink-0">
             {getCategoryIcon(record.category) ? (
               React.cloneElement(getCategoryIcon(record.category), {
-                className: "text-lg",
+                className: "text-sm sm:text-lg",
               })
             ) : (
-              <FileTextOutlined className="text-lg"  style={{ color: 'white' }}/>
+              <FileTextOutlined className="text-sm sm:text-lg"  style={{ color: 'white' }}/>
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-base mb-1 truncate">
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 truncate">
               {record.title}
             </h3>
-            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-              {record.description.length > 80
-                ? `${record.description.substring(0, 80)}...`
+            <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
+              {record.description.length > 60
+                ? `${record.description.substring(0, 60)}...`
                 : record.description}
             </p>
-            <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
+            <div className="flex flex-wrap gap-1 sm:gap-2">
+              <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
                 {getCategoryIcon(record.category) &&
                   React.cloneElement(getCategoryIcon(record.category), {
-                    className: "w-3 h-3 mr-1",
+                    className: "w-2 h-2 sm:w-3 sm:h-3 mr-1",
                   })}
-                {record.category}
+                <span className="hidden sm:inline">{record.category}</span>
+                <span className="sm:hidden">{record.category.substring(0, 8)}</span>
               </span>
               {(() => {
                 const priorityProps = getPriorityTagProps(record.priority);
                 return (
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityProps.bgColor} ${priorityProps.textColor} ${priorityProps.borderColor} border`}
+                    className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-medium ${priorityProps.bgColor} ${priorityProps.textColor} ${priorityProps.borderColor} border`}
                   >
                     {record.priority.toUpperCase()}
                   </span>
@@ -519,26 +521,26 @@ const PoliciesManagement = () => {
   };
 
   return (
-    <div className="flex-1 p-6 lg:p-10 overflow-auto bg-gray-100">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
+    <div className="flex-1 p-4 sm:p-6 lg:p-10 overflow-auto bg-gray-100 min-h-screen">
+        <div className="mb-6 lg:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 lg:mb-3 gap-4">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
                 <FileTextOutlined
-                  className="text-xl"
+                  className="text-lg sm:text-xl"
                   style={{ color: "white" }}
                 />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   Manajemen Kebijakan
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-sm sm:text-base text-gray-600 mt-1">
                   Kelola dan pantau semua kebijakan organisasi
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
               <div className="flex items-center space-x-2">
                 <div className={`w-3 h-3 rounded-full ${refreshing ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
                 <span className="text-sm text-gray-600">
@@ -554,78 +556,78 @@ const PoliciesManagement = () => {
           </div>
         </div>
 
-        <Row gutter={[24, 24]} className="mb-8">
-          <Col xs={12} sm={6}>
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+        <Row gutter={[16, 16]} className="mb-6 lg:mb-8">
+          <Col xs={24} sm={12} lg={6}>
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
                     Total Kebijakan
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {policyStats.total}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <FileTextOutlined
-                    className="text-xl"
+                    className="text-lg sm:text-xl"
                     style={{ color: "white" }}
                   />
                 </div>
               </div>
             </div>
           </Col>
-          <Col xs={12} sm={6}>
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+          <Col xs={24} sm={12} lg={6}>
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
                     Kebijakan Aktif
                   </p>
-                  <p className="text-3xl font-bold text-green-600">
+                  <p className="text-2xl sm:text-3xl font-bold text-green-600">
                     {policyStats.active}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <CheckCircleOutlined
-                    className="text-xl"
+                    className="text-lg sm:text-xl"
                     style={{ color: "white" }}
                   />
                 </div>
               </div>
             </div>
           </Col>
-          <Col xs={12} sm={6}>
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+          <Col xs={24} sm={12} lg={6}>
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
                     Dalam Review
                   </p>
-                  <p className="text-3xl font-bold text-blue-600">
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-600">
                     {policyStats.review}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                  <EyeOutlined className="text-xl" style={{ color: "white" }} />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <EyeOutlined className="text-lg sm:text-xl" style={{ color: "white" }} />
                 </div>
               </div>
             </div>
           </Col>
-          <Col xs={12} sm={6}>
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+          <Col xs={24} sm={12} lg={6}>
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
                     Kebijakan Publik
                   </p>
-                  <p className="text-3xl font-bold text-purple-600">
+                  <p className="text-2xl sm:text-3xl font-bold text-purple-600">
                     {policyStats.public}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <UserOutlined
-                    className="text-xl"
+                    className="text-lg sm:text-xl"
                     style={{ color: "white" }}
                   />
                 </div>
@@ -634,21 +636,30 @@ const PoliciesManagement = () => {
           </Col>
         </Row>
 
-        <div className="flex justify-end mb-5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 lg:mb-5 gap-4">
+          <div className="flex-1">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+              Daftar Kebijakan
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Kelola semua kebijakan organisasi Anda
+            </p>
+          </div>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleAdd}
             size="large"
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none rounded-lg px-6 h-12 font-medium shadow-md hover:shadow-lg transition-all duration-200"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none rounded-lg px-4 sm:px-6 h-10 sm:h-12 font-medium shadow-md hover:shadow-lg transition-all duration-200 w-full sm:w-auto"
           >
-            Buat Kebijakan Baru
+            <span className="hidden sm:inline">Buat Kebijakan Baru</span>
+            <span className="sm:hidden">Tambah</span>
           </Button>
         </div>
 
-        <div className="bg-white  items-center rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1 items-center">
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6 lg:mb-8">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Cari Kebijakan
@@ -659,7 +670,7 @@ const PoliciesManagement = () => {
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                   allowClear
-                  className="rounded-lg h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all duration-200"
+                  className="rounded-lg h-10 sm:h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all duration-200"
                 />
               </div>
               <div className="w-full sm:w-48">
@@ -668,10 +679,10 @@ const PoliciesManagement = () => {
                 </label>
                 <Select
                   placeholder="Semua Status"
-                  style={{ width: "100%", height: "48px" }}
+                  style={{ width: "100%", height: "40px" }}
                   allowClear
                   onChange={(value) => setFilterStatus(value)}
-                  className="rounded-lg"
+                  className="rounded-lg [&_.ant-select-selector]:!h-10 sm:[&_.ant-select-selector]:!h-12"
                 >
                   <Option value="active">Aktif</Option>
                   <Option value="draft">Draft</Option>
@@ -684,51 +695,48 @@ const PoliciesManagement = () => {
           </div>
         </div>
 
-        <div className="bg-white px-4 rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-2 py-4 border-b border-gray-200 ">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Daftar Kebijakan
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Kelola semua kebijakan organisasi Anda
-            </p>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table
+              columns={columns}
+              dataSource={filteredPolicies}
+              rowKey="id"
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                pageSizeOptions: ["5", "10", "20", "50"],
+                showTotal: (total, range) => (
+                  <Text type="secondary" className="text-gray-600 text-xs sm:text-sm">
+                    {range[0]}-{range[1]} of {total} policies
+                  </Text>
+                ),
+                className: "px-2 sm:px-4 py-4",
+                size: "small",
+                responsive: true,
+              }}
+              scroll={{ x: 1200 }}
+              className="[&_.ant-table]:!bg-transparent [&_.ant-table-thead>tr>th]:!bg-gray-50 [&_.ant-table-thead>tr>th]:!border-gray-200 [&_.ant-table-tbody>tr>td]:!border-gray-200 [&_.ant-table-tbody>tr:hover>td]:!bg-gray-50 [&_.ant-table-thead>tr>th]:!text-xs [&_.ant-table-tbody>tr>td]:!text-xs sm:[&_.ant-table-thead>tr>th]:!text-sm sm:[&_.ant-table-tbody>tr>td]:!text-sm"
+              bordered={false}
+              size="small"
+            />
           </div>
-          <Table
-            columns={columns}
-            dataSource={filteredPolicies}
-            rowKey="id"
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              pageSizeOptions: ["5", "10", "20", "50"],
-              showTotal: (total, range) => (
-                <Text type="secondary" className="text-gray-600">
-                  {range[0]}-{range[1]} of {total} policies
-                </Text>
-              ),
-              className: "px-6 py-4",
-            }}
-            scroll={{ x: 1300 }}
-            className="[&_.ant-table]:!bg-transparent [&_.ant-table-thead>tr>th]:!bg-gray-50 [&_.ant-table-thead>tr>th]:!border-gray-200 [&_.ant-table-tbody>tr>td]:!border-gray-200 [&_.ant-table-tbody>tr:hover>td]:!bg-gray-50"
-            bordered={false}
-          />
         </div>
 
         <Modal
           title={
-            <div className="flex items-center space-x-4 pb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 pb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
                 <FileTextOutlined
-                  className="text-xl"
+                  className="text-lg sm:text-xl"
                   style={{ color: "white" }}
                 />
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                   {editingPolicy ? "Edit Kebijakan" : "Tambah Kebijakan Baru"}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
                   {editingPolicy
                     ? "Perbarui informasi kebijakan yang ada"
                     : "Buat kebijakan baru untuk organisasi Anda"}
@@ -742,12 +750,13 @@ const PoliciesManagement = () => {
             form.resetFields();
           }}
           footer={null}
-          width={900}
+          width="90%"
+          style={{ maxWidth: 900 }}
           centered
           className="rounded-lg shadow-xl"
           styles={{
             header: { borderBottom: "1px solid #e5e7eb", paddingBottom: 0 },
-            body: { paddingTop: "1.5rem" },
+            body: { paddingTop: "1rem", maxHeight: "80vh", overflowY: "auto" },
           }}
         >
           <Form
@@ -815,7 +824,7 @@ const PoliciesManagement = () => {
               </Form.Item>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Kategori *
@@ -829,7 +838,7 @@ const PoliciesManagement = () => {
                 >
                   <Select
                     placeholder="Pilih kategori"
-                    className="h-12 [&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-indigo-500 [&_.ant-select-focused_.ant-select-selector]:!ring-2 [&_.ant-select-focused_.ant-select-selector]:!ring-indigo-200"
+                    className="h-10 sm:h-12 [&_.ant-select-selector]:!h-10 sm:[&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-indigo-500 [&_.ant-select-focused_.ant-select-selector]:!ring-2 [&_.ant-select-focused_.ant-select-selector]:!ring-indigo-200"
                   >
                     <Option value="Lingkungan">Lingkungan</Option>
                     <Option value="Pendidikan">Pendidikan</Option>
@@ -852,7 +861,7 @@ const PoliciesManagement = () => {
                 >
                   <Select
                     placeholder="Pilih status"
-                    className="h-12 [&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-indigo-500 [&_.ant-select-focused_.ant-select-selector]:!ring-2 [&_.ant-select-focused_.ant-select-selector]:!ring-indigo-200"
+                    className="h-10 sm:h-12 [&_.ant-select-selector]:!h-10 sm:[&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-indigo-500 [&_.ant-select-focused_.ant-select-selector]:!ring-2 [&_.ant-select-focused_.ant-select-selector]:!ring-indigo-200"
                   >
                     <Option value="draft">Draft</Option>
                     <Option value="review">Review</Option>
@@ -874,7 +883,7 @@ const PoliciesManagement = () => {
                 >
                   <Select
                     placeholder="Pilih prioritas"
-                    className="h-12 [&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-indigo-500 [&_.ant-select-focused_.ant-select-selector]:!ring-2 [&_.ant-select-focused_.ant-select-selector]:!ring-indigo-200"
+                    className="h-10 sm:h-12 [&_.ant-select-selector]:!h-10 sm:[&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-indigo-500 [&_.ant-select-focused_.ant-select-selector]:!ring-2 [&_.ant-select-focused_.ant-select-selector]:!ring-indigo-200"
                   >
                     <Option value="low">Rendah</Option>
                     <Option value="medium">Sedang</Option>
@@ -884,7 +893,7 @@ const PoliciesManagement = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Tanggal Berlaku *
@@ -902,7 +911,7 @@ const PoliciesManagement = () => {
                   <DatePicker
                     style={{ width: "100%" }}
                     placeholder="Pilih tanggal berlaku"
-                    className="h-12 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                    className="h-10 sm:h-12 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
                   />
                 </Form.Item>
               </div>
@@ -923,7 +932,7 @@ const PoliciesManagement = () => {
                   <DatePicker
                     style={{ width: "100%" }}
                     placeholder="Pilih tanggal berakhir"
-                    className="h-12 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                    className="h-10 sm:h-12 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
                   />
                 </Form.Item>
               </div>
@@ -978,13 +987,13 @@ const PoliciesManagement = () => {
               </Form.Item>
             </div>
 
-            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
               <Button
                 onClick={() => {
                   setIsModalVisible(false);
                   form.resetFields();
                 }}
-                className="h-12 px-8 rounded-xl border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 transition-all duration-200"
+                className="h-10 sm:h-12 px-6 sm:px-8 rounded-xl border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 transition-all duration-200 w-full sm:w-auto"
               >
                 Batal
               </Button>
@@ -992,9 +1001,14 @@ const PoliciesManagement = () => {
                 type="primary"
                 htmlType="submit"
                 loading={submitLoading}
-                className="h-12 px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                className="h-10 sm:h-12 px-6 sm:px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none rounded-xl shadow-md hover:shadow-lg transition-all duration-200 w-full sm:w-auto"
               >
-                {editingPolicy ? "Perbarui Kebijakan" : "Buat Kebijakan"}
+                <span className="hidden sm:inline">
+                  {editingPolicy ? "Perbarui Kebijakan" : "Buat Kebijakan"}
+                </span>
+                <span className="sm:hidden">
+                  {editingPolicy ? "Perbarui" : "Buat"}
+                </span>
               </Button>
             </div>
           </Form>

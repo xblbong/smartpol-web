@@ -256,17 +256,17 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto min-h-screen">
+        <div className="mb-6 lg:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 lg:mb-2 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
-                <UsersIcon className="w-8 h-8 mr-3 text-indigo-600" />
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 flex items-center">
+                <UsersIcon className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-indigo-600" />
                 Manajemen Pengguna
               </h1>
-              <p className="text-gray-600">Kelola pengguna dan hak akses sistem</p>
+              <p className="text-sm sm:text-base text-gray-600">Kelola pengguna dan hak akses sistem</p>
             </div>
-            <div className="text-right">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
               <div className="flex items-center space-x-2 text-sm text-gray-500">
                 <div className={`w-2 h-2 rounded-full ${refreshing ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></div>
                 <span>{refreshing ? 'Memperbarui...' : 'Terhubung'}</span>
@@ -281,92 +281,95 @@ const UserManagement = () => {
         </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 lg:mb-8">
           <StatCard
             title="Total Pengguna"
             value={userStats.total}
-            icon={<UsersIcon className="w-6 h-6 text-indigo-600" />}
+            icon={<UsersIcon className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />}
             color="text-indigo-600"
             bgColor="bg-indigo-50"
           />
           <StatCard
             title="Pengguna Aktif"
             value={userStats.active}
-            icon={<CheckCircleIcon className="w-6 h-6 text-green-600" />}
+            icon={<CheckCircleIcon className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />}
             color="text-green-600"
             bgColor="bg-green-50"
           />
           <StatCard
             title="Administrator"
             value={userStats.admins}
-            icon={<ComputerDesktopIcon className="w-6 h-6 text-purple-600" />}
+            icon={<ComputerDesktopIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />}
             color="text-purple-600"
             bgColor="bg-purple-50"
           />
           <StatCard
             title="Konstituen"
             value={userStats.konsituen}
-            icon={<UserCircleIcon className="w-6 h-6 text-blue-600" />}
+            icon={<UserCircleIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />}
             color="text-blue-600"
             bgColor="bg-blue-50"
           />
         </div>
 
         {/* Controls */}
-        <div className="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Filter & Pencarian</h2>
-              <p className="text-sm text-gray-600">Cari dan filter pengguna berdasarkan kriteria</p>
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-6 border border-gray-200">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex-1">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Filter & Pencarian</h2>
+                <p className="text-sm text-gray-600">Cari dan filter pengguna berdasarkan kriteria</p>
+              </div>
+              <button
+                onClick={handleAdd}
+                className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 w-full sm:w-auto"
+              >
+                <PlusCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                <span className="hidden sm:inline">Tambah Pengguna Baru</span>
+                <span className="sm:hidden">Tambah</span>
+              </button>
             </div>
-            <button
-              onClick={handleAdd}
-              className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
-            >
-              <PlusCircleIcon className="w-5 h-5 mr-2" />
-              Tambah Pengguna Baru
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Pencarian</label>
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Cari berdasarkan nama, email, atau username..."
-                  className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 focus:bg-white"
-                  value={searchText}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pencarian</label>
+                <div className="relative">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari berdasarkan nama, email, atau username..."
+                    className="pl-9 sm:pl-10 pr-4 py-2 sm:py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 focus:bg-white text-sm sm:text-base"
+                    value={searchText}
+                    onChange={(e) => {
+                      setSearchText(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="w-full sm:w-48">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Filter Peran</label>
+                <select
+                  className="block w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 focus:bg-white text-gray-800 transition-all duration-200 text-sm sm:text-base"
+                  value={filterRole}
                   onChange={(e) => {
-                    setSearchText(e.target.value);
+                    setFilterRole(e.target.value);
                     setCurrentPage(1);
                   }}
-                />
+                >
+                  <option value="">Semua Peran</option>
+                  <option value="admin">Administrator</option>
+                  <option value="konsituen">Konsituen</option>
+                </select>
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Filter Peran</label>
-              <select
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 focus:bg-white text-gray-800 transition-all duration-200"
-                value={filterRole}
-                onChange={(e) => {
-                  setFilterRole(e.target.value);
-                  setCurrentPage(1);
-                }}
-              >
-                <option value="">Semua Peran</option>
-                <option value="admin">Administrator</option>
-                <option value="konsituen">Konsituen</option>
-              </select>
             </div>
           </div>
         </div>
 
         {/* Users Table */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <h3 className="text-lg font-semibold text-gray-900">Daftar Pengguna</h3>
-            <p className="text-sm text-gray-600 mt-1">Total {filteredUsers.length} pengguna ditemukan</p>
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Daftar Pengguna</h3>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">Total {filteredUsers.length} pengguna ditemukan</p>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -374,37 +377,37 @@ const UserManagement = () => {
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Pengguna
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Kontak
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Peran
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Status
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Bergabung Sejak
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Aksi
                   </th>
@@ -414,10 +417,10 @@ const UserManagement = () => {
                 {currentUsers.length > 0 ? (
                   currentUsers.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div
-                            className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-white text-lg font-bold ${
+                            className={`flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center text-white text-sm sm:text-lg font-bold ${
                               user.role === 'admin'
                                 ? 'bg-purple-600'
                                 : 'bg-indigo-500'
@@ -425,66 +428,75 @@ const UserManagement = () => {
                           >
                             {user.fullName.charAt(0)}
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                          <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                            <div className="text-sm font-medium text-gray-900 truncate">
                               {user.fullName}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-500 truncate">
                               @{user.username}
+                            </div>
+                            {/* Mobile: Show email below name */}
+                            <div className="sm:hidden text-xs text-gray-600 truncate mt-1">
+                              {user.email}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 flex items-center mb-1">
-                          <EnvelopeIcon className="w-4 h-4 mr-2 text-indigo-500" />
-                          {user.email}
+                          <EnvelopeIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-indigo-500" />
+                          <span className="truncate">{user.email}</span>
                         </div>
                         <div className="text-sm text-gray-900 flex items-center">
-                          <PhoneIcon className="w-4 h-4 mr-2 text-green-500" />
-                          {user.phone}
+                          <PhoneIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-green-500" />
+                          <span className="truncate">{user.phone}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleTagColor(
+                          className={`px-2 sm:px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleTagColor(
                             user.role
                           )}`}
                         >
-                          {user.role === 'admin' ? 'Administrator' : 'Konsituen'}
+                          <span className="hidden sm:inline">
+                            {user.role === 'admin' ? 'Administrator' : 'Konsituen'}
+                          </span>
+                          <span className="sm:hidden">
+                            {user.role === 'admin' ? 'Admin' : 'User'}
+                          </span>
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusTagColor(
+                          className={`px-2 sm:px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusTagColor(
                             user.status
                           )}`}
                         >
                           {user.status === 'active' ? 'AKTIF' : 'TIDAK AKTIF'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(user.joinDate).toLocaleDateString('id-ID', {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric'
                 })}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center space-x-2">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-1 sm:space-x-2">
                           <button
                             onClick={() => handleEdit(user)}
-                            className="text-indigo-600 hover:text-indigo-900 p-2 rounded-lg hover:bg-indigo-50 transition-all duration-200 border border-transparent hover:border-indigo-200"
+                            className="text-indigo-600 hover:text-indigo-900 p-1.5 sm:p-2 rounded-lg hover:bg-indigo-50 transition-all duration-200 border border-transparent hover:border-indigo-200"
                             title="Edit Pengguna"
                           >
-                            <PencilIcon className="w-4 h-4" />
+                            <PencilIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(user.id)}
-                            className="text-red-600 hover:text-red-900 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 border border-transparent hover:border-red-200"
+                            className="text-red-600 hover:text-red-900 p-1.5 sm:p-2 rounded-lg hover:bg-red-50 transition-all duration-200 border border-transparent hover:border-red-200"
                             title="Hapus Pengguna"
                           >
-                            <TrashIcon className="w-4 h-4" />
+                            <TrashIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                         </div>
                       </td>
@@ -492,7 +504,7 @@ const UserManagement = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan="6" className="px-3 sm:px-6 py-8 text-center text-gray-500 text-sm">
                       Tidak ada pengguna yang ditemukan.
                     </td>
                   </tr>
@@ -503,8 +515,8 @@ const UserManagement = () => {
 
           {/* Pagination */}
           {filteredUsers.length > usersPerPage && (
-            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-gray-700">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+              <div className="text-xs sm:text-sm text-gray-700">
                 Menampilkan{' '}
                 <span className="font-medium">
                   {indexOfFirstUser + 1}
@@ -523,10 +535,10 @@ const UserManagement = () => {
                 <button
                   onClick={() => paginate(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Previous</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.01 1.06L9.61 10l3.17 3.71a.75.75 0 11-1.12 1.04l-3.5-4a.75.75 0 010-1.04l3.5-4a.75.75 0 011.06.01z" clipRule="evenodd" />
                   </svg>
                 </button>
@@ -534,7 +546,7 @@ const UserManagement = () => {
                   <button
                     key={index}
                     onClick={() => paginate(index + 1)}
-                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                    className={`relative inline-flex items-center px-3 sm:px-4 py-2 border text-xs sm:text-sm font-medium ${
                       currentPage === index + 1
                         ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
                         : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -546,10 +558,10 @@ const UserManagement = () => {
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Next</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L10.39 10 7.23 6.29a.75.75 0 111.12-1.04l3.5 4a.75.75 0 010 1.04l-3.5 4a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
                   </svg>
                 </button>
@@ -588,7 +600,7 @@ const UserManagement = () => {
                   leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                   leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                  <Dialog.Panel className="relative transform overflow-hidden rounded-xl bg-white px-6 pt-6 pb-6 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-xl bg-white px-4 sm:px-6 pt-4 sm:pt-6 pb-4 sm:pb-6 text-left shadow-xl transition-all sm:my-8 w-full max-w-2xl">
                     <div>
                       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-200">
                         <UserCircleIcon
@@ -610,8 +622,8 @@ const UserManagement = () => {
                         </div>
                       </div>
                     </div>
-                    <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <form onSubmit={handleSubmit} className="mt-4 sm:mt-6 space-y-4 sm:space-y-6">
+                      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
                         <div>
                           <label
                             htmlFor="username"
@@ -627,7 +639,7 @@ const UserManagement = () => {
                             onChange={handleInputChange}
                             required
                             min="3"
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                             placeholder="Masukkan username"
                           />
                         </div>
@@ -645,12 +657,12 @@ const UserManagement = () => {
                             value={formData.fullName || ''}
                             onChange={handleInputChange}
                             required
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                             placeholder="Masukkan nama lengkap"
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
                         <div>
                           <label
                             htmlFor="email"
@@ -665,7 +677,7 @@ const UserManagement = () => {
                             value={formData.email || ''}
                             onChange={handleInputChange}
                             required
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                             placeholder="contoh@email.com"
                           />
                         </div>
@@ -683,12 +695,12 @@ const UserManagement = () => {
                             value={formData.phone || ''}
                             onChange={handleInputChange}
                             required
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                             placeholder="+62812345678"
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
                         <div>
                           <label
                             htmlFor="role"
@@ -702,7 +714,7 @@ const UserManagement = () => {
                             value={formData.role || 'konsituen'}
                             onChange={(e) => handleSelectChange('role', e.target.value)}
                             required
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                           >
                             <option value="konsituen">Konsituen</option>
                             <option value="admin">Administrator</option>
@@ -721,7 +733,7 @@ const UserManagement = () => {
                             value={formData.status || 'active'}
                             onChange={(e) => handleSelectChange('status', e.target.value)}
                             required
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                           >
                             <option value="active">Aktif</option>
                             <option value="inactive">Tidak Aktif</option>
@@ -745,16 +757,16 @@ const UserManagement = () => {
                             onChange={handleInputChange}
                             required
                             minLength="6"
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                             placeholder="Minimal 6 karakter"
                           />
                         </div>
                       )}
 
-                      <div className="mt-8 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 space-y-3 space-y-reverse sm:space-y-0">
+                      <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4">
                         <button
                           type="button"
-                          className="inline-flex justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+                          className="inline-flex justify-center rounded-lg border border-gray-300 bg-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 w-full sm:w-auto"
                           onClick={() => setIsModalOpen(false)}
                         >
                           Batal
@@ -762,12 +774,17 @@ const UserManagement = () => {
                         <button
                           type="submit"
                           disabled={loading}
-                          className="inline-flex justify-center rounded-lg border border-transparent bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                          className="inline-flex justify-center rounded-lg border border-transparent bg-gradient-to-r from-indigo-600 to-purple-600 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium text-white shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 w-full sm:w-auto"
                         >
                           {submitLoading ? (
-                            <ArrowPathIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                            <ArrowPathIcon className="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" />
                           ) : null}
-                          {editingUser ? 'Perbarui Pengguna' : 'Buat Pengguna'}
+                          <span className="hidden sm:inline">
+                            {editingUser ? 'Perbarui Pengguna' : 'Buat Pengguna'}
+                          </span>
+                          <span className="sm:hidden">
+                            {editingUser ? 'Perbarui' : 'Buat'}
+                          </span>
                         </button>
                       </div>
                     </form>
@@ -783,13 +800,13 @@ const UserManagement = () => {
 
 // Reusable Stat Card Component
 const StatCard = ({ title, value, icon, color, bgColor }) => (
-  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+  <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
     <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        <p className={`mt-2 text-3xl font-bold ${color}`}>{value}</p>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs sm:text-sm font-medium text-gray-600">{title}</p>
+        <p className={`mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold ${color}`}>{value}</p>
       </div>
-      <div className={`p-3 rounded-xl ${bgColor} border border-gray-100`}>
+      <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${bgColor} border border-gray-100 flex-shrink-0`}>
         {icon}
       </div>
     </div>

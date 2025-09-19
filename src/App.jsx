@@ -13,6 +13,7 @@ import AdminLogin from "./pages/auth/AdminLogin"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminProtectedRoute from "./components/AdminProtectedRoute"
 import ErrorBoundary from "./components/ErrorBoundary"
+import KepalaDaerahChatbot from "./pages/kepala-daerah/KepalaDaerahChatbot"
 
 const App = () => {
   return (
@@ -54,6 +55,7 @@ const App = () => {
           <Admin />
         </AdminProtectedRoute>
       } />
+      <Route path="/chat-kepala-daerah" element={<KepalaDaerahChatbot/>} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/admin-login" element={<AdminLogin />} />

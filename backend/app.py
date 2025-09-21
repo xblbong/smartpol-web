@@ -207,8 +207,8 @@ class PollingOption(db.Model):
         return {
             'id': self.id,
             'polling_id': self.polling_id,
-            'option_text': self.option_text,
-            'votes_count': self.votes_count,
+            'text': self.option_text,
+            'votes': self.votes_count,
             'created_at': self.created_at.isoformat()
         }
 
@@ -1063,6 +1063,10 @@ def vote_poll(poll_id):
         # Update option vote count
         option.votes_count += 1
         
+        # Update poll status to completed after voting
+        poll.status = 'completed'
+        poll.end_date = datetime.utcnow()
+        
         db.session.add(vote)
         db.session.commit()
         
@@ -1270,8 +1274,29 @@ def update_poll(poll_id):
         poll.description = data['description']
     if 'status' in data:
         poll.status = data['status']
+    if 'start_date' in data:
+        poll.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d %H:%M:%S')
     if 'end_date' in data:
         poll.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d %H:%M:%S')
+    if 'category' in data:
+        poll.category = data['category']
+    
+    # Update options if provided
+    if 'options' in data and data['options']:
+        if len(data['options']) < 2:
+            return jsonify({'error': 'At least 2 options are required'}), 400
+        
+        # Delete existing options
+        PollingOption.query.filter_by(polling_id=poll_id).delete()
+        
+        # Create new options
+        for option_text in data['options']:
+            if option_text and option_text.strip():  # Only add non-empty options
+                option = PollingOption(
+                    polling_id=poll_id,
+                    option_text=option_text.strip()
+                )
+                db.session.add(option)
     
     poll.updated_at = datetime.utcnow()
     db.session.commit()
@@ -1294,6 +1319,48 @@ def delete_poll(poll_id):
     db.session.commit()
     
     return jsonify({'message': 'Poll deleted successfully'}), 200
+
+@app.route('/api/admin/polls', methods=['POST'])
+@admin_required
+def create_poll_admin():
+    
+    data = request.get_json()
+    
+    # Validate required fields
+    required_fields = ['title', 'description', 'category', 'options']
+    for field in required_fields:
+        if field not in data or not data[field]:
+            return jsonify({'error': f'{field} is required'}), 400
+    
+    if len(data['options']) < 2:
+        return jsonify({'error': 'At least 2 options are required'}), 400
+    
+    # Create new poll
+    new_poll = Polling(
+        title=data['title'],
+        description=data['description'],
+        category=data['category'],
+        status=data.get('status', 'active'),
+        type=data.get('type', 'polling'),
+        start_date=datetime.strptime(data['start_date'], '%Y-%m-%d %H:%M:%S') if data.get('start_date') else datetime.utcnow(),
+        end_date=datetime.strptime(data['end_date'], '%Y-%m-%d %H:%M:%S') if data.get('end_date') else None,
+        created_by=session['user_id']
+    )
+    
+    db.session.add(new_poll)
+    db.session.flush()  # Get poll ID
+    
+    # Create poll options
+    for option_text in data['options']:
+        option = PollingOption(
+            polling_id=new_poll.id,
+            option_text=option_text
+        )
+        db.session.add(option)
+    
+    db.session.commit()
+    
+    return jsonify({'message': 'Poll created successfully', 'poll': new_poll.to_dict()}), 201
 
 @app.route('/api/admin/policies/<int:policy_id>', methods=['PUT'])
 @admin_required
@@ -1334,6 +1401,35 @@ def delete_policy(policy_id):
     db.session.commit()
     
     return jsonify({'message': 'Policy deleted successfully'}), 200
+
+@app.route('/api/admin/policies', methods=['POST'])
+@admin_required
+def create_policy_admin():
+    
+    data = request.get_json()
+    
+    # Validate required fields
+    required_fields = ['title', 'description', 'content', 'category']
+    for field in required_fields:
+        if field not in data or not data[field]:
+            return jsonify({'error': f'{field} is required'}), 400
+    
+    # Create new policy
+    new_policy = Policy(
+        title=data['title'],
+        description=data['description'],
+        content=data['content'],
+        category=data['category'],
+        status=data.get('status', 'draft'),
+        policy_type=data.get('policy_type', 'regulation'),
+        effective_date=datetime.strptime(data['effective_date'], '%Y-%m-%d %H:%M:%S') if data.get('effective_date') else None,
+        created_by=session['user_id']
+    )
+    
+    db.session.add(new_policy)
+    db.session.commit()
+    
+    return jsonify({'message': 'Policy created successfully', 'policy': new_policy.to_dict()}), 201
 
 # Chat History Routes
 @app.route('/api/chat/history', methods=['GET'])

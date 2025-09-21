@@ -36,13 +36,40 @@ Panduan lengkap untuk menjalankan aplikasi SmartPol Chatbot di server hosting.
 
 ## 📋 Daftar Isi
 
-1. [Persyaratan Sistem](#persyaratan-sistem)
-2. [Instalasi](#instalasi)
-3. [Konfigurasi Database](#konfigurasi-database)
-4. [Seeding Data](#seeding-data)
-5. [Menjalankan Aplikasi](#menjalankan-aplikasi)
-6. [Deployment ke Production](#deployment-ke-production)
-7. [Troubleshooting](#troubleshooting)
+1. [Quick Start](#quick-start)
+2. [Persyaratan Sistem](#persyaratan-sistem)
+3. [Instalasi](#instalasi)
+4. [Konfigurasi Database](#konfigurasi-database)
+5. [Seeding Data](#seeding-data)
+6. [Menjalankan Aplikasi](#menjalankan-aplikasi)
+7. [Deployment ke Production](#deployment-ke-production)
+8. [Troubleshooting](#troubleshooting)
+
+## 🚀 Quick Start
+
+### Automated Setup (Recommended)
+```bash
+# Windows PowerShell (Recommended)
+.\setup.ps1
+
+# Windows Command Prompt
+setup.bat
+
+# Manual setup
+npm run setup
+```
+
+### Start Application
+```bash
+# Start both frontend and backend
+npm run start-full
+
+# Or start separately:
+# Backend: npm run start-backend
+# Frontend: npm run dev
+```
+
+**Having issues?** Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common solutions.
 
 ## 🔧 Persyaratan Sistem
 

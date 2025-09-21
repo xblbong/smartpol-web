@@ -40,6 +40,7 @@ import {
   DashboardOutlined,
   LogoutOutlined,
   MenuOutlined,
+  MinusCircleOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 import { pollingAPI } from '../../services/api';
@@ -114,6 +115,7 @@ const PollingManagement = () => {
   const handleAdd = () => {
     setEditingPoll(null);
     form.resetFields();
+    form.setFieldsValue({ options: ['Ya', 'Tidak'] });
     setIsModalVisible(true);
   };
 
@@ -122,6 +124,7 @@ const PollingManagement = () => {
     form.setFieldsValue({
       ...poll,
       dateRange: [moment(poll.startDate), moment(poll.endDate)],
+      options: poll.options ? poll.options.map(opt => opt.option_text || opt.text || opt) : ['Ya', 'Tidak']
     });
     setIsModalVisible(true);
   };
@@ -152,6 +155,22 @@ const PollingManagement = () => {
     setSubmitLoading(true);
 
     try {
+      // Validasi options
+      if (!values.options || values.options.length < 2) {
+        message.error('Minimal 2 pilihan jawaban diperlukan!');
+        setSubmitLoading(false);
+        return;
+      }
+
+      // Filter options yang kosong
+      const filteredOptions = values.options.filter(option => option && option.trim() !== '');
+      
+      if (filteredOptions.length < 2) {
+        message.error('Minimal 2 pilihan jawaban yang valid diperlukan!');
+        setSubmitLoading(false);
+        return;
+      }
+
       const pollData = {
         title: values.title,
         description: values.description,
@@ -159,7 +178,8 @@ const PollingManagement = () => {
         status: values.status,
         start_date: values.dateRange[0].format("YYYY-MM-DD HH:mm:ss"),
         end_date: values.dateRange[1].format("YYYY-MM-DD HH:mm:ss"),
-        type: 'polling'
+        type: 'polling',
+        options: filteredOptions
       };
 
       let response;
@@ -175,7 +195,7 @@ const PollingManagement = () => {
         });
       } else {
         // Create new poll
-        response = await fetch('/api/polling', {
+        response = await fetch('/api/admin/polls', {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -656,7 +676,9 @@ const PollingManagement = () => {
           open={isModalVisible}
           onCancel={() => {
             setIsModalVisible(false);
+            setEditingPoll(null);
             form.resetFields();
+            form.setFieldsValue({ options: ['Ya', 'Tidak'] });
           }}
           footer={null}
           width={900}
@@ -826,11 +848,70 @@ const PollingManagement = () => {
               </div>
             </Form.Item>
 
+            <Form.Item
+              label={
+                <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Pilihan Jawaban
+                </span>
+              }
+            >
+              <Form.List
+                name="options"
+                initialValue={['Ya', 'Tidak']}
+              >
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} className="flex items-center space-x-3 mb-3">
+                        <Form.Item
+                          {...restField}
+                          name={[name]}
+                          rules={[
+                            { required: true, message: 'Pilihan tidak boleh kosong!' },
+                            { min: 1, message: 'Pilihan minimal 1 karakter!' }
+                          ]}
+                          className="flex-1 mb-0"
+                        >
+                          <Input
+                            placeholder={`Pilihan ${name + 1}`}
+                            className="rounded-lg h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 px-4 bg-gray-50 focus:bg-white transition-all duration-200"
+                          />
+                        </Form.Item>
+                        {fields.length > 2 && (
+                          <Button
+                            type="text"
+                            danger
+                            icon={<MinusCircleOutlined />}
+                            onClick={() => remove(name)}
+                            className="flex-shrink-0 h-12 w-12 rounded-lg border border-red-200 hover:border-red-300 hover:bg-red-50"
+                          />
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      icon={<PlusOutlined />}
+                      className="w-full h-12 rounded-lg border-gray-300 hover:border-indigo-500 hover:text-indigo-600 transition-all duration-200"
+                      disabled={fields.length >= 10}
+                    >
+                      Tambah Pilihan {fields.length >= 10 ? '(Maksimal 10)' : ''}
+                    </Button>
+                    <div className="text-xs text-gray-500 mt-2">
+                      Minimal 2 pilihan, maksimal 10 pilihan
+                    </div>
+                  </>
+                )}
+              </Form.List>
+            </Form.Item>
+
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 space-y-3 space-y-reverse sm:space-y-0 pt-6 border-t border-gray-200">
               <Button
                 onClick={() => {
                   setIsModalVisible(false);
+                  setEditingPoll(null);
                   form.resetFields();
+                  form.setFieldsValue({ options: ['Ya', 'Tidak'] });
                 }}
                 className="rounded-lg px-6 py-3 border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200"
                 size="large"

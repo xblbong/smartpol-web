@@ -266,7 +266,7 @@ const PollingPublik = ({ onSubmitPolling, onGetStats, userName }) => {
           <h4 className="font-semibold text-lg mb-4">{currentQ.question}</h4>
           
           <div className="space-y-3">
-            {currentQ.options.map((option, index) => (
+            {currentQ && currentQ.options && currentQ.options.map((option, index) => (
               <label 
                 key={index}
                 className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"

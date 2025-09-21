@@ -179,14 +179,26 @@ const Polling = () => {
   const getFilteredPolls = () => {
     let filteredPolls = polls.filter(poll => poll.type === activeTab);
     
-    // Hide polls that user has already voted on
-    filteredPolls = filteredPolls.filter(poll => !votedPolls.has(poll.id));
-    
+    // Only hide voted polls if they are active (not completed)
+    // For completed polls, show them regardless of voting status when showCompletedPolls is true
     if (!showCompletedPolls) {
+      // Hide completed polls
       filteredPolls = filteredPolls.filter(poll => poll.status !== 'completed');
+      // Hide active polls that user has already voted on
+      filteredPolls = filteredPolls.filter(poll => !votedPolls.has(poll.id));
+    } else {
+      // When showing completed polls, show all polls (both active and completed)
+      // For active polls, still hide the ones user has voted on
+      filteredPolls = filteredPolls.filter(poll => {
+        if (poll.status === 'completed') {
+          return true; // Always show completed polls
+        }
+        return !votedPolls.has(poll.id); // Hide active polls that user has voted on
+      });
     }
+    
     return filteredPolls;
-  };
+   };
 
   const handleVote = async (pollId, optionId) => {
     if (!user) {
@@ -422,14 +434,14 @@ const Polling = () => {
                                                   )}
                                                 </span>
                                                 <div className="flex items-center gap-2">
-                                                  <span className="text-xs text-gray-500">{option.votes} suara</span>
+                                                  <span className="text-xs text-gray-500">{option.votes || 0} suara</span>
                                                   <span className="text-sm font-semibold text-gray-700">{percentage.toFixed(1)}%</span>
                                                 </div>
                                               </div>
                                               <Progress
                                                 percent={percentage}
                                                 size="small"
-                                                strokeColor={isUserChoice ? "#10b981" : "#8b5cf6"}
+                                                strokeColor={poll.status === 'completed' ? (isUserChoice ? "#10b981" : "#059669") : (isUserChoice ? "#10b981" : "#8b5cf6")}
                                                 className={`transition-all duration-500 ${isUserChoice ? 'animate-pulse' : ''}`}
                                                 showInfo={false}
                                               />
@@ -462,7 +474,7 @@ const Polling = () => {
                                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 mt-5 border-t border-gray-100 gap-3">
                                     <div className="flex items-center gap-2 text-gray-500">
                                       <FaUsers className="w-4 h-4" />
-                                      <span className="text-sm">{poll.totalVotes} responden</span>
+                                      <span className="text-sm">{poll.totalVotes || 0} responden</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-500">
                                       <FaChartBar className="w-4 h-4" />

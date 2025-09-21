@@ -394,6 +394,51 @@ def seed_polling_data():
                     'Bantuan modal usaha',
                     'Bantuan perumahan'
                 ]
+            },
+            {
+                'title': 'Kebijakan Jam Malam untuk Remaja di Kota Malang',
+                'description': 'Polling mengenai pendapat masyarakat tentang rencana kebijakan jam malam untuk remaja di bawah 18 tahun di Kota Malang.',
+                'category': 'Kebijakan',
+                'type': 'polling',
+                'status': 'active',
+                'end_date': datetime.now() + timedelta(days=60),
+                'options': [
+                    'Sangat Setuju - Perlu diterapkan segera',
+                    'Setuju - Dengan beberapa penyesuaian',
+                    'Netral - Perlu kajian lebih lanjut',
+                    'Tidak Setuju - Tidak perlu diterapkan',
+                    'Sangat Tidak Setuju - Melanggar kebebasan'
+                ]
+            },
+            {
+                'title': 'Kebijakan Parkir Berbayar di Pusat Kota Malang',
+                'description': 'Polling untuk mengetahui pendapat masyarakat tentang rencana penerapan parkir berbayar di kawasan pusat Kota Malang.',
+                'category': 'Kebijakan',
+                'type': 'polling',
+                'status': 'active',
+                'end_date': datetime.now() + timedelta(days=40),
+                'options': [
+                    'Sangat Mendukung - Dapat mengurangi kemacetan',
+                    'Mendukung - Dengan tarif yang wajar',
+                    'Ragu-ragu - Perlu sosialisasi lebih',
+                    'Kurang Mendukung - Memberatkan masyarakat',
+                    'Tidak Mendukung - Tidak efektif'
+                ]
+            },
+            {
+                'title': 'Kebijakan Penggunaan Kantong Plastik di Pasar Tradisional',
+                'description': 'Polling mengenai kebijakan pembatasan penggunaan kantong plastik sekali pakai di pasar tradisional Kota Malang.',
+                'category': 'Kebijakan',
+                'type': 'polling',
+                'status': 'active',
+                'end_date': datetime.now() + timedelta(days=35),
+                'options': [
+                    'Sangat Setuju - Demi kelestarian lingkungan',
+                    'Setuju - Dengan penyediaan alternatif',
+                    'Netral - Perlu edukasi masyarakat dulu',
+                    'Kurang Setuju - Sulit diterapkan',
+                    'Tidak Setuju - Memberatkan pedagang'
+                ]
             }
         ]
         
@@ -548,6 +593,240 @@ def seed_constituent_users():
         db.session.commit()
         print("✅ All Constituent users seeded successfully")
 
+def seed_policy_data():
+    """Membuat data dummy untuk policy"""
+    with app.app_context():
+        # Ambil admin user sebagai creator
+        admin_user = User.query.filter_by(username='admin').first()
+        if not admin_user:
+            print("❌ Admin user tidak ditemukan! Seed admin user terlebih dahulu.")
+            return False
+        
+        policy_data = [
+            {
+                'title': 'Peraturan Daerah Kota Malang Nomor 4 Tahun 2023 tentang Retribusi Pelayanan Persampahan/Kebersihan',
+                'description': 'Peraturan daerah yang mengatur tentang retribusi pelayanan persampahan dan kebersihan di Kota Malang untuk meningkatkan kualitas lingkungan hidup.',
+                'content': '''
+PERATURAN DAERAH KOTA MALANG
+NOMOR 4 TAHUN 2023
+TENTANG RETRIBUSI PELAYANAN PERSAMPAHAN/KEBERSIHAN
+
+BAB I
+KETENTUAN UMUM
+
+Pasal 1
+Dalam Peraturan Daerah ini yang dimaksud dengan:
+1. Daerah adalah Kota Malang.
+2. Pemerintah Daerah adalah Walikota sebagai unsur penyelenggara Pemerintahan Daerah yang memimpin pelaksanaan urusan pemerintahan yang menjadi kewenangan daerah otonom.
+3. Walikota adalah Walikota Malang.
+4. Retribusi Pelayanan Persampahan/Kebersihan adalah pungutan daerah sebagai pembayaran atas jasa atau pemberian izin tertentu yang khusus disediakan dan/atau diberikan oleh Pemerintah Daerah untuk kepentingan orang pribadi atau badan.
+
+BAB II
+NAMA, OBJEK, DAN SUBJEK RETRIBUSI
+
+Pasal 2
+Dengan nama Retribusi Pelayanan Persampahan/Kebersihan dipungut retribusi sebagai pembayaran atas pelayanan persampahan/kebersihan.
+
+Pasal 3
+Objek Retribusi Pelayanan Persampahan/Kebersihan adalah pelayanan persampahan/kebersihan yang disediakan, diberikan dan/atau dilakukan oleh Pemerintah Daerah.
+                ''',
+                'category': 'Lingkungan',
+                'policy_type': 'perda',
+                'status': 'approved',
+                'effective_date': date(2023, 6, 1)
+            },
+            {
+                'title': 'Kebijakan Smart City Kota Malang 2024-2029',
+                'description': 'Kebijakan strategis pengembangan kota cerdas di Malang yang mencakup digitalisasi pelayanan publik, smart transportation, dan smart governance.',
+                'content': '''
+KEBIJAKAN SMART CITY KOTA MALANG 2024-2029
+
+I. LATAR BELAKANG
+Kota Malang sebagai kota pendidikan dan pariwisata memerlukan transformasi digital untuk meningkatkan kualitas pelayanan publik dan daya saing kota.
+
+II. VISI DAN MISI
+Visi: "Malang Sebagai Kota Cerdas yang Berkelanjutan dan Berdaya Saing Global"
+
+Misi:
+1. Mengembangkan infrastruktur teknologi informasi yang terintegrasi
+2. Meningkatkan kualitas pelayanan publik berbasis digital
+3. Menciptakan ekosistem inovasi yang mendukung ekonomi digital
+4. Membangun tata kelola pemerintahan yang transparan dan akuntabel
+
+III. PROGRAM UTAMA
+1. Smart Governance
+   - E-Government terintegrasi
+   - Sistem informasi manajemen daerah
+   - Open data platform
+
+2. Smart Mobility
+   - Intelligent transportation system
+   - Smart parking
+   - Public transportation optimization
+
+3. Smart Environment
+   - Smart waste management
+   - Air quality monitoring
+   - Smart water management
+
+4. Smart Economy
+   - Digital marketplace untuk UMKM
+   - Startup incubator
+   - Digital payment integration
+                ''',
+                'category': 'Teknologi',
+                'policy_type': 'kebijakan',
+                'status': 'approved',
+                'effective_date': date(2024, 1, 1)
+            },
+            {
+                'title': 'Peraturan Walikota Malang tentang Standar Operasional Prosedur Pelayanan Publik',
+                'description': 'Peraturan yang mengatur standar operasional prosedur dalam pelayanan publik di lingkungan Pemerintah Kota Malang untuk meningkatkan kualitas pelayanan.',
+                'content': '''
+PERATURAN WALIKOTA MALANG
+TENTANG STANDAR OPERASIONAL PROSEDUR PELAYANAN PUBLIK
+
+BAB I
+KETENTUAN UMUM
+
+Pasal 1
+Dalam Peraturan Walikota ini yang dimaksud dengan:
+1. Standar Operasional Prosedur yang selanjutnya disingkat SOP adalah serangkaian instruksi tertulis yang dibakukan mengenai berbagai proses penyelenggaraan aktivitas organisasi.
+2. Pelayanan Publik adalah kegiatan atau rangkaian kegiatan dalam rangka pemenuhan kebutuhan pelayanan sesuai dengan peraturan perundang-undangan bagi setiap warga negara dan penduduk atas barang, jasa, dan/atau pelayanan administratif yang disediakan oleh penyelenggara pelayanan publik.
+
+BAB II
+PRINSIP PELAYANAN PUBLIK
+
+Pasal 2
+Penyelenggaraan pelayanan publik berasaskan:
+a. kepentingan umum;
+b. kepastian hukum;
+c. kesamaan hak;
+d. keseimbangan hak dan kewajiban;
+e. keprofesionalan;
+f. partisipatif;
+g. persamaan perlakuan/tidak diskriminatif;
+h. keterbukaan;
+i. akuntabilitas;
+j. fasilitas dan perlakuan khusus bagi kelompok rentan;
+k. ketepatan waktu; dan
+l. kecepatan, kemudahan, dan keterjangkauan.
+                ''',
+                'category': 'Pemerintahan',
+                'policy_type': 'regulasi',
+                'status': 'approved',
+                'effective_date': date(2023, 8, 15)
+            },
+            {
+                'title': 'Rancangan Peraturan Daerah tentang Perlindungan dan Pemberdayaan UMKM',
+                'description': 'Rancangan peraturan daerah yang bertujuan melindungi dan memberdayakan Usaha Mikro, Kecil, dan Menengah di Kota Malang.',
+                'content': '''
+RANCANGAN PERATURAN DAERAH KOTA MALANG
+TENTANG PERLINDUNGAN DAN PEMBERDAYAAN UMKM
+
+PENJELASAN UMUM
+Usaha Mikro, Kecil, dan Menengah (UMKM) memiliki peran strategis dalam perekonomian nasional dan daerah. Di Kota Malang, UMKM menjadi tulang punggung ekonomi yang perlu mendapat perlindungan dan pemberdayaan.
+
+BAB I
+KETENTUAN UMUM
+
+Pasal 1
+Dalam Rancangan Peraturan Daerah ini yang dimaksud dengan:
+1. Usaha Mikro adalah usaha produktif milik orang perorangan dan/atau badan usaha perorangan yang memenuhi kriteria Usaha Mikro sebagaimana diatur dalam Undang-Undang.
+2. Usaha Kecil adalah usaha ekonomi produktif yang berdiri sendiri, yang dilakukan oleh orang perorangan atau badan usaha yang bukan merupakan anak perusahaan atau bukan cabang perusahaan yang dimiliki, dikuasai, atau menjadi bagian baik langsung maupun tidak langsung dari Usaha Menengah atau Usaha Besar.
+
+BAB II
+ASAS DAN TUJUAN
+
+Pasal 2
+Perlindungan dan Pemberdayaan UMKM berasaskan:
+a. kekeluargaan;
+b. demokrasi ekonomi;
+c. kebersamaan;
+d. efisiensi berkeadilan;
+e. berkelanjutan;
+f. berwawasan lingkungan;
+g. kemandirian;
+h. keseimbangan kemajuan; dan
+i. kesatuan ekonomi nasional.
+                ''',
+                'category': 'Ekonomi',
+                'policy_type': 'perda',
+                'status': 'draft',
+                'effective_date': None
+            },
+            {
+                'title': 'Kebijakan Pengembangan Pariwisata Berkelanjutan Kota Malang',
+                'description': 'Kebijakan pengembangan sektor pariwisata yang berkelanjutan dengan memperhatikan aspek ekonomi, sosial, dan lingkungan.',
+                'content': '''
+KEBIJAKAN PENGEMBANGAN PARIWISATA BERKELANJUTAN KOTA MALANG
+
+I. PENDAHULUAN
+Kota Malang memiliki potensi pariwisata yang besar dengan keragaman daya tarik wisata mulai dari wisata sejarah, budaya, kuliner, hingga wisata alam. Pengembangan pariwisata harus dilakukan secara berkelanjutan.
+
+II. TUJUAN KEBIJAKAN
+1. Meningkatkan kontribusi sektor pariwisata terhadap PAD
+2. Menciptakan lapangan kerja di sektor pariwisata
+3. Melestarikan warisan budaya dan lingkungan
+4. Meningkatkan kesejahteraan masyarakat lokal
+
+III. STRATEGI PENGEMBANGAN
+A. Pengembangan Destinasi Wisata
+   1. Revitalisasi kawasan wisata heritage
+   2. Pengembangan wisata kuliner
+   3. Pengembangan wisata kreatif
+   4. Pengembangan wisata edukasi
+
+B. Peningkatan Kualitas SDM Pariwisata
+   1. Pelatihan guide wisata
+   2. Sertifikasi pelaku usaha pariwisata
+   3. Pengembangan kapasitas POKDARWIS
+
+C. Pemasaran dan Promosi
+   1. Digital marketing strategy
+   2. Event pariwisata berkala
+   3. Kerjasama dengan travel agent
+   4. Branding "Malang Raya"
+
+IV. INDIKATOR KEBERHASILAN
+1. Peningkatan jumlah kunjungan wisatawan 15% per tahun
+2. Peningkatan lama tinggal wisatawan
+3. Peningkatan pengeluaran wisatawan per kunjungan
+4. Peningkatan jumlah usaha pariwisata
+                ''',
+                'category': 'Pariwisata',
+                'policy_type': 'kebijakan',
+                'status': 'approved',
+                'effective_date': date(2024, 3, 1)
+            }
+        ]
+        
+        for policy_item in policy_data:
+            existing_policy = Policy.query.filter_by(title=policy_item['title']).first()
+            if existing_policy:
+                print(f"✅ Policy '{policy_item['title']}' already exists")
+                continue
+            
+            # Create policy
+            policy = Policy(
+                title=policy_item['title'],
+                description=policy_item['description'],
+                content=policy_item['content'],
+                category=policy_item['category'],
+                policy_type=policy_item['policy_type'],
+                status=policy_item['status'],
+                effective_date=policy_item['effective_date'],
+                created_by=admin_user.id,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+            
+            db.session.add(policy)
+            print(f"✅ Policy '{policy_item['title']}' created")
+        
+        db.session.commit()
+        print("✅ All Policy data seeded successfully")
+
 def run_all_seeds():
     """Menjalankan semua seeding data"""
     print("🚀 Starting SmartPol Database Seeding...\n")
@@ -574,13 +853,18 @@ def run_all_seeds():
             seed_polling_data()
             print()
             
-            # 5. Seed Events data
-            print("5️⃣ Seeding Events data...")
+            # 5. Seed Policy data
+            print("5️⃣ Seeding Policy data...")
+            seed_policy_data()
+            print()
+            
+            # 6. Seed Events data
+            print("6️⃣ Seeding Events data...")
             seed_events_data()
             print()
             
-            # 6. Seed Constituent users
-            print("6️⃣ Seeding Constituent users...")
+            # 7. Seed Constituent users
+            print("7️⃣ Seeding Constituent users...")
             seed_constituent_users()
             print()
             
@@ -591,6 +875,7 @@ def run_all_seeds():
             print(f"   - Dapil: {Dapil.query.count()}")
             print(f"   - Officials: {Officials.query.count()}")
             print(f"   - Polling: {Polling.query.count()}")
+            print(f"   - Policy: {Policy.query.count()}")
             print(f"   - Events: {EventPendidikanPolitik.query.count()}")
             
         except Exception as e:

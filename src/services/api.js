@@ -455,4 +455,27 @@ export const chatAPI = {
   }
 };
 
+// Polling Publik API functions
+export const pollingPublikAPI = {
+  // Submit polling response
+  submitResponse: async (data) => {
+    try {
+      const response = await api.post('/polling-publik', data);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.error || 'Gagal mengirim polling' };
+    }
+  },
+
+  // Get polling statistics
+  getStats: async () => {
+    try {
+      const response = await api.get('/polling-publik/stats');
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.error || 'Gagal mengambil statistik' };
+    }
+  }
+};
+
 export default api;

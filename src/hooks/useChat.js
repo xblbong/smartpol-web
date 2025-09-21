@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { chatAPI, authAPI, reportAPI } from '../services/api';
+import { chatAPI, authAPI, reportAPI, pollingPublikAPI } from '../services/api';
 import { deepseekAPI } from '../services/deepseek';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -157,25 +157,16 @@ const getAspirasiStats = async () => {
 // Submit polling publik
 const submitPollingPublik = async (questionId, answer, sessionId) => {
   try {
-    const response = await fetch('/api/polling-publik', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        question_id: questionId,
-        answer,
-        session_id: sessionId
-      })
+    const response = await pollingPublikAPI.submitResponse({
+      question_id: questionId,
+      answer,
+      session_id: sessionId
     });
     
-    if (response.ok) {
-      const data = await response.json();
-      return { success: true, data: data.polling };
+    if (response.success) {
+      return { success: true, data: response.data };
     } else {
-      const error = await response.json();
-      return { success: false, error: error.error };
+      return { success: false, error: response.error };
     }
   } catch (error) {
     console.error('Error submitting polling:', error);
@@ -186,15 +177,12 @@ const submitPollingPublik = async (questionId, answer, sessionId) => {
 // Get polling publik statistics
 const getPollingPublikStats = async () => {
   try {
-    const response = await fetch('/api/polling-publik/stats', {
-      credentials: 'include'
-    });
+    const response = await pollingPublikAPI.getStats();
     
-    if (response.ok) {
-      const data = await response.json();
-      return { success: true, data };
+    if (response.success) {
+      return { success: true, data: response.data };
     } else {
-      return { success: false, error: 'Gagal mengambil statistik polling' };
+      return { success: false, error: response.error || 'Gagal mengambil statistik polling' };
     }
   } catch (error) {
     console.error('Error getting polling stats:', error);

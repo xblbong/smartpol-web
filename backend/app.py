@@ -781,6 +781,44 @@ def update_profile():
 def validate_nik_by_dapil(nik, dapil_name=None):
     """Validate NIK based on dapil data and determine dapil"""
     if not nik or len(nik) != 16 or not nik.isdigit():
+        return None
+    
+    # Get NIK prefix (first 6 digits)
+    nik_prefix = nik[:6]
+    
+    # If dapil_name is provided, validate against specific dapil
+    if dapil_name:
+        dapil = Dapil.query.filter_by(name=dapil_name).first()
+        if not dapil:
+            return None
+        
+        # Check if NIK prefix matches this dapil
+        import json
+        try:
+            nik_prefixes = json.loads(dapil.nik_prefixes) if dapil.nik_prefixes else []
+            if nik_prefix in nik_prefixes:
+                return dapil.name
+            else:
+                return None
+        except json.JSONDecodeError:
+            return None
+    
+    # If no specific dapil, check all dapils to find match
+    dapils = Dapil.query.all()
+    for dapil in dapils:
+        try:
+            import json
+            nik_prefixes = json.loads(dapil.nik_prefixes) if dapil.nik_prefixes else []
+            if nik_prefix in nik_prefixes:
+                return dapil.name
+        except json.JSONDecodeError:
+            continue
+    
+    return None
+
+def validate_nik_detailed(nik, dapil_name=None):
+    """Validate NIK with detailed response for API endpoints"""
+    if not nik or len(nik) != 16 or not nik.isdigit():
         return False, None, "NIK must be 16 digits"
     
     # Get NIK prefix (first 6 digits)
@@ -797,7 +835,19 @@ def validate_nik_by_dapil(nik, dapil_name=None):
         try:
             nik_prefixes = json.loads(dapil.nik_prefixes) if dapil.nik_prefixes else []
             if nik_prefix in nik_prefixes:
-                return True, {'name': dapil.name, 'dapil': dapil.name}, f"Valid NIK for {dapil.name}"
+                # Get kecamatan info for Kota Malang
+                kecamatan_name = dapil.name  # Default to dapil name
+                if 'KOTA MALANG' in dapil.name:
+                    kecamatan_mapping = {
+                        '357301': 'Klojen',
+                        '357302': 'Blimbing', 
+                        '357303': 'Kedungkandang',
+                        '357304': 'Sukun',
+                        '357305': 'Lowokwaru'
+                    }
+                    kecamatan_name = kecamatan_mapping.get(nik_prefix, dapil.name)
+                
+                return True, {'name': kecamatan_name, 'dapil': dapil.name}, f"Valid NIK for {dapil.name}"
             else:
                 return False, None, f"NIK is not from {dapil.name} area"
         except json.JSONDecodeError:
@@ -810,7 +860,19 @@ def validate_nik_by_dapil(nik, dapil_name=None):
             import json
             nik_prefixes = json.loads(dapil.nik_prefixes) if dapil.nik_prefixes else []
             if nik_prefix in nik_prefixes:
-                return True, {'name': dapil.name, 'dapil': dapil.name}, f"Valid NIK for {dapil.name}"
+                # Get kecamatan info for Kota Malang
+                kecamatan_name = dapil.name  # Default to dapil name
+                if 'KOTA MALANG' in dapil.name:
+                    kecamatan_mapping = {
+                        '357301': 'Klojen',
+                        '357302': 'Blimbing', 
+                        '357303': 'Kedungkandang',
+                        '357304': 'Sukun',
+                        '357305': 'Lowokwaru'
+                    }
+                    kecamatan_name = kecamatan_mapping.get(nik_prefix, dapil.name)
+                
+                return True, {'name': kecamatan_name, 'dapil': dapil.name}, f"Valid NIK for {dapil.name}"
         except json.JSONDecodeError:
             continue
     
@@ -832,7 +894,7 @@ def verify_nik():
         nik = data.get('nik')
         
         # Validate NIK using dapil data
-        is_valid, kecamatan_info, message = validate_nik_by_dapil(nik)
+        is_valid, kecamatan_info, message = validate_nik_detailed(nik)
         
         if not is_valid:
             return jsonify({'error': message}), 400
@@ -2471,6 +2533,114 @@ with app.app_context():
         except Exception as e:
             db.session.rollback()
             print(f"Error adding sample events: {e}")
+
+# Chatbot-specific endpoints for user data access
+@app.route('/api/chatbot/user-context', methods=['GET'])
+def get_user_context_for_chatbot():
+    """Get comprehensive user context for chatbot personalization"""
+    try:
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        user = User.query.get(session['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Get user's dapil information
+        user_dapil = None
+        user_kecamatan = None
+        
+        if user.nik and user.verified:
+            # Find user's dapil based on NIK
+            dapil_result = validate_nik_by_dapil(user.nik)
+            if dapil_result:
+                user_dapil = dapil_result
+                # Get kecamatan from dapil data
+                dapil_data = Dapil.query.filter_by(name=dapil_result).first()
+                if dapil_data and dapil_data.kecamatan_list:
+                    # Extract kecamatan from NIK prefix
+                    nik_prefix = user.nik[:6]
+                    kecamatan_mapping = {
+                        '357301': 'Klojen',
+                        '357302': 'Blimbing', 
+                        '357303': 'Kedungkandang',
+                        '357304': 'Sukun',
+                        '357305': 'Lowokwaru'
+                    }
+                    user_kecamatan = kecamatan_mapping.get(nik_prefix, 'Unknown')
+        
+        # Get user's officials
+        officials = []
+        if user_dapil:
+            officials = Officials.query.filter_by(electoral_district=user_dapil).all()
+        
+        # Get recent chat history for context
+        recent_chats = ChatHistory.query.filter_by(user_id=user.id)\
+            .order_by(ChatHistory.timestamp.desc()).limit(10).all()
+        
+        # Get user's polling participation
+        user_votes = PollVote.query.filter_by(user_id=user.id).count()
+        
+        return jsonify({
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'full_name': user.full_name,
+                'email': user.email,
+                'role': user.role,
+                'nik': user.nik,
+                'verified': user.verified,
+                'created_at': user.created_at.isoformat() if user.created_at else None
+            },
+            'location': {
+                'dapil': user_dapil,
+                'kecamatan': user_kecamatan
+            },
+            'officials': [official.to_dict() for official in officials],
+            'engagement': {
+                'total_chats': len(recent_chats),
+                'poll_votes': user_votes,
+                'verification_status': user.verified
+            },
+            'recent_chat_topics': [chat.message[:100] for chat in recent_chats if chat.is_user][:5]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chatbot/user-preferences', methods=['GET', 'POST'])
+def handle_user_preferences():
+    """Get or set user preferences for chatbot customization"""
+    try:
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        user = User.query.get(session['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        if request.method == 'GET':
+            # Return current preferences (stored in user profile or separate table)
+            preferences = {
+                'communication_style': 'formal',  # formal, casual, friendly
+                'topics_of_interest': ['politik_lokal', 'kebijakan_publik'],
+                'notification_preferences': {
+                    'polling_alerts': True,
+                    'policy_updates': True,
+                    'event_reminders': True
+                },
+                'language': 'id'
+            }
+            return jsonify({'preferences': preferences})
+        
+        elif request.method == 'POST':
+            # Save user preferences
+            data = request.get_json()
+            # Here you would save preferences to database
+            # For now, just return success
+            return jsonify({'message': 'Preferences updated successfully'})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

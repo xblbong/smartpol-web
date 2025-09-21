@@ -422,6 +422,36 @@ export const chatAPI = {
     } catch (error) {
       throw error.response?.data || { error: 'Network error' };
     }
+  },
+
+  // Get user context for chatbot
+  getUserContext: async () => {
+    try {
+      const response = await api.get('/chatbot/user-context');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Get user preferences for chatbot
+  getUserPreferences: async () => {
+    try {
+      const response = await api.get('/chatbot/user-preferences');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
+  },
+
+  // Update user preferences for chatbot
+  updateUserPreferences: async (preferences) => {
+    try {
+      const response = await api.post('/chatbot/user-preferences', preferences);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: 'Network error' };
+    }
   }
 };
 

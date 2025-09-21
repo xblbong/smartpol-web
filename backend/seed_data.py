@@ -494,7 +494,7 @@ def seed_constituent_users():
                 nik='3573011508900001',  # NIK valid untuk Kecamatan Klojen, Kota Malang
                 nik_verified=True,  # Sudah terverifikasi karena NIK valid
                 kecamatan='Klojen',  # Sesuai dengan prefix NIK 357301
-                dapil='JAWA TIMUR VI',  # Dapil yang sesuai
+                dapil='KOTA MALANG DAPIL 1',  # Dapil yang sesuai untuk Kecamatan Klojen
                 is_active=True
             )
             user1.set_password('password123')
@@ -503,11 +503,32 @@ def seed_constituent_users():
         else:
             print("✅ Konstituen user 1 already exists")
         
-        # User 2: Konstituen dengan NIK kosong
+        # User 2: Konstituen dengan NIK valid untuk dapil lain di Kota Malang
         existing_user2 = User.query.filter_by(username='konstituen2').first()
         if not existing_user2:
             user2 = User(
                 username='konstituen2',
+                full_name='Budi Santoso',
+                email='budi.santoso@example.com',
+                role='konsituen',
+                description='Warga Kota Malang',
+                nik='3573021508900002',  # NIK valid untuk Kecamatan Blimbing, Kota Malang
+                nik_verified=True,  # Sudah terverifikasi karena NIK valid
+                kecamatan='Blimbing',  # Sesuai dengan prefix NIK 357302
+                dapil='KOTA MALANG DAPIL 2',  # Dapil yang sesuai untuk Kecamatan Blimbing
+                is_active=True
+            )
+            user2.set_password('password123')
+            db.session.add(user2)
+            print("✅ Konstituen user 2 (dengan NIK valid Blimbing) created")
+        else:
+            print("✅ Konstituen user 2 already exists")
+        
+        # User 3: Konstituen dengan NIK kosong untuk testing verifikasi
+        existing_user3 = User.query.filter_by(username='konstituen3').first()
+        if not existing_user3:
+            user3 = User(
+                username='konstituen3',
                 full_name='Siti Nurhaliza',
                 email='siti.nurhaliza@example.com',
                 role='konsituen',
@@ -518,11 +539,11 @@ def seed_constituent_users():
                 dapil=None,
                 is_active=True
             )
-            user2.set_password('password123')
-            db.session.add(user2)
-            print("✅ Konstituen user 2 (tanpa NIK) created")
+            user3.set_password('password123')
+            db.session.add(user3)
+            print("✅ Konstituen user 3 (tanpa NIK) created")
         else:
-            print("✅ Konstituen user 2 already exists")
+            print("✅ Konstituen user 3 already exists")
         
         db.session.commit()
         print("✅ All Constituent users seeded successfully")

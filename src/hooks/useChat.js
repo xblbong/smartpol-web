@@ -6,7 +6,28 @@ import { v4 as uuidv4 } from 'uuid';
 // Function to get user info from localStorage or API
 const getUserInfo = async () => {
   try {
-    // First try to get from localStorage
+    // First try to get enhanced user context from chatbot endpoint
+    try {
+      const contextResponse = await chatAPI.getUserContext();
+      if (contextResponse.user) {
+        const userData = contextResponse.user;
+        return {
+          name: userData.full_name || userData.username || 'Pengguna',
+          nik_verified: userData.nik_verified || false,
+          kecamatan: userData.kecamatan || 'Tidak diketahui',
+          dapil: userData.dapil || 'Tidak diketahui',
+          // Additional context from chatbot endpoint
+          dapil_info: contextResponse.dapil_info || null,
+          officials: contextResponse.officials || null,
+          chat_history_count: contextResponse.chat_history_count || 0,
+          preferences: contextResponse.preferences || null
+        };
+      }
+    } catch (contextError) {
+      console.log('Chatbot context not available, falling back to standard methods');
+    }
+    
+    // Fallback: try to get from localStorage
     const userFromStorage = localStorage.getItem('user');
     if (userFromStorage) {
       const userData = JSON.parse(userFromStorage);
@@ -241,7 +262,7 @@ const getDapilInfo = async () => {
 
 // Generate personalized welcome message
 const generateWelcomeMessage = async (userInfo) => {
-  const { name, nik_verified } = userInfo;
+  const { name, nik_verified, dapil_info, officials } = userInfo;
   
   if (!nik_verified) {
     // Welcome message for unverified users
@@ -257,80 +278,88 @@ const generateWelcomeMessage = async (userInfo) => {
   } else {
     // Welcome message for verified users with dapil information
     try {
-      const dapilInfo = await getDapilInfo();
-      
       let welcomeText = `🤖 Halo ${name}! Saya PICO, asisten AI dari masa depan yang hadir untuk membantu Anda!\n\n`;
       
-      if (dapilInfo && dapilInfo.dapil) {
-        welcomeText += `Terimakasih, anda berada di ${dapilInfo.dapil.name} yakni ${dapilInfo.dapil.description}\n\n`;
+      // Use dapil_info from userInfo if available, otherwise fallback to API call
+      let dapilData = dapil_info;
+      let officialsData = officials;
+      
+      if (!dapilData) {
+        const dapilInfo = await getDapilInfo();
+        dapilData = dapilInfo?.dapil;
+        officialsData = dapilInfo?.officials;
+      }
+      
+      if (dapilData) {
+        welcomeText += `Terimakasih, anda berada di ${dapilData.name} yakni ${dapilData.description}\n\n`;
         
         // Add officials information
-        const officials = dapilInfo.officials;
-        
-        // Gubernur
-        if (officials.gubernur && officials.gubernur.length > 0) {
-          const gubernur = officials.gubernur[0];
-          welcomeText += `Gubernurnya ${gubernur.name}`;
-          if (officials.gubernur.length > 1) {
-            welcomeText += ` - wakilnya ${officials.gubernur[1].name}`;
+        if (officialsData) {
+          // Gubernur
+          if (officialsData.gubernur && officialsData.gubernur.length > 0) {
+            const gubernur = officialsData.gubernur[0];
+            welcomeText += `Gubernurnya ${gubernur.name}`;
+            if (officialsData.gubernur.length > 1) {
+              welcomeText += ` - wakilnya ${officialsData.gubernur[1].name}`;
+            }
+            welcomeText += `.\n`;
           }
-          welcomeText += `.\n`;
-        }
-        
-        // Bupati
-        if (officials.bupati && officials.bupati.length > 0) {
-          const bupati = officials.bupati[0];
-          welcomeText += `Bupati anda Adalah ${bupati.name}`;
-          if (officials.bupati.length > 1) {
-            welcomeText += ` dan Wakil Bupati ${officials.bupati[1].name}`;
-          }
-          welcomeText += `\n`;
-        }
-        
-        // Walikota
-        if (officials.walikota && officials.walikota.length > 0) {
-          const walikota = officials.walikota[0];
-          welcomeText += `Walikota anda Adalah ${walikota.name}`;
-          if (officials.walikota.length > 1) {
-            welcomeText += ` dan Wakil Walikota ${officials.walikota[1].name}`;
-          }
-          welcomeText += `\n`;
-        }
-        
-        // Anggota DPR RI
-        if (officials.dpri && officials.dpri.length > 0) {
-          welcomeText += `\nAnggota DPR RI nya:\n`;
-          officials.dpri.forEach((dpri, index) => {
-            welcomeText += `${index + 1}. ${dpri.name}`;
-            if (dpri.party) {
-              welcomeText += ` (${dpri.party})`;
+          
+          // Bupati
+          if (officialsData.bupati && officialsData.bupati.length > 0) {
+            const bupati = officialsData.bupati[0];
+            welcomeText += `Bupati anda Adalah ${bupati.name}`;
+            if (officialsData.bupati.length > 1) {
+              welcomeText += ` dan Wakil Bupati ${officialsData.bupati[1].name}`;
             }
             welcomeText += `\n`;
-          });
-        }
-        
-        // Anggota DPRD Provinsi
-        if (officials.dprd_provinsi && officials.dprd_provinsi.length > 0) {
-          welcomeText += `\nDan anggota DPRD Provinsinya:\n`;
-          officials.dprd_provinsi.forEach((dprd, index) => {
-            welcomeText += `${index + 1}. ${dprd.name}`;
-            if (dprd.party) {
-              welcomeText += ` (${dprd.party})`;
+          }
+          
+          // Walikota
+          if (officialsData.walikota && officialsData.walikota.length > 0) {
+            const walikota = officialsData.walikota[0];
+            welcomeText += `Walikota anda Adalah ${walikota.name}`;
+            if (officialsData.walikota.length > 1) {
+              welcomeText += ` dan Wakil Walikota ${officialsData.walikota[1].name}`;
             }
             welcomeText += `\n`;
-          });
-        }
-        
-        // Anggota DPRD Kota/Kabupaten
-        if (officials.dprd_kota && officials.dprd_kota.length > 0) {
-          welcomeText += `\nSementara anggota DPRD Kota/Kabupaten sbb:\n`;
-          officials.dprd_kota.forEach((dprd, index) => {
-            welcomeText += `${index + 1}. ${dprd.name}`;
-            if (dprd.party) {
-              welcomeText += ` (${dprd.party})`;
-            }
-            welcomeText += `\n`;
-          });
+          }
+          
+          // Anggota DPR RI
+          if (officialsData.dpri && officialsData.dpri.length > 0) {
+            welcomeText += `\nAnggota DPR RI nya:\n`;
+            officialsData.dpri.forEach((dpri, index) => {
+              welcomeText += `${index + 1}. ${dpri.name}`;
+              if (dpri.party) {
+                welcomeText += ` (${dpri.party})`;
+              }
+              welcomeText += `\n`;
+            });
+          }
+          
+          // Anggota DPRD Provinsi
+          if (officialsData.dprd_provinsi && officialsData.dprd_provinsi.length > 0) {
+            welcomeText += `\nDan anggota DPRD Provinsinya:\n`;
+            officialsData.dprd_provinsi.forEach((dprd, index) => {
+              welcomeText += `${index + 1}. ${dprd.name}`;
+              if (dprd.party) {
+                welcomeText += ` (${dprd.party})`;
+              }
+              welcomeText += `\n`;
+            });
+          }
+          
+          // Anggota DPRD Kota/Kabupaten
+          if (officialsData.dprd_kota && officialsData.dprd_kota.length > 0) {
+            welcomeText += `\nSementara anggota DPRD Kota/Kabupaten sbb:\n`;
+            officialsData.dprd_kota.forEach((dprd, index) => {
+              welcomeText += `${index + 1}. ${dprd.name}`;
+              if (dprd.party) {
+                welcomeText += ` (${dprd.party})`;
+              }
+              welcomeText += `\n`;
+            });
+          }
         }
         
         welcomeText += `\nAnda mau dihubungkankan dengan siapa, sebutkan saja?`;
@@ -729,7 +758,12 @@ ${personaMessage}`
         const userContext = userInfo ? {
           name: userInfo.name,
           kecamatan: userInfo.kecamatan,
-          dapil: userInfo.dapil
+          dapil: userInfo.dapil,
+          nik_verified: userInfo.nik_verified,
+          dapil_info: userInfo.dapil_info,
+          officials: userInfo.officials,
+          chat_history_count: userInfo.chat_history_count,
+          preferences: userInfo.preferences
         } : null;
         
         // Create official context if in official persona

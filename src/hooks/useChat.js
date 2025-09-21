@@ -12,6 +12,7 @@ const getUserInfo = async () => {
       const userData = JSON.parse(userFromStorage);
       return {
         name: userData.full_name || userData.username || 'Pengguna',
+        nik_verified: userData.nik_verified || false,
         kecamatan: userData.kecamatan || 'Tidak diketahui',
         dapil: userData.dapil || 'Tidak diketahui'
       };
@@ -23,6 +24,7 @@ const getUserInfo = async () => {
       const userData = response.user;
       return {
         name: userData.full_name || userData.username || 'Pengguna',
+        nik_verified: userData.nik_verified || false,
         kecamatan: userData.kecamatan || 'Tidak diketahui',
         dapil: userData.dapil || 'Tidak diketahui'
       };
@@ -33,31 +35,328 @@ const getUserInfo = async () => {
   
   return {
     name: 'Pengguna',
+    nik_verified: false,
     kecamatan: 'Tidak diketahui',
     dapil: 'Tidak diketahui'
   };
 };
 
-// Generate personalized welcome message
-const generateWelcomeMessage = (userInfo) => {
-  const { name, kecamatan, dapil } = userInfo;
-  let welcomeText = `🤖 Halo ${name}! Saya PICO, asisten AI dari masa depan yang hadir untuk membantu Anda!`;
-  
-  if (kecamatan !== 'Tidak diketahui' || dapil !== 'Tidak diketahui') {
-    welcomeText += ` Saya melihat Anda berasal dari ${kecamatan !== 'Tidak diketahui' ? `Kecamatan ${kecamatan}` : ''}`;
-    if (dapil !== 'Tidak diketahui') {
-      welcomeText += `${kecamatan !== 'Tidak diketahui' ? ', ' : ''}Dapil ${dapil}`;
+// Function to check official status
+const checkOfficialStatus = async (officialName) => {
+  try {
+    const response = await fetch(`/api/officials/check-status/${encodeURIComponent(officialName)}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      return await response.json();
     }
-    welcomeText += `.`;
+    
+    return { success: false, found: false };
+  } catch (error) {
+    console.error('Error checking official status:', error);
+    return { success: false, found: false };
+  }
+};
+
+// Function to get smartpol members
+const getSmartpolMembers = async () => {
+  try {
+    const response = await fetch('/api/officials/smartpol-members', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    }
+    
+    return { success: false, officials: [] };
+  } catch (error) {
+    console.error('Error getting smartpol members:', error);
+    return { success: false, officials: [] };
+  }
+};
+
+// Submit aspirasi warga
+const submitAspirasi = async (category, subcategory, sessionId) => {
+  try {
+    const response = await fetch('/api/aspirasi', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        category,
+        subcategory,
+        session_id: sessionId
+      })
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return { success: true, data: data.aspirasi };
+    } else {
+      const error = await response.json();
+      return { success: false, error: error.error };
+    }
+  } catch (error) {
+    console.error('Error submitting aspirasi:', error);
+    return { success: false, error: 'Terjadi kesalahan saat mengirim aspirasi' };
+  }
+};
+
+// Get aspirasi statistics
+const getAspirasiStats = async () => {
+  try {
+    const response = await fetch('/api/aspirasi/stats', {
+      credentials: 'include'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return { success: true, data };
+    } else {
+      return { success: false, error: 'Gagal mengambil statistik aspirasi' };
+    }
+  } catch (error) {
+    console.error('Error getting aspirasi stats:', error);
+    return { success: false, error: 'Terjadi kesalahan saat mengambil statistik' };
+  }
+};
+
+// Submit polling publik
+const submitPollingPublik = async (questionId, answer, sessionId) => {
+  try {
+    const response = await fetch('/api/polling-publik', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        question_id: questionId,
+        answer,
+        session_id: sessionId
+      })
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return { success: true, data: data.polling };
+    } else {
+      const error = await response.json();
+      return { success: false, error: error.error };
+    }
+  } catch (error) {
+    console.error('Error submitting polling:', error);
+    return { success: false, error: 'Terjadi kesalahan saat mengirim polling' };
+  }
+};
+
+// Get polling publik statistics
+const getPollingPublikStats = async () => {
+  try {
+    const response = await fetch('/api/polling-publik/stats', {
+      credentials: 'include'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return { success: true, data };
+    } else {
+      return { success: false, error: 'Gagal mengambil statistik polling' };
+    }
+  } catch (error) {
+    console.error('Error getting polling stats:', error);
+    return { success: false, error: 'Terjadi kesalahan saat mengambil statistik' };
+  }
+};
+
+// Get events pendidikan politik
+const getEvents = async () => {
+  try {
+    const response = await fetch('/api/events', {
+      credentials: 'include'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return { success: true, data: data.events };
+    } else {
+      return { success: false, error: 'Gagal mengambil data event' };
+    }
+  } catch (error) {
+    console.error('Error getting events:', error);
+    return { success: false, error: 'Terjadi kesalahan saat mengambil data event' };
+  }
+};
+
+// Function to generate official persona message
+const generateOfficialPersona = (official) => {
+  const birthDate = official.birth_date ? new Date(official.birth_date).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long', 
+    year: 'numeric'
+  }) : 'tidak diketahui';
+  
+  return `Halo Warga... Assalamualaikum, Salam hormat!
+
+Saya ${official.name}${official.birth_place && official.birth_date ? ` lahir di ${official.birth_place} pada ${birthDate}` : ''}. ${official.education ? official.education + ' ' : ''}Saya sekarang sebagai ${official.position}${official.party ? ` dari ${official.party}` : ''}${official.commission ? ` di ${official.commission}` : ''}${official.commission_focus ? ` yang membidangi ${official.commission_focus}` : ''}.
+
+Bagaimana kabarnya... semoga sehat ya, begitu juga keluarga dirumah ya. Itu yang paling penting.
+
+Gimana warga.. apa yang bisa kami bantu sebagai ${official.position}${official.electoral_district ? ` di ${official.electoral_district}` : ''}${official.commission ? ` ${official.commission}` : ''}......`;
+};
+
+// Function to get dapil and officials information
+const getDapilInfo = async () => {
+  try {
+    const response = await fetch('/api/user/dapil-info', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.error('Error getting dapil info:', error);
   }
   
-  welcomeText += ` Saya di sini untuk memastikan setiap suara warga didengar dan menjembatani komunikasi politik dengan cara yang cerdas, netral, dan penuh integritas. Sebagai sahabat demokrasi, ada yang bisa saya bantu hari ini?`;
+  return null;
+};
+
+// Generate personalized welcome message
+const generateWelcomeMessage = async (userInfo) => {
+  const { name, nik_verified } = userInfo;
   
-  return {
-    text: welcomeText,
-    isUser: false,
-    timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-  };
+  if (!nik_verified) {
+    // Welcome message for unverified users
+    let welcomeText = `Assalamualaikum, Salam hormat! Saya Piko, siap menemani Anda menjelajahi SMARTPOL UB\n\n`;
+    welcomeText += `Silahkan Sebut Nama sesuai KTP, Alamat Rumah Sesuai KTP: (Alamat RT/RW, Kabupaten/Kota, Kecamatan dan Desa/Kelurahan) harus lengkap ya\n\n`;
+    welcomeText += `Dan mau pake Bahasa apa, sebut saja.`;
+    
+    return {
+      text: welcomeText,
+      isUser: false,
+      timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    };
+  } else {
+    // Welcome message for verified users with dapil information
+    try {
+      const dapilInfo = await getDapilInfo();
+      
+      let welcomeText = `🤖 Halo ${name}! Saya PICO, asisten AI dari masa depan yang hadir untuk membantu Anda!\n\n`;
+      
+      if (dapilInfo && dapilInfo.dapil) {
+        welcomeText += `Terimakasih, anda berada di ${dapilInfo.dapil.name} yakni ${dapilInfo.dapil.description}\n\n`;
+        
+        // Add officials information
+        const officials = dapilInfo.officials;
+        
+        // Gubernur
+        if (officials.gubernur && officials.gubernur.length > 0) {
+          const gubernur = officials.gubernur[0];
+          welcomeText += `Gubernurnya ${gubernur.name}`;
+          if (officials.gubernur.length > 1) {
+            welcomeText += ` - wakilnya ${officials.gubernur[1].name}`;
+          }
+          welcomeText += `.\n`;
+        }
+        
+        // Bupati
+        if (officials.bupati && officials.bupati.length > 0) {
+          const bupati = officials.bupati[0];
+          welcomeText += `Bupati anda Adalah ${bupati.name}`;
+          if (officials.bupati.length > 1) {
+            welcomeText += ` dan Wakil Bupati ${officials.bupati[1].name}`;
+          }
+          welcomeText += `\n`;
+        }
+        
+        // Walikota
+        if (officials.walikota && officials.walikota.length > 0) {
+          const walikota = officials.walikota[0];
+          welcomeText += `Walikota anda Adalah ${walikota.name}`;
+          if (officials.walikota.length > 1) {
+            welcomeText += ` dan Wakil Walikota ${officials.walikota[1].name}`;
+          }
+          welcomeText += `\n`;
+        }
+        
+        // Anggota DPR RI
+        if (officials.dpri && officials.dpri.length > 0) {
+          welcomeText += `\nAnggota DPR RI nya:\n`;
+          officials.dpri.forEach((dpri, index) => {
+            welcomeText += `${index + 1}. ${dpri.name}`;
+            if (dpri.party) {
+              welcomeText += ` (${dpri.party})`;
+            }
+            welcomeText += `\n`;
+          });
+        }
+        
+        // Anggota DPRD Provinsi
+        if (officials.dprd_provinsi && officials.dprd_provinsi.length > 0) {
+          welcomeText += `\nDan anggota DPRD Provinsinya:\n`;
+          officials.dprd_provinsi.forEach((dprd, index) => {
+            welcomeText += `${index + 1}. ${dprd.name}`;
+            if (dprd.party) {
+              welcomeText += ` (${dprd.party})`;
+            }
+            welcomeText += `\n`;
+          });
+        }
+        
+        // Anggota DPRD Kota/Kabupaten
+        if (officials.dprd_kota && officials.dprd_kota.length > 0) {
+          welcomeText += `\nSementara anggota DPRD Kota/Kabupaten sbb:\n`;
+          officials.dprd_kota.forEach((dprd, index) => {
+            welcomeText += `${index + 1}. ${dprd.name}`;
+            if (dprd.party) {
+              welcomeText += ` (${dprd.party})`;
+            }
+            welcomeText += `\n`;
+          });
+        }
+        
+        welcomeText += `\nAnda mau dihubungkankan dengan siapa, sebutkan saja?`;
+      } else {
+        welcomeText += `Saya di sini untuk memastikan setiap suara warga didengar dan menjembatani komunikasi politik dengan cara yang cerdas, netral, dan penuh integritas. Sebagai sahabat demokrasi, ada yang bisa saya bantu hari ini?`;
+      }
+      
+      return {
+        text: welcomeText,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      };
+    } catch (error) {
+      console.error('Error generating welcome message with dapil info:', error);
+      
+      // Fallback welcome message
+      let welcomeText = `🤖 Halo ${name}! Saya PICO, asisten AI dari masa depan yang hadir untuk membantu Anda!`;
+      welcomeText += ` Saya di sini untuk memastikan setiap suara warga didengar dan menjembatani komunikasi politik dengan cara yang cerdas, netral, dan penuh integritas. Sebagai sahabat demokrasi, ada yang bisa saya bantu hari ini?`;
+      
+      return {
+        text: welcomeText,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      };
+    }
+  }
 };
 
 // Handle report creation from AI intent
@@ -106,13 +405,16 @@ export const useChat = () => {
   const [conversationHistory, setConversationHistory] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
   const [welcomeMessage, setWelcomeMessage] = useState(null);
+  const [currentPersona, setCurrentPersona] = useState('pico'); // 'pico' or 'official'
+  const [currentOfficial, setCurrentOfficial] = useState(null);
+  const [smartpolMembers, setSmartpolMembers] = useState([]);
 
   // Initialize user info and welcome message
   useEffect(() => {
     const initializeChat = async () => {
       const userInfoData = await getUserInfo();
       setUserInfo(userInfoData);
-      const welcomeMsg = generateWelcomeMessage(userInfoData);
+      const welcomeMsg = await generateWelcomeMessage(userInfoData);
       setWelcomeMessage(welcomeMsg);
       setMessages([welcomeMsg]);
     };
@@ -180,6 +482,88 @@ export const useChat = () => {
     }
   };
 
+  // Function to switch to official persona
+  const switchToOfficialPersona = async (officialName) => {
+    try {
+      const statusResult = await checkOfficialStatus(officialName);
+      
+      if (!statusResult.found) {
+        return {
+          success: false,
+          message: `Maaf warga... ${officialName} tidak ditemukan dalam database pejabat.`
+        };
+      }
+      
+      if (!statusResult.status_smartpol) {
+        // Get smartpol members for suggestion
+        const membersResult = await getSmartpolMembers();
+        const memberNames = membersResult.officials?.map(o => o.name).join(', ') || 'pejabat lain';
+        
+        return {
+          success: false,
+          message: `Maaf warga... ${statusResult.official.name} belum mengikuti program SMARTPOL UB. Mungkin warga bisa pilih anggota DPR RI yang lain... sebutkan: ${memberNames}`
+        };
+      }
+      
+      // Additional validation for kepala daerah (head of region)
+      if (statusResult.official.role === 'pimpinan_daerah') {
+        // For kepala daerah, ensure they are specifically registered and active in SmartPol
+        if (statusResult.official.status_smartpol !== 1) {
+          const membersResult = await getSmartpolMembers();
+          let membersList = '';
+          
+          if (membersResult.officials && membersResult.officials.length > 0) {
+            const headOfRegionMembers = membersResult.officials.filter(member => member.role === 'pimpinan_daerah');
+            if (headOfRegionMembers.length > 0) {
+              membersList = '\n\nKepala Daerah yang terdaftar di SmartPol:\n';
+              headOfRegionMembers.forEach((member, index) => {
+                membersList += `${index + 1}. ${member.name} (${member.position})`;
+                if (member.electoral_district) {
+                  membersList += ` - ${member.electoral_district}`;
+                }
+                membersList += '\n';
+              });
+            }
+          }
+          
+          return {
+            success: false,
+            message: `Maaf warga... ${statusResult.official.name} sebagai ${statusResult.official.position} belum aktif di platform SmartPol. Hanya kepala daerah yang telah terdaftar dan aktif yang dapat berkomunikasi langsung.${membersList}`
+          };
+        }
+      }
+      
+      // Switch to official persona
+      setCurrentPersona('official');
+      setCurrentOfficial(statusResult.official);
+      
+      const personaMessage = generateOfficialPersona(statusResult.official);
+      
+      return {
+        success: true,
+        message: `Baik warga... saya akan panggil ${statusResult.official.name} sebagai ${statusResult.official.position}${statusResult.official.party ? ` dari ${statusResult.official.party}` : ''}.
+
+Silahkan berkomunikasi ya...
+
+${personaMessage}`
+      };
+      
+    } catch (error) {
+      console.error('Error switching persona:', error);
+      return {
+        success: false,
+        message: 'Maaf, terjadi kesalahan saat menghubungi pejabat tersebut.'
+      };
+    }
+  };
+  
+  // Function to switch back to Pico persona
+  const switchToPicoPersona = () => {
+    setCurrentPersona('pico');
+    setCurrentOfficial(null);
+    return 'Halo! Saya Pico, asisten virtual SmartPol. Ada yang bisa saya bantu?';
+  };
+
   // Handle navigation commands and smart assistance
   const handleSmartAssistance = (text) => {
     const lowerText = text.toLowerCase();
@@ -237,6 +621,68 @@ export const useChat = () => {
   const sendMessage = async (text) => {
     if (!text.trim()) return;
 
+    const lowerText = text.trim().toLowerCase();
+    
+    // Check if user wants to switch back to Pico
+    if (currentPersona === 'official' && (lowerText.includes('pico') || lowerText.includes('ganti pejabat') || lowerText.includes('bicara dengan') || lowerText.includes('hubungi'))) {
+      const picoMessage = switchToPicoPersona();
+      
+      const botMessage = {
+        text: picoMessage,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      };
+      
+      const userMessage = {
+        text: text.trim(),
+        isUser: true,
+        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      };
+      
+      setMessages(prev => [...prev, userMessage, botMessage]);
+      return;
+    }
+    
+    // Check if user wants to communicate with an official (when in Pico mode)
+    if (currentPersona === 'pico' && (lowerText.includes('bicara dengan') || lowerText.includes('hubungi') || lowerText.includes('komunikasi dengan'))) {
+      // Extract official name from the message
+      const words = text.trim().split(' ');
+      let officialName = '';
+      
+      // Simple name extraction - look for words after "dengan" or "hubungi"
+      const triggerWords = ['dengan', 'hubungi'];
+      for (const trigger of triggerWords) {
+        const index = words.findIndex(word => word.toLowerCase().includes(trigger));
+        if (index !== -1 && index < words.length - 1) {
+          officialName = words.slice(index + 1).join(' ');
+          break;
+        }
+      }
+      
+      if (officialName) {
+        const userMessage = {
+          text: text.trim(),
+          isUser: true,
+          timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+        };
+        
+        setMessages(prev => [...prev, userMessage]);
+        setIsTyping(true);
+        
+        const switchResult = await switchToOfficialPersona(officialName);
+        
+        const botMessage = {
+          text: switchResult.message,
+          isUser: false,
+          timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+        };
+        
+        setMessages(prev => [...prev, botMessage]);
+        setIsTyping(false);
+        return;
+      }
+    }
+
     // Check for smart assistance commands first
     const assistanceResult = handleSmartAssistance(text.trim());
     
@@ -286,12 +732,29 @@ export const useChat = () => {
           dapil: userInfo.dapil
         } : null;
         
+        // Create official context if in official persona
+        const officialContext = currentPersona === 'official' && currentOfficial ? {
+          persona: 'official',
+          name: currentOfficial.name,
+          position: currentOfficial.position,
+          party: currentOfficial.party,
+          bio: currentOfficial.bio,
+          birth_date: currentOfficial.birth_date,
+          birth_place: currentOfficial.birth_place,
+          education: currentOfficial.education,
+          commission: currentOfficial.commission,
+          commission_focus: currentOfficial.commission_focus,
+          dapil: currentOfficial.dapil
+        } : null;
+        
         // Update conversation history with user context
         const updatedHistory = [...conversationHistory, { role: 'user', content: text.trim() }];
         setConversationHistory(updatedHistory);
         
-        // Get response from PICO AI with user context
-        const aiResponseData = await deepseekAPI.sendMessage(text.trim(), updatedHistory, userContext);
+        // Get response from AI with appropriate context
+        const aiResponseData = currentPersona === 'official' 
+          ? await deepseekAPI.sendOfficialMessage(text.trim(), updatedHistory, userContext, officialContext)
+          : await deepseekAPI.sendMessage(text.trim(), updatedHistory, userContext);
         
         // Extract message from response
         const aiResponse = aiResponseData.success ? aiResponseData.message : aiResponseData.message;
@@ -453,9 +916,21 @@ export const useChat = () => {
     loading: loading,
     isLoading: loading,
     currentSessionId: sessionId,
+    currentPersona,
+    currentOfficial,
+    smartpolMembers,
     sendMessage,
     clearChat,
     loadChatHistory,
-    startNewSession
+    startNewSession,
+    switchToOfficialPersona,
+    switchToPicoPersona,
+    checkOfficialStatus,
+    getSmartpolMembers,
+    submitAspirasi: (category, subcategory) => submitAspirasi(category, subcategory, sessionId),
+    getAspirasiStats,
+    submitPollingPublik: (questionId, answer) => submitPollingPublik(questionId, answer, sessionId),
+    getPollingPublikStats,
+    getEvents
   };
 };

@@ -114,25 +114,26 @@ const UserManagement = () => {
   };
 
   const handleDelete = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+    if (window.confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
       try {
-        const response = await fetch(`/api/admin/users/${userId}`, {
-          method: 'DELETE',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-
-        if (response.ok) {
-          alert('User deleted successfully!');
-          fetchUsers(); // Refresh the user list
-        } else {
-          alert('Failed to delete user');
-        }
+        console.log('Attempting to delete user with ID:', userId);
+        const result = await adminAPI.deleteUser(userId);
+        console.log('Delete result:', result);
+        alert('Pengguna berhasil dihapus!');
+        fetchUsers(); // Refresh the user list
       } catch (error) {
         console.error('Error deleting user:', error);
-        alert('An error occurred while deleting user');
+        console.error('Error details:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+        
+        let errorMessage = 'Terjadi kesalahan saat menghapus pengguna';
+        if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        alert(`Error: ${errorMessage}`);
       }
     }
   };
@@ -359,6 +360,9 @@ const UserManagement = () => {
                   <option value="">Semua Peran</option>
                   <option value="admin">Administrator</option>
                   <option value="konsituen">Konsituen</option>
+                  <option value="dpr_ri">DPR RI</option>
+                  <option value="dprd">DPRD</option>
+                  <option value="pimpinan_daerah">Kepala Daerah</option>
                 </select>
               </div>
             </div>
@@ -459,10 +463,16 @@ const UserManagement = () => {
                           )}`}
                         >
                           <span className="hidden sm:inline">
-                            {user.role === 'admin' ? 'Administrator' : 'Konsituen'}
+                            {user.role === 'admin' ? 'Administrator' : 
+                             user.role === 'dpr_ri' ? 'DPR RI' :
+                             user.role === 'dprd' ? 'DPRD' :
+                             user.role === 'pimpinan_daerah' ? 'Kepala Daerah' : 'Konsituen'}
                           </span>
                           <span className="sm:hidden">
-                            {user.role === 'admin' ? 'Admin' : 'User'}
+                            {user.role === 'admin' ? 'Admin' : 
+                             user.role === 'dpr_ri' ? 'DPR' :
+                             user.role === 'dprd' ? 'DPRD' :
+                             user.role === 'pimpinan_daerah' ? 'KepDa' : 'User'}
                           </span>
                         </span>
                       </td>
@@ -718,6 +728,9 @@ const UserManagement = () => {
                           >
                             <option value="konsituen">Konsituen</option>
                             <option value="admin">Administrator</option>
+                            <option value="dpr_ri">DPR RI</option>
+                            <option value="dprd">DPRD</option>
+                            <option value="pimpinan_daerah">Kepala Daerah</option>
                           </select>
                         </div>
                         <div>

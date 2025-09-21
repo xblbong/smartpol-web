@@ -14,7 +14,8 @@ import {
   FaVoteYea,
   FaGavel,
   FaUserShield,
-  FaQuestionCircle
+  FaQuestionCircle,
+  FaChartLine
 } from "react-icons/fa";
 import Tutorial from "../Tutorial";
 
@@ -119,6 +120,16 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
             Polling
           </button>
           <button
+            onClick={() => navigate('/smartpol-flow')}
+            className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-all duration-300 group w-full text-left hover:scale-105 hover:shadow-md animate-fade-in-left"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            style={{animationDelay: '0.15s', display: 'none'}}
+          >
+            <FaChartLine className="mr-3 group-hover:animate-bounce" />
+            Aspirasi & Survei
+          </button>
+          <button
             onClick={() => navigate('/policies')}
             className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-all duration-300 group w-full text-left hover:scale-105 hover:shadow-md animate-fade-in-left"
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
@@ -168,7 +179,7 @@ const AppSidebar = ({ isOpen, onToggle, chatHistory }) => {
             className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-800 hover:text-white transition-all duration-300 group w-full text-left hover:scale-105 hover:shadow-md animate-fade-in-left"
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FAC62A'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            style={{animationDelay: '0.5s'}}
+            style={{animationDelay: '0.5s', display: 'none'}}
           >
             <FaHeart className="mr-3 group-hover:animate-bounce" />
             Tentang Tim

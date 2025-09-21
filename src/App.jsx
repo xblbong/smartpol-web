@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import AdminProtectedRoute from "./components/AdminProtectedRoute"
 import ErrorBoundary from "./components/ErrorBoundary"
 import KepalaDaerahChatbot from "./pages/kepala-daerah/KepalaDaerahChatbot"
+import SmartpolFlow from "./components/SmartpolFlow"
 
 const App = () => {
   return (
@@ -45,17 +46,27 @@ const App = () => {
           <Policies />
         </ProtectedRoute>
       } />
-      <Route path="/credits" element={
+      {/* <Route path="/credits" element={
         <ProtectedRoute>
           <Credits />
         </ProtectedRoute>
-      } />
+      } /> */}
       <Route path="/admin/*" element={
         <AdminProtectedRoute>
           <Admin />
         </AdminProtectedRoute>
       } />
       <Route path="/chat-kepala-daerah" element={<KepalaDaerahChatbot/>} />
+      <Route path="/kepala-daerah/*" element={
+        <ProtectedRoute>
+          <KepalaDaerahChatbot />
+        </ProtectedRoute>
+      } />
+      {/* <Route path="/smartpol-flow" element={
+        <ProtectedRoute>
+          <SmartpolFlow />
+        </ProtectedRoute>
+      } /> */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/admin-login" element={<AdminLogin />} />

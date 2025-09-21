@@ -191,7 +191,7 @@ const AppSidebarLegislator = ({ isOpen, onToggle, chatHistory }) => {
           <button
             onClick={() => navigate('/credits')}
             className="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:text-white transition-all duration-300 group w-full text-left hover:scale-105 hover:shadow-md animate-fade-in-left"
-            style={{ animationDelay: '0.7s', color: defaultBlue }}
+            style={{ animationDelay: '0.7s', color: defaultBlue, display: 'none' }}
             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = accentColor; e.currentTarget.style.color = 'white'; }}
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = defaultBlue; }}
           >

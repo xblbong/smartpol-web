@@ -80,6 +80,85 @@ class User(db.Model):
             'is_active': self.is_active
         }
 
+# Aspirasi Warga Model
+class AspirasiWarga(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    category = db.Column(db.String(100), nullable=False)  # Pendidikan, Kesehatan, Ekonomi, etc.
+    subcategory = db.Column(db.String(255), nullable=False)  # Specific aspiration item
+    kecamatan = db.Column(db.String(100), nullable=True)
+    dapil = db.Column(db.String(20), nullable=True)
+    session_id = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='aspirasi_responses')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'category': self.category,
+            'subcategory': self.subcategory,
+            'kecamatan': self.kecamatan,
+            'dapil': self.dapil,
+            'session_id': self.session_id,
+            'created_at': self.created_at.isoformat()
+        }
+
+# Polling Publik Model
+class PollingPublik(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question_id = db.Column(db.Integer, nullable=False)  # 1 for satisfaction, 2 for corruption
+    answer = db.Column(db.Integer, nullable=False)  # 1-5 for answer options
+    kecamatan = db.Column(db.String(100), nullable=True)
+    dapil = db.Column(db.String(20), nullable=True)
+    session_id = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='polling_responses')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'question_id': self.question_id,
+            'answer': self.answer,
+            'kecamatan': self.kecamatan,
+            'dapil': self.dapil,
+            'session_id': self.session_id,
+            'created_at': self.created_at.isoformat()
+        }
+
+# Event Pendidikan Politik Model
+class EventPendidikanPolitik(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    event_date = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.String(255), nullable=False)
+    organizer = db.Column(db.String(255), nullable=False)
+    registration_link = db.Column(db.String(500), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'event_date': self.event_date.isoformat(),
+            'location': self.location,
+            'organizer': self.organizer,
+            'registration_link': self.registration_link,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+
 # Polling Model
 class Polling(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -190,6 +269,30 @@ class Policy(db.Model):
         }
 
 # Officials Model
+class Dapil(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)  # e.g., "JAWA TIMUR VI"
+    description = db.Column(db.Text, nullable=True)  # e.g., "Malang Raya, Kota dan Kabupaten Malang dan Kota Batu"
+    province = db.Column(db.String(100), nullable=False)  # e.g., "Jawa Timur"
+    cities = db.Column(db.Text, nullable=True)  # JSON string of cities/kabupaten
+    kecamatan_list = db.Column(db.Text, nullable=True)  # JSON string of kecamatan
+    nik_prefixes = db.Column(db.Text, nullable=True)  # JSON string of NIK prefixes for verification
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'province': self.province,
+            'cities': self.cities,
+            'kecamatan_list': self.kecamatan_list,
+            'nik_prefixes': self.nik_prefixes,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+
 class Officials(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
@@ -198,7 +301,14 @@ class Officials(db.Model):
     period_start = db.Column(db.Date, nullable=True)
     period_end = db.Column(db.Date, nullable=True)
     electoral_district = db.Column(db.String(100), nullable=True)
-    role = db.Column(db.String(50), nullable=False, default='dprd')  # dprd, dpri, pimpinan_daerah
+    role = db.Column(db.String(50), nullable=False, default='dprd')  # dprd, dpr_ri, pimpinan_daerah
+    status_smartpol = db.Column(db.Boolean, default=False)  # True if joined Smartpol, False if not
+    bio = db.Column(db.Text, nullable=True)  # Biography/profile
+    birth_date = db.Column(db.Date, nullable=True)  # Birth date
+    birth_place = db.Column(db.String(100), nullable=True)  # Birth place
+    education = db.Column(db.Text, nullable=True)  # Education background
+    commission = db.Column(db.String(100), nullable=True)  # Commission (for DPR/DPRD)
+    commission_focus = db.Column(db.Text, nullable=True)  # Commission focus areas
     password_hash = db.Column(db.String(255), nullable=True)
     email = db.Column(db.String(120), nullable=True)
     username = db.Column(db.String(80), nullable=True)
@@ -222,6 +332,13 @@ class Officials(db.Model):
             'period_end': self.period_end.isoformat() if self.period_end else None,
             'electoral_district': self.electoral_district,
             'role': self.role,
+            'status_smartpol': self.status_smartpol,
+            'bio': self.bio,
+            'birth_date': self.birth_date.isoformat() if self.birth_date else None,
+            'birth_place': self.birth_place,
+            'education': self.education,
+            'commission': self.commission,
+            'commission_focus': self.commission_focus,
             'email': self.email,
             'username': self.username,
             'is_active': self.is_active,
@@ -523,7 +640,7 @@ def login():
         
         if user and user.check_password(data['password']) and user.is_active:
             # Define allowed roles for standard login
-            allowed_roles = ['konsituen', 'dpri', 'dprd', 'pimpinan_daerah']
+            allowed_roles = ['konsituen', 'dpr_ri', 'dprd', 'pimpinan_daerah']
             
             # Block admin from logging in through regular login
             if user.role == 'admin':
@@ -661,32 +778,43 @@ def update_profile():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-def validate_malang_nik(nik):
-    """Validate NIK for Malang residents and determine dapil"""
+def validate_nik_by_dapil(nik, dapil_name=None):
+    """Validate NIK based on dapil data and determine dapil"""
     if not nik or len(nik) != 16 or not nik.isdigit():
         return False, None, "NIK must be 16 digits"
     
-    # Check if NIK starts with 3573 (Kota Malang code)
-    if not nik.startswith('3573'):
-        return False, None, "NIK is not from Kota Malang (must start with 3573)"
+    # Get NIK prefix (first 6 digits)
+    nik_prefix = nik[:6]
     
-    # Extract kecamatan code (digits 5-6)
-    kecamatan_code = nik[4:6]
+    # If dapil_name is provided, validate against specific dapil
+    if dapil_name:
+        dapil = Dapil.query.filter_by(name=dapil_name).first()
+        if not dapil:
+            return False, None, f"Dapil {dapil_name} not found"
+        
+        # Check if NIK prefix matches this dapil
+        import json
+        try:
+            nik_prefixes = json.loads(dapil.nik_prefixes) if dapil.nik_prefixes else []
+            if nik_prefix in nik_prefixes:
+                return True, {'name': dapil.name, 'dapil': dapil.name}, f"Valid NIK for {dapil.name}"
+            else:
+                return False, None, f"NIK is not from {dapil.name} area"
+        except json.JSONDecodeError:
+            return False, None, "Error reading dapil data"
     
-    # Mapping kecamatan code to dapil based on Kota Malang administrative divisions
-    kecamatan_dapil_mapping = {
-        '01': {'name': 'Blimbing', 'dapil': 'Dapil 1'},
-        '02': {'name': 'Klojen', 'dapil': 'Dapil 1'}, 
-        '03': {'name': 'Kedungkandang', 'dapil': 'Dapil 2'},
-        '04': {'name': 'Sukun', 'dapil': 'Dapil 2'},
-        '05': {'name': 'Lowokwaru', 'dapil': 'Dapil 3'}
-    }
+    # If no specific dapil, check all dapils to find match
+    dapils = Dapil.query.all()
+    for dapil in dapils:
+        try:
+            import json
+            nik_prefixes = json.loads(dapil.nik_prefixes) if dapil.nik_prefixes else []
+            if nik_prefix in nik_prefixes:
+                return True, {'name': dapil.name, 'dapil': dapil.name}, f"Valid NIK for {dapil.name}"
+        except json.JSONDecodeError:
+            continue
     
-    if kecamatan_code not in kecamatan_dapil_mapping:
-        return False, None, "Invalid kecamatan code in NIK"
-    
-    kecamatan_info = kecamatan_dapil_mapping[kecamatan_code]
-    return True, kecamatan_info, "Valid Malang NIK"
+    return False, None, "NIK is not from any registered dapil area"
 
 @app.route('/api/profile/verify-nik', methods=['POST'])
 def verify_nik():
@@ -703,8 +831,8 @@ def verify_nik():
         data = request.get_json()
         nik = data.get('nik')
         
-        # Validate Malang NIK
-        is_valid, kecamatan_info, message = validate_malang_nik(nik)
+        # Validate NIK using dapil data
+        is_valid, kecamatan_info, message = validate_nik_by_dapil(nik)
         
         if not is_valid:
             return jsonify({'error': message}), 400
@@ -1046,6 +1174,10 @@ def update_user(user_id):
 @admin_required
 def delete_user(user_id):
     
+    current_user = User.query.get(session['user_id'])
+    if not current_user or current_user.role != 'admin':
+        return jsonify({'error': 'Admin access required'}), 403
+    
     user_to_delete = User.query.get(user_id)
     if not user_to_delete:
         return jsonify({'error': 'User not found'}), 404
@@ -1376,6 +1508,47 @@ def get_reports():
     return jsonify({
         'reports': [report.to_dict() for report in reports]
     }), 200
+
+@app.route('/api/reports/recent', methods=['GET'])
+def get_recent_reports():
+    """Get recent reports for kepala daerah chatbot"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Check if user has kepala daerah role
+    if user.role not in ['dpr_ri', 'dprd', 'pimpinan_daerah']:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    try:
+        # Get recent reports (last 7 days, limit 10)
+        from datetime import datetime, timedelta
+        seven_days_ago = datetime.utcnow() - timedelta(days=7)
+        
+        reports = Report.query.join(User, Report.user_id == User.id)\
+            .filter(Report.created_at >= seven_days_ago)\
+            .order_by(Report.created_at.desc())\
+            .limit(10).all()
+        
+        reports_data = []
+        for report in reports:
+            report_dict = report.to_dict()
+            # Add user information
+            report_dict['user_name'] = report.user.full_name
+            report_dict['user_kecamatan'] = report.user.kecamatan
+            report_dict['user_kelurahan'] = getattr(report.user, 'kelurahan', None)
+            reports_data.append(report_dict)
+        
+        return jsonify({
+            'success': True,
+            'reports': reports_data
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/reports/<int:report_id>', methods=['GET'])
 def get_report(report_id):
@@ -1951,7 +2124,297 @@ def get_dashboard_quick_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/dapil/by-kecamatan/<kecamatan>', methods=['GET'])
+def get_dapil_by_kecamatan(kecamatan):
+    """Get dapil information by kecamatan"""
+    try:
+        # For Malang area, we know it's JAWA TIMUR VI
+        dapil = Dapil.query.filter_by(name='JAWA TIMUR VI').first()
+        if dapil:
+            return jsonify(dapil.to_dict())
+        else:
+            return jsonify({'error': 'Dapil not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/officials/by-dapil/<dapil_name>', methods=['GET'])
+def get_officials_by_dapil(dapil_name):
+    """Get all officials by dapil name"""
+    try:
+        officials = Officials.query.filter_by(electoral_district=dapil_name).all()
+        return jsonify([official.to_dict() for official in officials])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/user/dapil-info', methods=['GET'])
+def get_user_dapil_info():
+    """Get user's dapil and officials information based on their profile"""
+    try:
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        user = User.query.get(session['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Get dapil info (for Malang area, it's JAWA TIMUR VI)
+        dapil = Dapil.query.filter_by(name='JAWA TIMUR VI').first()
+        
+        # Get officials for this dapil
+        officials = Officials.query.filter_by(electoral_district='JAWA TIMUR VI').all()
+        
+        # Group officials by role
+        officials_by_role = {
+            'gubernur': [],
+            'bupati': [],
+            'walikota': [],
+            'dpri': [],
+            'dprd_provinsi': [],
+            'dprd_kota': []
+        }
+        
+        for official in officials:
+            if 'gubernur' in official.position.lower():
+                officials_by_role['gubernur'].append(official.to_dict())
+            elif 'bupati' in official.position.lower():
+                officials_by_role['bupati'].append(official.to_dict())
+            elif 'walikota' in official.position.lower():
+                officials_by_role['walikota'].append(official.to_dict())
+            elif official.role == 'dpr_ri':
+                officials_by_role['dpri'].append(official.to_dict())
+            elif official.role == 'dprd' and 'provinsi' in official.position.lower():
+                officials_by_role['dprd_provinsi'].append(official.to_dict())
+            elif official.role == 'dprd' and ('kota' in official.position.lower() or 'kabupaten' in official.position.lower()):
+                officials_by_role['dprd_kota'].append(official.to_dict())
+        
+        return jsonify({
+            'user': user.to_dict(),
+            'dapil': dapil.to_dict() if dapil else None,
+            'officials': officials_by_role
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Check official status and get profile
+@app.route('/api/officials/check-status/<official_name>', methods=['GET'])
+def check_official_status(official_name):
+    try:
+        # Search for official by name (case insensitive)
+        official = Officials.query.filter(
+            Officials.name.ilike(f'%{official_name}%')
+        ).first()
+        
+        if not official:
+            return jsonify({
+                'success': False,
+                'found': False,
+                'message': f'Pejabat dengan nama {official_name} tidak ditemukan'
+            })
+        
+        return jsonify({
+            'success': True,
+            'found': True,
+            'official': official.to_dict(),
+            'status_smartpol': official.status_smartpol
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Get all officials with smartpol status
+@app.route('/api/officials/smartpol-members', methods=['GET'])
+def get_smartpol_members():
+    try:
+        # Get all officials who joined smartpol
+        officials = Officials.query.filter_by(status_smartpol=True).all()
+        
+        return jsonify({
+            'success': True,
+            'officials': [official.to_dict() for official in officials],
+            'count': len(officials)
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # Create tables
+# Aspirasi Warga Endpoints
+@app.route('/api/aspirasi', methods=['POST'])
+def submit_aspirasi():
+    try:
+        if 'user_id' not in session:
+            return jsonify({'error': 'User not authenticated'}), 401
+        
+        data = request.get_json()
+        if not data or 'category' not in data or 'subcategory' not in data:
+            return jsonify({'error': 'Category and subcategory are required'}), 400
+        
+        user = User.query.get(session['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        aspirasi = AspirasiWarga(
+            user_id=session['user_id'],
+            category=data['category'],
+            subcategory=data['subcategory'],
+            kecamatan=user.kecamatan,
+            dapil=user.dapil,
+            session_id=data.get('session_id')
+        )
+        
+        db.session.add(aspirasi)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Aspirasi submitted successfully',
+            'aspirasi': aspirasi.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/aspirasi/stats', methods=['GET'])
+def get_aspirasi_stats():
+    try:
+        # Get aspirasi statistics by category
+        stats = db.session.query(
+            AspirasiWarga.category,
+            db.func.count(AspirasiWarga.id).label('count')
+        ).group_by(AspirasiWarga.category).all()
+        
+        # Get aspirasi by kecamatan for map visualization
+        kecamatan_stats = db.session.query(
+            AspirasiWarga.kecamatan,
+            db.func.count(AspirasiWarga.id).label('count')
+        ).filter(AspirasiWarga.kecamatan.isnot(None)).group_by(AspirasiWarga.kecamatan).all()
+        
+        return jsonify({
+            'category_stats': [{'category': stat.category, 'count': stat.count} for stat in stats],
+            'kecamatan_stats': [{'kecamatan': stat.kecamatan, 'count': stat.count} for stat in kecamatan_stats]
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Polling Publik Endpoints
+@app.route('/api/polling-publik', methods=['POST'])
+def submit_polling_publik():
+    try:
+        if 'user_id' not in session:
+            return jsonify({'error': 'User not authenticated'}), 401
+        
+        data = request.get_json()
+        if not data or 'question_id' not in data or 'answer' not in data:
+            return jsonify({'error': 'Question ID and answer are required'}), 400
+        
+        user = User.query.get(session['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Check if user already answered this question
+        existing = PollingPublik.query.filter_by(
+            user_id=session['user_id'],
+            question_id=data['question_id']
+        ).first()
+        
+        if existing:
+            return jsonify({'error': 'You have already answered this question'}), 400
+        
+        polling = PollingPublik(
+            user_id=session['user_id'],
+            question_id=data['question_id'],
+            answer=data['answer'],
+            kecamatan=user.kecamatan,
+            dapil=user.dapil,
+            session_id=data.get('session_id')
+        )
+        
+        db.session.add(polling)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Polling response submitted successfully',
+            'polling': polling.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/polling-publik/stats', methods=['GET'])
+def get_polling_publik_stats():
+    try:
+        # Get polling statistics by question and answer
+        question_1_stats = db.session.query(
+            PollingPublik.answer,
+            db.func.count(PollingPublik.id).label('count')
+        ).filter(PollingPublik.question_id == 1).group_by(PollingPublik.answer).all()
+        
+        question_2_stats = db.session.query(
+            PollingPublik.answer,
+            db.func.count(PollingPublik.id).label('count')
+        ).filter(PollingPublik.question_id == 2).group_by(PollingPublik.answer).all()
+        
+        # Get polling by kecamatan for map visualization
+        kecamatan_stats = db.session.query(
+            PollingPublik.kecamatan,
+            db.func.count(PollingPublik.id).label('count')
+        ).filter(PollingPublik.kecamatan.isnot(None)).group_by(PollingPublik.kecamatan).all()
+        
+        return jsonify({
+            'question_1_stats': [{'answer': stat.answer, 'count': stat.count} for stat in question_1_stats],
+            'question_2_stats': [{'answer': stat.answer, 'count': stat.count} for stat in question_2_stats],
+            'kecamatan_stats': [{'kecamatan': stat.kecamatan, 'count': stat.count} for stat in kecamatan_stats]
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Event Pendidikan Politik Endpoints
+@app.route('/api/events', methods=['GET'])
+def get_events():
+    try:
+        events = EventPendidikanPolitik.query.filter_by(is_active=True).order_by(EventPendidikanPolitik.event_date.asc()).all()
+        return jsonify({
+            'events': [event.to_dict() for event in events]
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/events', methods=['POST'])
+@admin_required
+def create_event():
+    try:
+        data = request.get_json()
+        required_fields = ['title', 'event_date', 'location', 'organizer']
+        
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'{field} is required'}), 400
+        
+        event = EventPendidikanPolitik(
+            title=data['title'],
+            description=data.get('description'),
+            event_date=datetime.fromisoformat(data['event_date'].replace('Z', '+00:00')),
+            location=data['location'],
+            organizer=data['organizer'],
+            registration_link=data.get('registration_link')
+        )
+        
+        db.session.add(event)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Event created successfully',
+            'event': event.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/test/create-admin', methods=['POST'])
 def create_test_admin():
     try:
@@ -1979,6 +2442,37 @@ def create_test_admin():
 
 with app.app_context():
     db.create_all()
+    
+    # Add sample events for political education
+    if EventPendidikanPolitik.query.count() == 0:
+        sample_events = [
+            EventPendidikanPolitik(
+                title="WEBINAR : PENDIDIKAN PEMILIH UNTUK GENERASI MUDA PERKOTAAN",
+                description="Webinar tentang pentingnya pendidikan pemilih untuk generasi muda di perkotaan",
+                event_date=datetime(2025, 12, 25, 10, 0),
+                location="Online via Zoom",
+                organizer="FISIP UB",
+                registration_link="https://fisip.ub.ac.id/webinar-pendidikan-pemilih"
+            ),
+            EventPendidikanPolitik(
+                title="Seminar Nasional Tema: UU Pemilu, kini dan nanti",
+                description="Seminar nasional membahas perkembangan UU Pemilu dari masa ke masa",
+                event_date=datetime(2025, 12, 30, 9, 0),
+                location="Widyaloka Universitas Brawijaya Malang",
+                organizer="Universitas Brawijaya",
+                registration_link="https://ub.ac.id/seminar-uu-pemilu"
+            )
+        ]
+        
+        for event in sample_events:
+            db.session.add(event)
+        
+        try:
+            db.session.commit()
+            print("Sample events added successfully")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error adding sample events: {e}")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

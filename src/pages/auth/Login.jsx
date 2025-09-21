@@ -37,21 +37,29 @@ const Login = () => {
       const response = await authAPI.login(loginData);
       
       // Validasi role yang diizinkan untuk login standar
-      const allowedRoles = ['konsituen', 'dpri', 'dprd', 'pimpinan_daerah'];
+      const allowedRoles = ['konsituen', 'dpr_ri', 'dprd', 'pimpinan_daerah'];
       const userRole = response.user.role;
       
       if (!allowedRoles.includes(userRole)) {
         // Logout user jika role tidak diizinkan
         await authAPI.logout();
-        message.error('Akses ditolak. Hanya pengguna dengan peran Konsituen, DPRI/DPRD, atau Pimpinan Daerah yang dapat mengakses halaman ini.');
+        message.error('Akses ditolak. Hanya pengguna dengan peran Konsituen, DPR RI/DPRD, atau Pimpinan Daerah yang dapat mengakses halaman ini.');
         return;
       }
       
       message.success('Login berhasil!');
       console.log('User logged in:', response.user);
       
-      // Redirect ke halaman home setelah login berhasil
-      navigate('/');
+      // Redirect berdasarkan role user
+      const kepalaDaerahRoles = ['dpr_ri', 'dprd', 'pimpinan_daerah'];
+      
+      if (kepalaDaerahRoles.includes(userRole)) {
+        // Redirect ke halaman khusus kepala daerah
+        navigate('/kepala-daerah/');
+      } else {
+        // Redirect ke halaman home untuk konsituen
+        navigate('/');
+      }
       
     } catch (error) {
       console.error('Login error:', error);

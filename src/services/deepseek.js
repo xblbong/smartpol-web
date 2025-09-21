@@ -79,7 +79,7 @@ Selalu ingat: Kamu adalah jembatan antara teknologi dan demokrasi, hadir untuk m
 
 // DeepSeek service functions
 export const deepseekService = {
-  // Send message to DeepSeek API with Pico persona
+  // Send message to DeepSeek API with conversation history
   sendMessage: async (message, conversationHistory = [], userContext = null) => {
     try {
       // Create personalized system prompt with user context
@@ -137,6 +137,113 @@ export const deepseekService = {
       return {
         success: false,
         message: 'Maaf, saya sedang mengalami gangguan teknis. Silakan coba lagi dalam beberapa saat.',
+        error: error.message
+      };
+    }
+  },
+
+  // Send message as official persona
+  sendOfficialMessage: async (message, conversationHistory = [], userContext = null, officialContext = null) => {
+    try {
+      // Create official system prompt
+      const officialSystemPrompt = `Kamu adalah ${officialContext.name}, ${officialContext.position}${officialContext.party ? ` dari ${officialContext.party}` : ''}.
+
+PROFIL LENGKAP:
+- Nama: ${officialContext.name}
+- Jabatan: ${officialContext.position}
+- Partai: ${officialContext.party || 'Tidak ada'}
+- Tempat Lahir: ${officialContext.birth_place || 'Tidak diketahui'}
+- Tanggal Lahir: ${officialContext.birth_date || 'Tidak diketahui'}
+- Pendidikan: ${officialContext.education || 'Tidak diketahui'}
+- Komisi: ${officialContext.commission || 'Tidak diketahui'}
+- Fokus Komisi: ${officialContext.commission_focus || 'Tidak diketahui'}
+- Dapil: ${officialContext.dapil || 'Tidak diketahui'}
+- Bio: ${officialContext.bio || 'Tidak ada informasi bio'}
+
+KEPRIBADIAN DAN GAYA KOMUNIKASI:
+- Gunakan bahasa Indonesia yang sopan, hangat, dan mudah dipahami
+- Berbicara sebagai pejabat yang peduli dan responsif terhadap aspirasi rakyat
+- Berikan informasi yang akurat berdasarkan data dan kebijakan terbuka
+- Tunjukkan empati dan komitmen untuk membantu warga
+- Gunakan pengalaman dan keahlian sesuai bidang komisi/jabatan
+- Selalu profesional namun tetap ramah dan mudah didekati
+
+TUGAS UTAMA:
+1. Merespons aspirasi dan pertanyaan warga dengan informatif
+2. Memberikan penjelasan tentang kebijakan dan program pemerintah
+3. Mendengarkan keluhan dan masukan dari konstituen
+4. Memberikan data dan informasi yang akurat dari sumber resmi
+5. Menunjukkan komitmen untuk memperjuangkan kepentingan rakyat
+
+SUMBER INFORMASI YANG DAPAT DIRUJUK:
+- Profil Anggota Legislatif, Gubernur/Bupati/Walikota
+- BPS RI (data statistik resmi)
+- PODES (Potensi Desa)
+- Humas DPR RI/Provinsi/Kota/Kabupaten
+- Media Online terpercaya (Kompas, Detik, Tempo, Jawa Pos/Tribun, Medcom, Antara, Republika)
+
+GAYA RESPONS:
+- Awali dengan sapaan hangat yang mencerminkan kepribadian pejabat
+- Gunakan data konkret dan spesifik jika membahas anggaran atau program
+- Akhiri dengan komitmen untuk terus melayani dan membantu
+- Hindari janji politik yang tidak realistis
+- Tetap faktual dan berdasarkan data resmi
+
+Contoh format respons untuk pertanyaan anggaran:
+"Baik [nama warga], saya akan jelaskan... Total anggaran [sektor] di [tahun]: Rp [jumlah]. Ini adalah [persentase]% dari total belanja negara... [detail alokasi dan program]..."
+
+Selalu ingat: Kamu adalah wakil rakyat yang berkomitmen melayani dengan integritas dan transparansi.`;
+
+      // Prepare messages for API
+      const messages = [
+        {
+          role: 'system',
+          content: officialSystemPrompt
+        }
+      ];
+
+      // Add conversation history
+      if (conversationHistory && conversationHistory.length > 0) {
+        conversationHistory.forEach(msg => {
+          messages.push({
+            role: msg.role,
+            content: msg.content
+          });
+        });
+      }
+
+      // Add user context if available
+      let contextualMessage = message;
+      if (userContext) {
+        contextualMessage = `[Konteks Warga: Nama: ${userContext.name}, Kecamatan: ${userContext.kecamatan}, Dapil: ${userContext.dapil}]\n\n${message}`;
+      }
+
+      messages.push({
+        role: 'user',
+        content: contextualMessage
+      });
+
+      const response = await deepseekClient.post('/chat/completions', {
+        model: 'deepseek-chat',
+        messages: messages,
+        max_tokens: 1000,
+        temperature: 0.7,
+        top_p: 0.9
+      });
+
+      if (response.data && response.data.choices && response.data.choices.length > 0) {
+        return {
+          success: true,
+          message: response.data.choices[0].message.content
+        };
+      } else {
+        throw new Error('No response from DeepSeek API');
+      }
+    } catch (error) {
+      console.error('DeepSeek Official API error:', error);
+      return {
+        success: false,
+        message: `Maaf, saya sedang mengalami kendala teknis. Sebagai ${officialContext?.name || 'pejabat'}, saya berkomitmen untuk segera merespons aspirasi Anda. Silakan coba lagi dalam beberapa saat.`,
         error: error.message
       };
     }
@@ -235,10 +342,11 @@ export const deepseekService = {
 };
 
 // Export service functions
-const { sendMessage, generateSummary, analyzeForPolling } = deepseekService;
+const { sendMessage, sendOfficialMessage, generateSummary, analyzeForPolling } = deepseekService;
 
 export const deepseekAPI = {
   sendMessage,
+  sendOfficialMessage,
   generateSummary,
   analyzeForPolling
 };

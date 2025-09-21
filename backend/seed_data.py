@@ -479,6 +479,54 @@ def seed_events_data():
         db.session.commit()
         print("✅ All Events data seeded successfully")
 
+def seed_constituent_users():
+    """Membuat user konstituen untuk testing"""
+    with app.app_context():
+        # User 1: Konstituen dengan NIK valid sesuai dapil
+        existing_user1 = User.query.filter_by(username='konstituen1').first()
+        if not existing_user1:
+            user1 = User(
+                username='konstituen1',
+                full_name='Ahmad Rizki Pratama',
+                email='ahmad.rizki@example.com',
+                role='konsituen',
+                description='Warga Kota Malang',
+                nik='3573011508900001',  # NIK valid untuk Kecamatan Klojen, Kota Malang
+                nik_verified=True,  # Sudah terverifikasi karena NIK valid
+                kecamatan='Klojen',  # Sesuai dengan prefix NIK 357301
+                dapil='JAWA TIMUR VI',  # Dapil yang sesuai
+                is_active=True
+            )
+            user1.set_password('password123')
+            db.session.add(user1)
+            print("✅ Konstituen user 1 (dengan NIK valid) created")
+        else:
+            print("✅ Konstituen user 1 already exists")
+        
+        # User 2: Konstituen dengan NIK kosong
+        existing_user2 = User.query.filter_by(username='konstituen2').first()
+        if not existing_user2:
+            user2 = User(
+                username='konstituen2',
+                full_name='Siti Nurhaliza',
+                email='siti.nurhaliza@example.com',
+                role='konsituen',
+                description='Warga Kota Malang',
+                nik=None,  # NIK kosong
+                nik_verified=False,
+                kecamatan=None,
+                dapil=None,
+                is_active=True
+            )
+            user2.set_password('password123')
+            db.session.add(user2)
+            print("✅ Konstituen user 2 (tanpa NIK) created")
+        else:
+            print("✅ Konstituen user 2 already exists")
+        
+        db.session.commit()
+        print("✅ All Constituent users seeded successfully")
+
 def run_all_seeds():
     """Menjalankan semua seeding data"""
     print("🚀 Starting SmartPol Database Seeding...\n")
@@ -510,9 +558,15 @@ def run_all_seeds():
             seed_events_data()
             print()
             
+            # 6. Seed Constituent users
+            print("6️⃣ Seeding Constituent users...")
+            seed_constituent_users()
+            print()
+            
             print("🎉 All seeding completed successfully!")
             print("📋 Summary:")
             print(f"   - Admin users: {User.query.filter_by(role='admin').count()}")
+            print(f"   - Constituent users: {User.query.filter_by(role='konsituen').count()}")
             print(f"   - Dapil: {Dapil.query.count()}")
             print(f"   - Officials: {Officials.query.count()}")
             print(f"   - Polling: {Polling.query.count()}")

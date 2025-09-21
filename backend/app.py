@@ -1281,13 +1281,12 @@ def get_chat_history():
     
     user_id = session['user_id']
     
-    # Check if user has verified NIK
+    # Check if user exists
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
         
-    if not user.nik_verified:
-        return jsonify({'error': 'NIK verification required to access chat'}), 400
+    # Removed NIK verification requirement - PICO users can now access chat without verification
     session_id = request.args.get('session_id')
     
     query = ChatHistory.query.filter_by(user_id=user_id)
@@ -1307,13 +1306,12 @@ def save_chat_message():
     
     user_id = session['user_id']
     
-    # Check if user has verified NIK
+    # Check if user exists
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
         
-    if not user.nik_verified:
-        return jsonify({'error': 'NIK verification required to access chat'}), 400
+    # Removed NIK verification requirement - PICO users can now save chat messages without verification
     
     data = request.get_json()
     if not data or 'message' not in data or 'is_user' not in data:

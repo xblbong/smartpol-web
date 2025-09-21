@@ -482,7 +482,7 @@ const Settings = () => {
                       loading={loading}
                       size="large"
                       disabled={!hasChanges || Object.keys(validationErrors).length > 0}
-                      style={{backgroundColor: '#01077A', borderColor: '#01077A'}}
+                      style={{backgroundColor: '#01077A', color: '#fff', borderColor: '#01077A'}}
                       icon={<CheckCircleOutlined />}
                     >
                       Perbarui Profil

@@ -62,11 +62,11 @@ const App = () => {
           <KepalaDaerahChatbot />
         </ProtectedRoute>
       } />
-      {/* <Route path="/smartpol-flow" element={
+      <Route path="/smartpol-flow" element={
         <ProtectedRoute>
           <SmartpolFlow />
         </ProtectedRoute>
-      } /> */}
+      } />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/admin-login" element={<AdminLogin />} />

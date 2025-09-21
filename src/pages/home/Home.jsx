@@ -1,3 +1,4 @@
+// Home.js
 import React, { useState } from "react";
 import AppSidebar from "../../components/layouts/AppSidebar";
 import PromptInput from "../../components/layouts/PromptInput";
@@ -32,17 +33,7 @@ function Home() {
 
   return (
     <div className="flex h-screen bg-gray-50 ">
-      <AppSidebar 
-        isOpen={isSidebarOpen} 
-        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-        chatHistory={
-          <ChatHistory 
-            onSelectSession={handleSelectSession}
-            onNewChat={handleNewChat}
-            currentSessionId={currentSessionId}
-          />
-        }
-      />
+       <AppSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
       <div className="flex-1 flex flex-col" style={chatBackground}>
         {/* Animated Background Elements - Enhanced */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -110,7 +101,8 @@ function Home() {
         </div>
         
         {/* Mobile Header with Hamburger */}
-        <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b animate-fade-in-down relative z-10" style={{borderBottomColor: '#01077A'}}>
+        {/* Tambahkan z-index yang lebih rendah dari overlay sidebar atau hapus z-index dari sini */}
+        <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b relative z-30" style={{borderBottomColor: '#01077A'}}> 
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="p-2 rounded-md hover:bg-gray-100 transition-all duration-300 hover:scale-110 hover:animate-pulse"
@@ -121,7 +113,8 @@ function Home() {
           <div className="w-10"></div> {/* Spacer for centering */}
         </div>
         {/* Header Chat */}
-        <div className="bg-white border-b px-6 py-4 shadow-sm animate-fade-in-down relative z-10" style={{borderBottomColor: '#FAC62A', borderBottomWidth: '3px', animationDelay: '0.1s'}}>
+        {/* Tambahkan z-index yang lebih rendah dari overlay sidebar atau hapus z-index dari sini */}
+        <div className="bg-white border-b px-6 py-4 shadow-sm relative z-20" style={{borderBottomColor: '#FAC62A', borderBottomWidth: '3px', animationDelay: '0.1s'}}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center relative hover:animate-pulse transition-all duration-300 hover:scale-110" style={{backgroundColor: '#01077A'}}>
               <Image
